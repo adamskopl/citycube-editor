@@ -43,7 +43,7 @@
      centralWidget->setLayout(centralLayout);
      setLayout(centralLayout);
 
-     setWindowTitle(tr("Lucid Beaver"));
+     setWindowTitle(tr("World Editor"));
      //resize(800, 600);
 
     designWidget->update();

@@ -10,10 +10,11 @@ DesignWidget::DesignWidget(QTextEdit *reportWidget, QWidget *parent)
     resize(QSize(1000,1000));
     setBackgroundRole(QPalette::Base);
 
-    pen = QPen(Qt::green, 1);
+    pen = QPen(Qt::black, 1);
     //brush = QBrush(Qt::green);
 
     setVariables();
+    setMouseTracking(true);
 }
 
 void DesignWidget::setVariables()
@@ -33,13 +34,16 @@ void DesignWidget::paintEvent(QPaintEvent *)
 
 void DesignWidget::drawGrid(QPainter *painter)
 {
-    for(int cnt = 0; cnt <= size; cnt += gridSize)
-    {
-        //vertical line
-        painter -> drawLine(cnt, 0, cnt, size-1);
-        //horizontal line
-        painter -> drawLine(0, cnt, size-1, cnt);
-    }
+    for(int x = 0; x <= size; x += gridSize)
+        for(int y = 0; y <= size; y += gridSize)
+        {
+        if(mouseX - x <= 5 && mouseY - y <=5
+           && mouseX - x >= -4 && mouseY -y >= -4)
+        {
+            painter->drawRect(QRect(x-5, y-5, 10, 10));
+        }
+            painter->drawPoint(x, y);
+        }
 }
 
 void DesignWidget::mousePressEvent(QMouseEvent *event)
@@ -49,3 +53,11 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
     reportWidget -> setText("clicked on: ("+QString::number(x)+", "+QString::number(y)+")");
 }
 
+void DesignWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    mouseX = event->pos().x();
+    mouseY = event->pos().y();
+
+    //update needed on every mouse motion (shape's highliting etc.)
+    update();
+}

@@ -21,6 +21,7 @@ class QTextEdit;
       void drawGrid(QPainter *painter);
       void setVariables();       
       void mousePressEvent(QMouseEvent *event);
+      void mouseMoveEvent(QMouseEvent *);
 
       QTextEdit *reportWidget;
       QPen pen;
@@ -30,6 +31,8 @@ class QTextEdit;
       float size;
       float gridSize;
       float clickedPos;
+
+      float mouseX, mouseY;
 
 
   };
