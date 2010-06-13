@@ -37,7 +37,7 @@ class LField;
       void paintEvent(QPaintEvent *event);
 
   private:
-      STATE *appState;
+
       void mousePressEvent(QMouseEvent *event);
       void mouseMoveEvent(QMouseEvent *);
       void mouseReleaseEvent(QMouseEvent *);
@@ -98,10 +98,10 @@ class LField;
 
 
       //LObject *worldList;
-      LObject *floorsTree;
-      LField *actualFloor;
-      LObject *cameraKid; //object spied by camera
-      int *floorsAmount;
+      //LObject *floorsTree;
+      //LField *actualFloor;
+      //LObject *cameraKid; //object spied by camera
+      //int *floorsAmount;
 
       globalContainer *GC;
 
@@ -112,11 +112,13 @@ class LField;
       LField *chosenField;
 
       void removeField(LField *);
+
+      void drawFloor(LBFloor *);
+      void drawField(LField *);
+
       //int pointedFieldID;
       //int chosenFieldID;
 
-      //interface
-      QComboBox *floorsComboBox;
   };
 
 #endif // PAINTWIDGET_H

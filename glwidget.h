@@ -32,7 +32,7 @@ private:
     LCamera *gameCamera;
     LWorld *gameWorld;
 
-    LObject *cameraKid;
+    //LObject *cameraKid;
 
    public:    
 
@@ -41,8 +41,7 @@ private:
 
     QColor trolltechPurple;
 
-    LObject *floorsTree;
-    LField *actualFloor;
+    globalContainer *GC;
 
 private slots:
     void updateScene();

@@ -16,11 +16,11 @@ PreviewWidget::PreviewWidget(globalContainer *globals, QWidget *parent)
 
     clock -> start();
 
-    cameraKid = new LObject();
+    //cameraKid = new LObject();
 
     //center of the map (at the beginning)
 
-    cameraKid = globals -> cameraKid;
+    //cameraKid = globals -> cameraKid;
     //cameraKid -> position = LVector(500.0f, 0.0f, 500.0f);
     //cameraKid -> direction = -45.0f;
 
@@ -31,8 +31,9 @@ PreviewWidget::PreviewWidget(globalContainer *globals, QWidget *parent)
     timer->start(10);
     trolltechPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
 
-    floorsTree = globals -> floorsTree;
-    actualFloor = globals -> actualFloor;
+    //floorsTree = globals -> floorsTree;
+    //actualFloor = globals -> actualFloor;
+    GC = globals;
 }
 
 PreviewWidget::~PreviewWidget()
