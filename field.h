@@ -2,12 +2,11 @@
 #define __EFIELD_H
 
 #include "camera.h"
-
 #include "md2.h"
+#include "node.h"
+#include "vector.h"
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
+#include <stdio.h>
 /*
   fields are defined in this way :  
 
@@ -45,7 +44,7 @@
                         |
                  _______|
 
- */
+*/
 
 #define CCCC 0x0000  
 #define CCCW 0x0001  
@@ -70,49 +69,60 @@
 #define F_L  0x0001
 
 
+
 typedef struct{
   float x, z;
 }vector_xz;
 
 
-
-
-typedef struct{
-  CVector a, b, c, d;
-}CORNERS;
-
 //FINISH DISTANCE AND CLEAN UP
-// real mess ... Corners, vector_xz, CVector ...
+// real mess ... Corners, vector_xz, LVector ...
 
-class EField : public CNode{
+class LField : public LObject{
  public:
   char kind; //field's code (XXXX system)
-  //  char x, y; //coordinations
- private:
 
-  vector_xz Corners[4];
-  vector_xz CornersN[4]; //UnitNormals
+
+  //CHANGE NAME, or code - conflict with cornersN
+  vector_xz CornersN[4]; //UnitNormals (for DISTANCE)
   float distance; //heroe's distance 
-  
+
   bool empty;
 
   //section with connections - pointers on other fields
-  EField* conn_up;
-  EField* conn_right;
-  EField* conn_down;
-  EField* conn_left;
+  LField* conn_up;
+  LField* conn_right;
+  LField* conn_down;
+  LField* conn_left;
+
+
+
   bool walls; //walls or not ?
   
  public:
-  CORNERS corners;
+  LVector corners[4];
 
+  //vector from cornerA to cornerB is vectorA
+  //vector from cornerC to cornerD is vectorC ...
+  LVector vectors[4];
 
-  int index; //index of the field, to save
-  int up, right, down, left; //to save in file (we can't save pointers)
+  //normals for every corner
+  LVector cornersN[4];
 
+  //every vector has its own connection pointer (on other field's wall)
+  LField* connections[4];
+
+  LVector centerPoint;
   
-  EField(char KIND, CORNERS*);
-  EField();
+  int up, right, down, left; //needed to loading levels
+
+  LField(char KIND, LVector*);
+  LField();
+  ~LField();
+
+  bool isPointIn(LVector point);
+
+  void calculateVectorsAndNormals();
 
   float GiveHorizontalDistance(float X, float Z);
   float GiveVerticalDistance(float X, float Z);    
@@ -122,34 +132,41 @@ class EField : public CNode{
   void heroEnters(void);
   void heroLeaves(void);
   
-  void Draw();
-  void OnDraw();
+  void othersDraw();
+  void selfDraw();
 
   void DrawMini();
   void OnDrawMini();
   
   char Passage(char);
 
-  void ConnectUp(EField *connection, char);
-  void ConnectRight(EField *connection, char);
-  void ConnectDown(EField *connection, char);
-  void ConnectLeft(EField *connection,char);  
+  void ConnectUp(LField *connection, char);
+  void ConnectRight(LField *connection, char);
+  void ConnectDown(LField *connection, char);
+  void ConnectLeft(LField *connection,char);  
 
-  void Disconnect(char);//destroy connection
+  void ConnectUp(LField *connection);
+  void ConnectRight(LField *connection);
+  void ConnectDown(LField *connection);
+  void ConnectLeft(LField *connection);  
   
   //return connected field
-  EField* giveUp(void);
-  EField* giveRight(void);
-  EField* giveDown(void);
-  EField* giveLeft(void);  
+  LField* giveUp(void);
+  LField* giveRight(void);
+  LField* giveDown(void);
+  LField* giveLeft(void);  
+
+  bool connectionExists(LField *connection);
+  bool connectTo(LField *connection);
+
+  void remove ();
+
+  float height; //height of floor to which field is assigned
+
+  //needes for floors - to draw or not to draw
+  bool render;
+  bool draw;
   
 };
-
-
-
-
-
-
-
 
 #endif

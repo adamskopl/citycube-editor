@@ -1,38 +1,85 @@
 #include "field.h"
 
-EField::EField(){}
-
-EField::EField(char KIND,CORNERS *C): kind(KIND)
+LField::LField()
 {
+    draw = true;
+    render = true;
+}
+
+LField::~LField(){}
+
+LField::LField(char KIND, LVector *C): kind(KIND)
+{
+    draw = true;
+    render = true;
+
   //no connections at the beginning ...
+
   conn_up = NULL;
   conn_right = NULL;
   conn_down = NULL;
   conn_left = NULL;
 
-
-  up = 0;
-  right = 0;
-  down = 0;
-  left = 0;
-  
   empty = true;
-  corners = *C;
 
+  corners[0] = C[0];
+  corners[1] = C[1];
+  corners[2] = C[2];
+  corners[3] = C[3];
 
+  calculateVectorsAndNormals();
+
+  //////////////////////////////////////////////////////////////////////////
+  //checking if field was defined with corners in clockwise order
+  //choose point that is in center of field.
+
+  if(corners[0].x > corners[2].x)
+      centerPoint.x = corners[0].x - (corners[0].x - corners[2].x)/2;
+  else
+      centerPoint.x = corners[2].x - (corners[2].x - corners[0].x)/2;
+
+  centerPoint.y = height;
+
+  if(corners[1].z > corners[3].z)
+      centerPoint.z = corners[1].z - (corners[1].z - corners[3].z)/2;
+  else
+      centerPoint.z = corners[3].z - (corners[3].z - corners[1].z)/2;
+
+  //and check if it really is in field
+  if( ! isPointIn(centerPoint) )
+  {      
+/*
+      change corners order and recalculate vectors and normals
+
+        D----C       B----C
+        |    |  -->  |    |
+        A----B       A----D
+*/
+
+    LVector help = corners[1];
+    corners[1] = corners[3];
+    corners[3] = help;
+
+    calculateVectorsAndNormals();
+  }
+  //////////////////////////////////////////////////////////////////////////
+
+  connections[0] = connections[1] = connections[2] = connections[3] = NULL;
+
+  //FOR COUNTING DISTANCE PART
   float dx, dz, length;
   //   calculating normals ...
   //up
-  dz = C -> a.z - C -> b.z;
-  dx = C -> b.x - C -> a.x;
+  dz = C[0].z - C[1].z;
+  dx = C[1].x - C[0].x;
   length = sqrt(dz*dz + dx*dx);
   CornersN[0].x = dz / length;
   CornersN[0].z = dx / length;
   /*  printf("UP : length : %f, Nx : %f, Nz: %f \n",
       length, CornersN[0].x, CornersN[0].z);*/
   //right
-  dz = C -> b.z - C -> c.z;
-  dx = C -> c.x - C -> b.x;
+  dz = C[1].z - C[2].z;
+  dx = C[2].x - C[1].x;
   length = sqrt(dz*dz + dx*dx);
   CornersN[1].x = dz / length;
   CornersN[1].z = dx / length;
@@ -40,8 +87,8 @@ EField::EField(char KIND,CORNERS *C): kind(KIND)
       length, CornersN[1].x, CornersN[1].z);*/
 
   //down
-  dz = C -> c.z - C -> d.z;
-  dx = C -> d.x - C -> c.x;
+  dz = C[2].z - C[3].z;
+  dx = C[3].x - C[2].x;
   length = sqrt(dz*dz + dx*dx);
   CornersN[2].x = dz / length;
   CornersN[2].z = dx / length;
@@ -49,8 +96,8 @@ EField::EField(char KIND,CORNERS *C): kind(KIND)
       length, CornersN[2].x, CornersN[2].z);*/
 
   //left
-  dz = C -> d.z - C -> a.z;
-  dx = C -> a.x - C -> d.x;
+  dz = C[3].z - C[1].z;
+  dx = C[1].x - C[3].x;
   length = sqrt(dz*dz + dx*dx);
   CornersN[3].x = dz / length;
   CornersN[3].z = dx / length;
@@ -60,52 +107,73 @@ EField::EField(char KIND,CORNERS *C): kind(KIND)
   
 }
 
-char EField::giveKind(){return kind;}
-void EField::setKind(char KIND){kind = KIND;}
 
-//char EField::giveX(){return x;}
-//char EField::giveY(){return y;}
+void LField::calculateVectorsAndNormals()
+{
+    //needed to calculate normals and maybe for other things in future
+    vectors[0] = LVector(corners[1].x - corners[0].x, 0.0f, corners[1].z - corners[0].z);
+    vectors[1] = LVector(corners[2].x - corners[1].x, 0.0f, corners[2].z - corners[1].z);
+    vectors[2] = LVector(corners[3].x - corners[2].x, 0.0f, corners[3].z - corners[2].z);
+    vectors[3] = LVector(corners[0].x - corners[3].x, 0.0f, corners[0].z - corners[3].z);
 
-void EField::Draw(){
+    //calculating normals - vector multiply of vector.x and vector(0.0f, 1.0f, 0.0f)
+    LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
+    cornersN[0] = vectors[0]^multiplied; cornersN[0].normalize();
+    cornersN[1] = vectors[1]^multiplied; cornersN[1].normalize();
+    cornersN[2] = vectors[2]^multiplied; cornersN[2].normalize();
+    cornersN[3] = vectors[3]^multiplied; cornersN[3].normalize();
+}
+
+char LField::giveKind(){return kind;}
+void LField::setKind(char KIND){kind = KIND;}
+
+//char LField::giveX(){return x;}
+//char LField::giveY(){return y;}
+
+/*void LField::othersDraw(){
+
 
   glPushMatrix();
-  OnDraw();
-  if (HasChild())
-    ((EField*)childNode)->Draw();
+  selfDraw();
+  if (hasChild()){
+    ((LField*)child)->othersDraw();
+
+  }    
   glPopMatrix();
   
   
-  if (HasParent() && !IsLastChild())
-    ((EField*)nextNode)->Draw();
+  if (hasParent() && !isLast())
+    ((LField*)next)->othersDraw();
 
-}
+}*/
 
-void EField::OnDraw(){
+void LField::selfDraw(){
+
   glPushMatrix();
 
   if(empty)
     glColor4f(0.0,0.0,0.0,1.0);
     //    glColor4f(0.85, 0.2, 0.0, 1.0);
   else
-    glColor4f(0.0,0.0,0.0,1.0);
+    glColor4f(1.0,0.0,0.0,1.0);
     //    glColor4f(0.2,0.2,0.2,1.0);    
-    vector_t vertex[4];
-      
-      vertex[0].point[0] = corners.a.x;
-      vertex[0].point[1] = corners.a.y;
-      vertex[0].point[2] = corners.a.z;
+    triangle vertex[4];
 
-      vertex[1].point[0] = corners.b.x;
-      vertex[1].point[1] = corners.b.y;
-      vertex[1].point[2] = corners.b.z;
+      vertex[0].point[0] = corners[0].x;
+      vertex[0].point[1] = corners[0].y;
+      vertex[0].point[2] = corners[0].z;
 
-      vertex[2].point[0] = corners.c.x;
-      vertex[2].point[1] = corners.c.y;
-      vertex[2].point[2] = corners.c.z;
+      vertex[1].point[0] = corners[1].x;
+      vertex[1].point[1] = corners[1].y;
+      vertex[1].point[2] = corners[1].z;
 
-      vertex[3].point[0] = corners.d.x;
-      vertex[3].point[1] = corners.d.y;
-      vertex[3].point[2] = corners.d.z;
+      vertex[2].point[0] = corners[2].x;
+      vertex[2].point[1] = corners[2].y;
+      vertex[2].point[2] = corners[2].z;
+
+      vertex[3].point[0] = corners[3].x;
+      vertex[3].point[1] = corners[3].y;
+      vertex[3].point[2] = corners[3].z;
 
       glBegin(GL_QUADS);
       {
@@ -120,17 +188,47 @@ void EField::OnDraw(){
 
       glBegin(GL_QUADS);
       glShadeModel(GL_SMOOTH);
+
+      for(int cnt = 0; cnt < 4; cnt++)
+      {  
+          if( connections[cnt] )
+              continue;
+
+          int p1, p2; //indexes of vertices used for drawing wall
+
+           p1 = cnt;
+           if(p1 == 3) p2 = 0; else p2 = p1+1;
+
+           glColor4f(0.85, 0.2, 0.0, 1.0);
+
+           glVertex3fv(vertex[p1].point);
+           glVertex3fv(vertex[p2].point);
+
+           vertex[p1].point[1] += 10.0; //wall's height
+           vertex[p2].point[1] += 10.0;
+
+           glColor4f(0.0, 0.0, 0.0, 1.0);
+
+           glVertex3fv(vertex[p2].point);
+           glVertex3fv(vertex[p1].point);
+
+           vertex[p1].point[1] -= 10.0;
+           vertex[p2].point[1] -= 10.0;
+      }
+
+      /*
       for(int a = 0, x = 8; a < 4; a++, x /= 2)
 	if(kind & x){
 	  switch(a){
 	  case 0:{
-	    glColor4f(1.0, 1.0, 0.0, 1.0);
+	    glColor4f(0.85, 0.2, 0.0, 1.0);
 	    glVertex3fv(vertex[0].point);
 	    glVertex3fv(vertex[1].point);
 
 	    vertex[0].point[1] += 10.0;
 	    vertex[1].point[1] += 10.0;	    
-	    glColor4f(0.85, 0.2, 0.0, 1.0);
+	    glColor4f(0.0, 0.0, 0.0, 1.0);
+
 	    glVertex3fv(vertex[1].point);
 	    glVertex3fv(vertex[0].point);
 
@@ -139,22 +237,24 @@ void EField::OnDraw(){
 	    
 	    break;}
 	  case 1:{
-	    glColor4f(1.0, 1.0, 0.0, 1.0);
+	    glColor4f(0.85, 0.2, 0.0, 1.0);
+
 	    glVertex3fv(vertex[1].point);
 	    glVertex3fv(vertex[2].point);
 
 	    vertex[1].point[1] += 10.0;
 	    vertex[2].point[1] += 10.0;	    
-	    glColor4f(0.85, 0.2, 0.0, 1.0);
+	    glColor4f(0.0, 0.0, 0.0, 1.0);
 	    glVertex3fv(vertex[2].point);
 	    glVertex3fv(vertex[1].point);
 
-	    vertex[1].point[1] -= 10.0;
+            //restore Y
+            vertex[1].point[1] -= 10.0;
 	    vertex[2].point[1] -= 10.0;	    
 	    
 	    break;}
 	  case 2:{
-	    glColor4f(1.0,1.0,0.0,1.0);
+	    glColor4f(0.85, 0.2, 0.0, 1.0);
 	    glVertex3fv(vertex[2].point);
 	    glVertex3fv(vertex[3].point);
 
@@ -162,7 +262,7 @@ void EField::OnDraw(){
 	    vertex[2].point[1] += 10.0;
 	    vertex[3].point[1] += 10.0;	    
 
-	    glColor4f(0.85, 0.2, 0.0, 1.0);
+	    glColor4f(0.0,0.0,0.0,1.0);
 	    glVertex3fv(vertex[3].point);
 	    glVertex3fv(vertex[2].point);
 
@@ -171,7 +271,7 @@ void EField::OnDraw(){
 	    
 	    break;}
 	  case 3:{
-	    glColor4f(1.0,1.0,0.0,1.0);
+	    glColor4f(0.85, 0.2, 0.0, 1.0);
 	    glVertex3fv(vertex[3].point);
 	    glVertex3fv(vertex[0].point);
 
@@ -179,7 +279,7 @@ void EField::OnDraw(){
 	    vertex[3].point[1] += 10.0;
 	    vertex[0].point[1] += 10.0;	    
 
-	    glColor4f(0.85, 0.2, 0.0, 1.0);
+	    glColor4f(0.0,0.0,0.0,1.0);
 	    glVertex3fv(vertex[0].point);
 	    glVertex3fv(vertex[3].point);
 
@@ -188,21 +288,22 @@ void EField::OnDraw(){
 	    
 	    break;}
 	  }
-	}//draw wall
+        }//draw wall*/
       glEnd();
       
       glPopMatrix();
 
 }
 
-float EField::GiveHorizontalDistance(float X, float Z){
+float LField::GiveHorizontalDistance(float X, float Z){
   vector_xz VLP, VTP;
   float fDotL, fDotT;
+  vector_xz Corners[4];
 
-  Corners[1].x = corners. b.x;
-  Corners[1].z = corners. b.z;
-  Corners[3].x = corners. d.x;
-  Corners[3].z = corners. d.z;
+  Corners[1].x = corners[1].x;
+  Corners[1].z = corners[1].z;
+  Corners[3].x = corners[3].x;
+  Corners[3].z = corners[3].z;
   //  printf("%f %f %f %f \n",Corners[0].x, Corners[0].z, Corners[2].x, Corners[2].z);
   
   VLP.x = X - Corners[1].x;
@@ -220,14 +321,15 @@ float EField::GiveHorizontalDistance(float X, float Z){
   return ( fDotL / (fDotL + fDotT) );
 }
 
-float EField::GiveVerticalDistance(float X, float Z){
+float LField::GiveVerticalDistance(float X, float Z){
   vector_xz VLP, VTP;
   float fDotL, fDotT;
+  vector_xz Corners[4];
 
-  Corners[0].x = corners. b.x;
-  Corners[0].z = corners. b.z;
-  Corners[2].x = corners. d.x;
-  Corners[2].z = corners. d.z;
+  Corners[0].x = corners[1].x;
+  Corners[0].z = corners[1].z;
+  Corners[2].x = corners[3].x;
+  Corners[2].z = corners[3].z;
   //  printf("%f %f %f %f \n",Corners[0].x, Corners[0].z, Corners[2].x, Corners[2].z);
   
   VLP.x = X - Corners[0].x;
@@ -246,21 +348,19 @@ float EField::GiveVerticalDistance(float X, float Z){
 }
 
 
-void EField::heroEnters(void){
+void LField::heroEnters(void){
   empty = false;
 }
 
-void EField::heroLeaves(void){
+void LField::heroLeaves(void){
   empty = true;
 }
 
-void EField::ConnectUp(EField *connection, char which_passage)
+void LField::ConnectUp(LField *connection, char which_passage)
 {
   if (conn_up != NULL) return;
   conn_up = connection;
-  up = connection -> index;
 
-  
   switch(which_passage){
   case(F_U):{connection -> ConnectUp(this, 0);break;}
   case(F_R):{connection -> ConnectRight(this, 0);break;}
@@ -268,16 +368,18 @@ void EField::ConnectUp(EField *connection, char which_passage)
   case(F_L):{connection -> ConnectLeft(this, 0);break;}
   case(0):{return;}
 
-  default: EError("which_passage wrong value !");
+  default:
+      {
+       //error info
+      }
   }
 }
-void EField::ConnectRight(EField *connection, char which_passage)
+void LField::ConnectRight(LField *connection, char which_passage)
 {
 
   if (conn_right != NULL) return;
   conn_right = connection;
-  right = connection -> index;
-  
+
   switch(which_passage){
   case(F_U):{connection -> ConnectUp(this, 0);break;}
   case(F_R):{connection -> ConnectRight(this, 0);break;}
@@ -285,17 +387,20 @@ void EField::ConnectRight(EField *connection, char which_passage)
   case(F_L):{connection -> ConnectLeft(this, 0);break;}
   case(0):{return;}
 
-  default: EError("which_passage wrong value !");
+  default:
+      {
+      //error
+      }
+
   }
 
 
 }
-void EField::ConnectDown(EField *connection, char which_passage)
+void LField::ConnectDown(LField *connection, char which_passage)
 {
   if (conn_down != NULL) return;
   conn_down = connection;
-  down = connection -> index;
-  
+
   switch(which_passage){
   case(F_U):{connection -> ConnectUp(this, 0);break;}
   case(F_R):{connection -> ConnectRight(this, 0);break;}
@@ -303,16 +408,18 @@ void EField::ConnectDown(EField *connection, char which_passage)
   case(F_L):{connection -> ConnectLeft(this, 0);break;}
   case(0):{return;}
 
-  default: EError("which_passage wrong value !");
+  default:
+      {
+          //error
+      }
   }
 
 }
-void EField::ConnectLeft(EField *connection, char which_passage)
+void LField::ConnectLeft(LField *connection, char which_passage)
 {
   if (conn_left != NULL) return;
   conn_left = connection;
-  left = connection -> index;
-  
+
   switch(which_passage){
   case(F_U):{connection -> ConnectUp(this, 0);break;}
   case(F_R):{connection -> ConnectRight(this, 0);break;}
@@ -320,11 +427,31 @@ void EField::ConnectLeft(EField *connection, char which_passage)
   case(F_L):{connection -> ConnectLeft(this, 0);break;}
   case(0):{return;}
 
-  default: EError("which_passage wrong value !");
+  default:
+      {
+          //error
+      }
   }
 }
 
-char EField::Passage(char code)//F_U, F_R ...
+void LField::ConnectUp(LField *connection)
+{
+  conn_up = connection;
+}
+void LField::ConnectRight(LField *connection)
+{
+  conn_right = connection;
+}
+void LField::ConnectDown(LField *connection)
+{
+  conn_down = connection;
+}
+void LField::ConnectLeft(LField *connection)
+{
+  conn_left = connection;
+}
+
+char LField::Passage(char code)//F_U, F_R ...
 {
 
   if(kind & code)
@@ -334,43 +461,44 @@ char EField::Passage(char code)//F_U, F_R ...
 
 }
 
-EField * EField::giveUp(){
-  //  if(conn_up == NULL)EError("giving non-existing connection ! up");
+LField * LField::giveUp(){
+  //  if(conn_up == NULL)LError("giving non-existing connection ! up");
   
   return conn_up;
 }
-EField * EField::giveRight(){
-  //  if(conn_right == NULL)EError("giving non-existing connection ! right");
+LField * LField::giveRight(){
+  //  if(conn_right == NULL)LError("giving non-existing connection ! right");
   
   return conn_right;
 }
-EField * EField::giveDown(){
-  //  if(conn_down == NULL)EError("giving non-existing connection ! down");
+LField * LField::giveDown(){
+  //  if(conn_down == NULL)LError("giving non-existing connection ! down");
   
   return conn_down;
 }
-EField * EField::giveLeft(){
-  //  if(conn_left == NULL)EError("giving non-existing connection ! left");
+LField * LField::giveLeft(){
+  //  if(conn_left == NULL)LError("giving non-existing connection ! left");
   
   return conn_left;
 }
 
-void EField::DrawMini(){
+/*void LField::DrawMini(){
   //PUSH MATRIX NEEDED ???
   glPushMatrix();
 
   OnDrawMini();
-  if (HasChild())
-    ((EField*)childNode)->DrawMini();
+  if (hasChild())
+    ((LField*)child)->DrawMini();
   glPopMatrix();
   
   
-  if (HasParent() && !IsLastChild())
-    ((EField*)nextNode)->DrawMini();
+  if (hasParent() && !isLast())
+    ((LField*)next)->DrawMini();
 
 }
 
-void EField::OnDrawMini(){
+void LField::OnDrawMini(){
+  /*
   glColor4f(0.0,1.0,0.0,1.0);
 
   //map will be static, so count everything in constructor
@@ -381,57 +509,131 @@ void EField::OnDrawMini(){
 	  switch(a){
 	  case 0:{
 
-	    glVertex3f(corners.a.x/10*8.82+500, corners.a.z/10*8.82,0.0);
-	    glVertex3f(corners.b.x/10*8.82+500, corners.b.z/10*8.82,0.0);	    
+	    glVertex3f(corners[0].x/10*8.82+500, corners[0].z/10*8.82,0.0);
+	    glVertex3f(corners[1].x/10*8.82+500, corners[1].z/10*8.82,0.0);	    
 
 	    break;}
 	  case 1:{
 
-	    glVertex3f(corners.b.x/10*8.82+500, corners.b.z/10*8.82,0.0);
-	    glVertex3f(corners.c.x/10*8.82+500, corners.c.z/10*8.82,0.0);	    
+	    glVertex3f(corners[1].x/10*8.82+500, corners[1].z/10*8.82,0.0);
+	    glVertex3f(corners[2].x/10*8.82+500, corners[2].z/10*8.82,0.0);	    
 
 	    break;}
 	  case 2:{
 
-	    glVertex3f(corners.c.x/10*8.82+500, corners.c.z/10*8.82,0.0);
-	    glVertex3f(corners.d.x/10*8.82+500, corners.d.z/10*8.82,0.0);	    
+	    glVertex3f(corners[2].x/10*8.82+500, corners[2].z/10*8.82,0.0);
+	    glVertex3f(corners[3].x/10*8.82+500, corners[3].z/10*8.82,0.0);	    
 
 	    break;}
 	  case 3:{
 
-	    glVertex3f(corners.d.x/10*8.82+500, corners.d.z/10*8.82,0.0);
-	    glVertex3f(corners.a.x/10*8.82+500, corners.a.z/10*8.82,0.0);	    
+	    glVertex3f(corners[3].x/10*8.82+500, corners[3].z/10*8.82,0.0);
+	    glVertex3f(corners[0].x/10*8.82+500, corners[0].z/10*8.82,0.0);	    
 	    
 	    break;}
 	  }
 	}//draw wall
       glEnd();
-
+  */
 
   /*
   glLineWidth(0.8);
   glBegin(GL_LINE_STRIP);
-  glVertex3f(corners.a.x+500, corners.a.z,0.0);
-  glVertex3f(corners.b.x+500, corners.b.z,0.0);
-  glVertex3f(corners.c.x+500, corners.c.z,0.0);
-  glVertex3f(corners.d.x+500, corners.d.z,0.0);
-  glVertex3f(corners.a.x+500, corners.a.z,0.0);  
+  glVertex3f(corners[0].x+500, corners[0].z,0.0);
+  glVertex3f(corners[1].x+500, corners[1].z,0.0);
+  glVertex3f(corners[2].x+500, corners[2].z,0.0);
+  glVertex3f(corners[3].x+500, corners[3].z,0.0);
+  glVertex3f(corners[0].x+500, corners[0].z,0.0);  
   glEnd();*/
 
+//}
+
+bool 
+LField::isPointIn(LVector point)
+{
+  LVector vectorP;
+
+  for(int cnt = 0; cnt < 4; cnt ++)
+    {
+      vectorP.x = point.x - corners[cnt].x;
+      vectorP.y = 0.0f;
+      vectorP.z = point.z - corners[cnt].z;
+      
+      if(vectorP % cornersN[cnt] < 0)
+	return false;
+    }
+
+  return true;
 }
 
-void EField::Disconnect(char what)
+bool
+LField::connectionExists(LField *connection)
 {
-  switch(what){
-  case(F_U):{conn_up = NULL;}
-    break;
-  case(F_R):{conn_right = NULL;}
-    break;
-  case(F_D):{conn_down = NULL;}
-    break;
-  case(F_L):{conn_left = NULL;}
-    break;
+    //check if any vector has a mirror image in connection
+    for(int cnt = 0; cnt < 4; cnt++)
+    {
+        for(int cnt1 = 0; cnt1 < 4; cnt1++)
+        {
+            if(vectors[cnt] == -(connection->vectors[cnt1]))
+                return true;
+        }
+    }
+    return false;
+}
 
-  }
+bool
+LField::connectTo(LField *connection)
+{
+int a1, a2, b1, b2;
 
+
+    for(int cnt = 0; cnt < 4; cnt++)
+    {
+        a1 = cnt;
+        if(cnt == 3) a2 = 0; else a2 = a1 + 1;
+
+        for(int cnt1 = 0; cnt1 < 4; cnt1++)
+        {
+            b1 = cnt1;
+            if(cnt1 == 3) b2 = 0; else b2 = b1 + 1;
+
+            //check if any wall has a mirror image in 'connection'
+            if(corners[a1] == connection -> corners[b2] &&
+               corners[a2] == connection -> corners[b1])
+            {
+
+                //connect them and return
+                connections[cnt] = connection;
+
+                //hmm .. maybe a function, that would be doing connections,
+                //would be a better idea - and connections should be private
+                connection -> connections[cnt1] = this;
+
+                return true;
+            }
+        }
+    }
+
+    //failure
+    return false;
+}
+
+void LField::remove()
+{
+
+    //actualize connected fields
+    for(int cnt = 0; cnt < 4; cnt++)
+    {
+        if(connections[cnt])
+        {
+            for(int cnt1 = 0; cnt1 < 4; cnt1++)
+            {
+                if(connections[cnt]->connections[cnt1] == this)
+                    connections[cnt]->connections[cnt1] = NULL;
+            }
+        }
+
+    }
+    disconnect();
+    //disallocating memory done somewhere else
 }
