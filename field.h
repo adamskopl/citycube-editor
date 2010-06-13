@@ -160,12 +160,6 @@ class LField : public LObject{
   bool connectTo(LField *connection);
 
   void remove ();
-
-  float height; //height of floor to which field is assigned
-
-  //needes for floors - to draw or not to draw
-  bool render;
-  bool draw;
   
 };
 

@@ -1,17 +1,15 @@
 #include "field.h"
-
+#include "floor.h"
 LField::LField()
 {
-    draw = true;
-    render = true;
+
 }
 
 LField::~LField(){}
 
 LField::LField(char KIND, LVector *C): kind(KIND)
 {
-    draw = true;
-    render = true;
+
 
   //no connections at the beginning ...
 
@@ -38,7 +36,7 @@ LField::LField(char KIND, LVector *C): kind(KIND)
   else
       centerPoint.x = corners[2].x - (corners[2].x - corners[0].x)/2;
 
-  centerPoint.y = height;
+  //centerPoint.y = ((LBFloor*)parent) -> height;
 
   if(corners[1].z > corners[3].z)
       centerPoint.z = corners[1].z - (corners[1].z - corners[3].z)/2;

@@ -48,14 +48,6 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QW
     setVariables();
     setMouseTracking(true);
 
-    //fields = globalFields;
-    cameraKid = globals -> cameraKid;
-    floorsTree = globals -> floorsTree;
-    actualFloor = globals -> actualFloor;
-
-    appState = globals -> appState;
-    floorsComboBox = globals -> floorsComboBox;
-    floorsAmount = globals -> floorsAmount;
     GC = globals;
 }
 
@@ -79,7 +71,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
     painter = new QPainter(this);
     drawGrid();
 
-    switch(*appState)
+    switch(*(GC -> appState))
     {
     case(addingFloor):
         {
@@ -130,7 +122,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
     //left button
     case(1):
         {
-            switch(*appState){
+            switch(*(GC -> appState)){
 
             case(none):
                 {
@@ -138,13 +130,13 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     {
                         //chosenFieldID = pointedFieldID;
                         chosenField = pointedField;
-                        *appState = connecting;
+                        *(GC->appState) = connecting;
                         printInfo("choose connection ...");
                     }
                     else
                     {
                         //the beggining of defining
-                        *appState = defining;
+                        *(GC -> appState) = defining;
                         cornerIndex++;
                         newCorners[0].x = selectedX;
                         newCorners[0].z = selectedY;
@@ -195,7 +187,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             GC -> cameraKid -> position = temp-> centerPoint;
                             GC -> cameraKid -> position.y = GC -> actualFloor -> height;
 
-                            *appState = none;
+                            *(GC -> appState) = none;
                             //world -> checkConnections();
                             break;
                         }
@@ -214,14 +206,14 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 
                         //chosenFieldID = -1;
                         chosenField = NULL;
-                        *appState = none;
+                        *(GC -> appState) = none;
                     }
                     break;
                 }
             case(addingFloor):
                 {
                     addFloor(selectedY);
-                    *appState = none;
+                    *(GC -> appState) = none;
                 }
 
             }//switch(state)
@@ -231,18 +223,18 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
     //right button
     case(2):
         {
-            switch(*appState){
+            switch(*(GC-> appState)){
 
             case(defining):
                 {
                     cornerIndex = 0;
-                    *appState = none;
+                    *(GC -> appState) = none;
                     break;
                 }           
 
             case(connecting):
                 {
-                    *appState = none;
+                    *(GC -> appState) = none;
                     chosenField = NULL;
                     break;
                 }
@@ -260,7 +252,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 }
             case(addingFloor):
                 {    
-                    *appState = none;
+                    *(GC -> appState) = none;
                     break;
                 }
 
@@ -301,115 +293,33 @@ void DesignWidget::mouseMoveEvent(QMouseEvent *event)
     update();
 }
 
+//draw all fields on each floor. Pass floors, that has
 void DesignWidget::drawDefinedFields()
 {
-
     setDrawStyle(field);
     isFieldPointed = false;
-    //pointedFieldID = -1.0f;
 
-    LField *helpField;
-    if(GC->actualFloor->hasChild())
-        helpField = (LField*)GC->actualFloor -> child;
+    LBFloor *helpFloor;
+
+    if(GC->floorsTree->hasChild())
+        helpFloor = (LBFloor*) GC-> floorsTree -> child;
     else
         return;
 
+    //draw actual floor first
+    drawFloor(GC -> actualFloor);
 
-    if(GC->actualFloor->draw == false)
-        return;
-
+    //break this while when last floor is drawn
     while(1)
     {
-        //check if field is pointed with mouse
-        if(helpField->isPointIn(LVector(mouseX, 0.0f, mouseY)))
-        {
-            isFieldPointed = true;
-            cameraKid -> position = helpField->centerPoint;
-            cameraKid -> position.y = GC -> actualFloor -> height;
-            //if new field is not defined right now
-            if(!cornerIndex)
-            {
-                //pointedFieldID = helpField->ID;
-                pointedField = helpField;
-                setDrawStyle(stylePointedField);
-            }
-            else
-            {
-                if(*appState == connecting)
-                    setDrawStyle(inactive);
-                else
-                    setDrawStyle(field);
-            }
-        }
+        if(helpFloor != GC -> actualFloor)
+            drawFloor(helpFloor);
+
+        if(! helpFloor -> isLast())
+            helpFloor = (LBFloor*)(helpFloor -> next);
         else
-        {
-            if(*appState == connecting)
-                setDrawStyle(inactive);
-            else
-                setDrawStyle(field);
-        }
-
-        if(helpField == chosenField)
-            setDrawStyle(styleChosenField);
-
-        QPolygon drawField;
-
-        drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
-                << QPoint(helpField->corners[1].x,helpField->corners[1].z)
-                << QPoint(helpField->corners[2].x,helpField->corners[2].z)
-                << QPoint(helpField->corners[3].x,helpField->corners[3].z);
-
-        painter->drawPolygon(drawField);
-
-        //draw Normals
-        setDrawStyle(normal);
-        for(int cntN = 0; cntN < 4; cntN++)
-        {
-            int x1 = helpField->corners[cntN].x + helpField->vectors[cntN].x/2;
-            int z1 = helpField->corners[cntN].z + helpField->vectors[cntN].z/2;
-            int x2 = x1 + helpField->cornersN[cntN].x*10.0f;
-            int z2 = z1 + helpField->cornersN[cntN].z*10.0f;
-
-            painter -> drawLine(x1, z1, x2, z2);
-        }
-        /////////////////////////////////////////
-        //draw connections or walls (loop would be better. so so so.)
-        if(helpField->connections[0])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[0].x, helpField->corners[0].z,
-                            helpField->corners[1].x, helpField->corners[1].z);
-
-        if(helpField->connections[1])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[1].x, helpField->corners[1].z,
-                            helpField->corners[2].x, helpField->corners[2].z);
-
-        if(helpField->connections[2])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[2].x, helpField->corners[2].z,
-                            helpField->corners[3].x, helpField->corners[3].z);
-
-        if(helpField->connections[3])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[3].x, helpField->corners[3].z,
-                            helpField->corners[0].x, helpField->corners[0].z);
-
-
-        if(helpField -> isLast())
             break;
-        else
-            helpField = (LField*)helpField -> next;
     }
-
-
 
 }
 
@@ -589,8 +499,8 @@ void DesignWidget::drawFloorsSide()
     LObject *actualFloor;
 
     //for every floor draw its fields
-    if(floorsTree -> hasChild())
-        actualFloor = ((LField*)(floorsTree -> child));
+    if(GC -> floorsTree -> hasChild())
+        actualFloor = ((LField*)(GC -> floorsTree -> child));
 
     //break this while(), when last floor is drawn
     while(1)
@@ -642,14 +552,126 @@ void DesignWidget::drawFieldSide(LField *drawnField)
 
 void DesignWidget::addFloor(float height)
 {
-    LField *help = new LField;
-    help -> height = worldSize - height;
+    LBFloor *help = new LBFloor(worldSize - height);
 
-    ((LObject*)help) -> connectTo(floorsTree);
+    ((LObject*)help) -> connectTo(GC -> floorsTree);
 
-    QString *floorName = new QString("floor" + QString::number(*floorsAmount));
-    floorsComboBox -> addItem(tr(floorName->toAscii()));
-    (*floorsAmount)++;
+    QString *floorName = new QString("floor" + QString::number(*(GC -> floorsAmount)));
+    GC -> floorsComboBox -> addItem(tr(floorName->toAscii()));
+    (*(GC -> floorsAmount))++;
 }
 
 
+void DesignWidget::drawFloor(LBFloor *drawnFloor)
+{
+    LField *helpField;
+    if(drawnFloor -> hasChild())
+        helpField = (LField*)drawnFloor -> child;
+    else
+        return;
+
+
+
+    //break this while, when last field of actual floor is drawn
+    while(1)
+    {
+        if(drawnFloor == GC -> actualFloor)
+        {
+            //check if field is pointed with mouse
+            if(helpField->isPointIn(LVector(mouseX, 0.0f, mouseY)))
+            {
+                isFieldPointed = true;
+                GC -> cameraKid -> position = helpField->centerPoint;
+                GC -> cameraKid -> position.y = GC -> actualFloor -> height;
+                //if new field is not defined right now
+                if(!cornerIndex)
+                {
+                    //pointedFieldID = helpField->ID;
+                    pointedField = helpField;
+                    setDrawStyle(stylePointedField);
+                }
+                else
+                {
+                    if(*(GC -> appState) == connecting)
+                        setDrawStyle(inactive);
+                    else
+                        setDrawStyle(field);
+                }
+            }
+            else
+            {
+                if(*(GC -> appState) == connecting)
+                    setDrawStyle(inactive);
+                else
+                    setDrawStyle(field);
+            }
+
+            if(helpField == chosenField)
+                setDrawStyle(styleChosenField);
+
+            QPolygon drawField;
+
+
+                drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
+                        << QPoint(helpField->corners[1].x,helpField->corners[1].z)
+                        << QPoint(helpField->corners[2].x,helpField->corners[2].z)
+                        << QPoint(helpField->corners[3].x,helpField->corners[3].z);
+
+                painter->drawPolygon(drawField);
+        }//(if drawnFloor == GC -> actualFloor)
+
+
+        /////////////////////////////////////////////
+        //PART FOR EVERY FLOOR (not only actual) :
+        /////////////////////////////////////////////
+
+        //draw Normals
+        setDrawStyle(normal);
+        for(int cntN = 0; cntN < 4; cntN++)
+        {
+            int x1 = helpField->corners[cntN].x + helpField->vectors[cntN].x/2;
+            int z1 = helpField->corners[cntN].z + helpField->vectors[cntN].z/2;
+            int x2 = x1 + helpField->cornersN[cntN].x*10.0f;
+            int z2 = z1 + helpField->cornersN[cntN].z*10.0f;
+
+            painter -> drawLine(x1, z1, x2, z2);
+        }
+
+        /////////////////////////////////////////
+        //draw connections or walls (loop would be better. so so so.)
+        if(helpField->connections[0])
+            setDrawStyle(connection);
+        else
+            setDrawStyle(wall);
+        painter -> drawLine(helpField->corners[0].x, helpField->corners[0].z,
+                            helpField->corners[1].x, helpField->corners[1].z);
+
+        if(helpField->connections[1])
+            setDrawStyle(connection);
+        else
+            setDrawStyle(wall);
+        painter -> drawLine(helpField->corners[1].x, helpField->corners[1].z,
+                            helpField->corners[2].x, helpField->corners[2].z);
+
+        if(helpField->connections[2])
+            setDrawStyle(connection);
+        else
+            setDrawStyle(wall);
+        painter -> drawLine(helpField->corners[2].x, helpField->corners[2].z,
+                            helpField->corners[3].x, helpField->corners[3].z);
+
+        if(helpField->connections[3])
+            setDrawStyle(connection);
+        else
+            setDrawStyle(wall);
+        painter -> drawLine(helpField->corners[3].x, helpField->corners[3].z,
+                            helpField->corners[0].x, helpField->corners[0].z);
+
+
+        if(helpField -> isLast())
+            break;
+        else
+            helpField = (LField*)helpField -> next;
+    }
+
+}

@@ -1,5 +1,6 @@
 #include "globalcontainer.h"
 #include "field.h"
+
 #include <QtGui>
 globalContainer::globalContainer()
 {
@@ -13,11 +14,11 @@ globalContainer::globalContainer()
 
     for(int cnt = 0; cnt < *floorsAmount; cnt++)
     {
-        LField * help = new LField();
+        LBFloor * help = new LBFloor(cnt*10);
         ((LObject*)help) -> connectTo(floorsTree);
     }
 
-    actualFloor = ((LField*)(floorsTree -> child));
+    actualFloor = ((LBFloor*)(floorsTree -> child));
     actualFloor -> height = 0.0f;
     appState = new STATE;
 
@@ -33,11 +34,10 @@ globalContainer::globalContainer()
 void globalContainer::changeFloor(int floorIndex)
 {
 
-    LField *chosenFloor;
-    chosenFloor = (LField*)floorsTree;
+    LBFloor *chosenFloor;
 
-    if(chosenFloor -> hasChild())
-        chosenFloor = (LField*)chosenFloor -> child;
+    if(floorsTree -> hasChild())
+        chosenFloor = (LBFloor*)(floorsTree -> child);
     else
         return;
 
@@ -49,7 +49,7 @@ void globalContainer::changeFloor(int floorIndex)
             actualFloor = chosenFloor;
             break;
         }
-        chosenFloor = (LField*)chosenFloor -> next;
+        chosenFloor = (LBFloor*)chosenFloor -> next;
         floorIndex--;
     }
 }

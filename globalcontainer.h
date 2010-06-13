@@ -3,6 +3,8 @@
 
 #include "object.h"
 #include "field.h"
+#include "floor.h"
+
 //global state of application (alias "what Designer is doing right now ?")
 enum STATE {none, defining, connecting, addingFloor};
 class QComboBox;
@@ -26,7 +28,7 @@ public:
     //pointer on actual floor - level 1 of the tree
     //it's field, to have floor's height.
     //IS IT NEEDED ?????
-    LField *actualFloor;
+    LBFloor *actualFloor;
     int *floorsAmount;
 
     //object spied by camera - pointer passed to previewWidget and designWidget

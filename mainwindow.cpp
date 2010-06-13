@@ -213,8 +213,8 @@
 
  void MainWindow::slotNewFloor()
  {
-QLabel *floorLabel3 = new QLabel(tr("floor:"));
-     toolsLayout -> addWidget(floorLabel3,3,1,Qt::AlignLeft);
+     //QLabel *floorLabel3 = new QLabel(tr("floor:"));
+     //toolsLayout -> addWidget(floorLabel3,3,1,Qt::AlignLeft);
      *(globals -> appState) = addingFloor;
      designWidget -> setFocus();
  }
@@ -228,27 +228,27 @@ QLabel *floorLabel3 = new QLabel(tr("floor:"));
 
      //for every floor draw its fields
      if(globals -> floorsTree -> hasChild())
-         actualFloor = ((LField*)(globals -> floorsTree -> child));
+         actualFloor = ((LBFloor*)(globals -> floorsTree -> child));
 
      //break this while(), when last floor is drawn
      while(1)
      {\
-        LField *helpField = (LField*)actualFloor;
+        LBFloor *helpField = (LBFloor*)actualFloor;
 
          if( ! drawBoxes[cnt].isChecked())
-             helpField -> draw = false;
+             helpField -> isItDrawn = false;
          else
-             helpField -> draw = true;
+             helpField -> isItDrawn = true;
 
          if( ! renderBoxes[cnt].isChecked())
-             helpField -> render = false;
+             helpField -> isItRendered = false;
          else
-             helpField -> render = true;
+             helpField -> isItRendered = true;
 
 
          if(actualFloor -> isLast())
              break;
-         actualFloor = (LField*)actualFloor -> next;
+         actualFloor = (LBFloor*)actualFloor -> next;
          cnt ++;
      }
 

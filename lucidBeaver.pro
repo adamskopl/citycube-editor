@@ -18,7 +18,8 @@ HEADERS += glwidget.h \
     camera.h \
     being.h \
     lucidbeaver.h \
-    globalcontainer.h
+    globalcontainer.h \
+    floor.h
 SOURCES += glwidget.cpp \
     paintwidget.cpp \
     mainwindow.cpp \
@@ -37,7 +38,8 @@ SOURCES += glwidget.cpp \
     camera.cpp \
     being.cpp \
     lucidbeaver.cpp \
-    globalcontainer.cpp
+    globalcontainer.cpp \
+    floor.cpp
 QT += opengl
 LIBS += `sdl-config \
     --libs \
