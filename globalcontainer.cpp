@@ -2,6 +2,7 @@
 #include "field.h"
 
 #include <QtGui>
+#include "paintwidget.h"
 globalContainer::globalContainer()
 {
 
@@ -29,6 +30,10 @@ globalContainer::globalContainer()
     *appState = none;
     floorsComboBox = new QComboBox;
 
+    stuffArea = new QScrollArea;
+    stuffArea->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    stuffArea->setFixedSize(100,100);
+
 }
 
 void globalContainer::changeFloor(int floorIndex)
@@ -52,4 +57,15 @@ void globalContainer::changeFloor(int floorIndex)
         chosenFloor = (LBFloor*)chosenFloor -> next;
         floorIndex--;
     }
+}
+
+void globalContainer::stuffAreaDraw()
+{
+    QPainter *painter = new QPainter(stuffArea);
+
+    QRectF target(0.0, 0.0, 100.0, 100.0);
+    QRectF source(0.0, 0.0, 100.0, 100.0);
+    QImage image("image.png");
+
+    painter -> drawImage(target, image, source);
 }

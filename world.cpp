@@ -85,21 +85,21 @@ void LWorld::drawText()
 
 void LWorld::drawFloors()
 {
-    LObject *actualFloor;
+    LBFloor *actualFloor;
 
     //for every floor draw its fields
     if(floorsTree -> hasChild())
-        actualFloor = ((LField*)(floorsTree -> child));
+        actualFloor = ((LBFloor*)(floorsTree -> child));
 
     //break this while(), when last floor is drawn
     while(1)
     {
         LField * drawnField;
         //draw floor's fields
-
-        if(actualFloor -> hasChild())
-        {
-            drawnField = ((LField*)(actualFloor -> child));
+        if(actualFloor -> isItRendered)
+            if(actualFloor -> hasChild())
+            {
+                drawnField = ((LField*)(actualFloor -> child));
 
             //break this while(), when last field is drawn
             while(1)
@@ -112,7 +112,7 @@ void LWorld::drawFloors()
         }
         if(actualFloor -> isLast())
             break;
-        actualFloor = (LField*)actualFloor -> next;
+        actualFloor = (LBFloor*)actualFloor -> next;
     }
 }
 

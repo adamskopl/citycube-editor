@@ -30,9 +30,11 @@ public:
 public slots:
     void slotFloorChanged( int );
     void slotNewFloor();
+    void slotDefineStairs();
 
     void changeFloorsView();
-
+    void designAreaScrollBarXChanged(int);
+    void designAreaScrollBarYChanged(int);
     //TODO - make class that contains globalFields, camreaKid and so on - to pass
     // it for designWidget and previewWidget
     //keep globalFields and such somewhere else

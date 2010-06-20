@@ -5,7 +5,7 @@
 #include <QPen>
 #include <QPixmap>
 #include <QWidget>
-
+#include <QPrinter>
 #include "lucidbeaver.h"
 #include "globalcontainer.h"
 
@@ -13,7 +13,7 @@ using namespace std;
 
 
 enum drawStyle {invisible, field, actualField, stylePointedField, styleChosenField, pointer, connection, wall,
-                normal, inactive, floorLine, fieldSide};
+                normal, inactive, floorLine, fieldSide, wallInactive};
 
 //none       - waiting for actions
 //defining   - new field is being defined
@@ -22,12 +22,15 @@ enum drawStyle {invisible, field, actualField, stylePointedField, styleChosenFie
 
 class QTextEdit;
 class QComboBOx;
+class QCheckBox;
 class LField;
 
   class DesignWidget : public QWidget
   {
       Q_OBJECT
   public:
+
+      int scrollX, scrollY;
 
       //vector with fields is passed with pointer, because its shared betwee
       //this class and PreviewWidget
@@ -116,8 +119,14 @@ class LField;
       void drawFloor(LBFloor *);
       void drawField(LField *);
 
+      QCheckBox *drawBoxes;
+      QCheckBox *renderBoxes;
+
       //int pointedFieldID;
       //int chosenFieldID;
+
+      void drawPig();
+
 
   };
 

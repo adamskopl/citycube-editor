@@ -49,6 +49,10 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QW
     setMouseTracking(true);
 
     GC = globals;
+    //drawBoxes = GC
+
+    scrollX = 0;
+    scrollY = 0;
 }
 
 void DesignWidget::setVariables()
@@ -71,6 +75,10 @@ void DesignWidget::paintEvent(QPaintEvent *)
     painter = new QPainter(this);
     drawGrid();
 
+//    QPainter painter(this);
+
+
+
     switch(*(GC -> appState))
     {
     case(addingFloor):
@@ -88,6 +96,10 @@ void DesignWidget::paintEvent(QPaintEvent *)
             break;
         }
     }
+
+
+
+    drawPig();
     delete painter;
 }
 
@@ -307,6 +319,8 @@ void DesignWidget::drawDefinedFields()
         return;
 
     //draw actual floor first
+    //if(GC -> actualFloor -> isItDrawn)
+
     drawFloor(GC -> actualFloor);
 
     //break this while when last floor is drawn
@@ -421,6 +435,14 @@ void DesignWidget::setDrawStyle(drawStyle style)
         {
             pen.setStyle(Qt::SolidLine);
             pen.setColor(Qt::black);
+            pen.setWidth(1);
+            break;
+        }
+
+    case(wallInactive):
+        {
+            pen.setStyle(Qt::SolidLine);
+            pen.setColor(Qt::lightGray);
             pen.setWidth(1);
             break;
         }
@@ -552,6 +574,12 @@ void DesignWidget::drawFieldSide(LField *drawnField)
 
 void DesignWidget::addFloor(float height)
 {
+    //actualize checkboxes
+    GC -> drawBoxes[*(GC -> floorsAmount)].setDisabled(false);
+    GC -> drawBoxes[*(GC -> floorsAmount)].setChecked(true);
+    GC -> renderBoxes[*(GC -> floorsAmount)].setDisabled(false);
+    GC -> renderBoxes[*(GC -> floorsAmount)].setChecked(true);
+
     LBFloor *help = new LBFloor(worldSize - height);
 
     ((LObject*)help) -> connectTo(GC -> floorsTree);
@@ -559,11 +587,17 @@ void DesignWidget::addFloor(float height)
     QString *floorName = new QString("floor" + QString::number(*(GC -> floorsAmount)));
     GC -> floorsComboBox -> addItem(tr(floorName->toAscii()));
     (*(GC -> floorsAmount))++;
+
+
+
 }
 
 
 void DesignWidget::drawFloor(LBFloor *drawnFloor)
 {
+    if( !(drawnFloor -> isItDrawn) )
+        return;
+
     LField *helpField;
     if(drawnFloor -> hasChild())
         helpField = (LField*)drawnFloor -> child;
@@ -639,7 +673,36 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 
         /////////////////////////////////////////
         //draw connections or walls (loop would be better. so so so.)
-        if(helpField->connections[0])
+
+        for(int cnt = 0; cnt < 4; cnt++)
+        {
+            int a, b;
+            a = cnt;
+            if(cnt == 3)
+                b = 0;
+            else
+                b = a + 1;
+
+            if(helpField->connections[a])
+            {
+                if(drawnFloor != GC -> actualFloor)
+                    continue;
+
+                setDrawStyle(connection);
+            }
+            else
+            {
+                if(drawnFloor != GC -> actualFloor)
+                    setDrawStyle(wallInactive);
+                else
+                    setDrawStyle(wall);
+            }
+
+            painter -> drawLine(helpField->corners[a].x, helpField->corners[a].z,
+                                helpField->corners[b].x, helpField->corners[b].z);
+
+        }
+        /*        if(helpField->connections[0])
             setDrawStyle(connection);
         else
             setDrawStyle(wall);
@@ -665,13 +728,55 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
         else
             setDrawStyle(wall);
         painter -> drawLine(helpField->corners[3].x, helpField->corners[3].z,
-                            helpField->corners[0].x, helpField->corners[0].z);
+                            helpField->corners[0].x, helpField->corners[0].z);*/
 
-
+        /////////////////////////////
         if(helpField -> isLast())
             break;
         else
             helpField = (LField*)helpField -> next;
+        /////////////////////////////
     }
 
+}
+
+void DesignWidget::drawPig()
+{
+    QRectF target(scrollX + 490, scrollY + 490, 80.0, 80.0);
+    QRectF source(0.0, 0.0, 80.0, 80.0);
+
+    switch(*(GC -> appState))
+    {
+    case(defining):
+        {
+            QImage image("pigNewField.png");
+            painter -> drawImage(target, image, source);
+            break;
+        }
+    case(connecting):
+        {
+            QImage image("pigField.png");
+            painter -> drawImage(target, image, source);
+            break;
+        }
+    case(addingFloor):
+        {
+            QImage image("pigNewFloor.png");
+            painter -> drawImage(target, image, source);
+            break;
+        }
+    case(definingStairs):
+        {
+            QImage image("pigStairs.png");
+            painter -> drawImage(target, image, source);
+            break;
+        }
+
+    default:
+        {
+            QImage image("pigEmpty.png");
+            painter -> drawImage(target, image, source);
+            break;
+        }
+    }
 }
