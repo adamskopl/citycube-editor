@@ -20,6 +20,7 @@
 
 #include "camera.h"
 #include "object.h"
+#include "floor.h"
 #include "being.h"
 
 #include "vector.h"

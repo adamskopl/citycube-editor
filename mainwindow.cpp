@@ -3,7 +3,8 @@
 #include "mainwindow.h"
 #include <string.h>
 #include <sstream>
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "paintwidget.h"
 #include "glwidget.h"
 
@@ -17,7 +18,7 @@
 
      reportWidget = new QTextEdit;
      reportWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-     reportWidget->setFixedSize(600,100);
+     reportWidget->setFixedSize(500,100);
 
      designWidget = new DesignWidget(globals, reportWidget);
      previewWidget1 = new PreviewWidget(globals);
@@ -42,17 +43,26 @@
      previewArea2->setFixedSize(300, 300);
 
 
+
      designArea = new QScrollArea;
+     //globals -> designArea = designArea;
      designArea->setWidget(designWidget);
      designArea->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
      designArea->setMinimumSize(100, 100);
      designArea->setFixedSize(600, 600);
+
+    //erm ... are these kinds of connections OK ?
+     connect(designArea -> horizontalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(designAreaScrollBarXChanged(int)));
+    connect(designArea -> verticalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(designAreaScrollBarYChanged(int)));
 
      ///////////////////////////////////////////////////////
      QGroupBox *toolsGroup = new QGroupBox(tr("Tools"));
      QGroupBox *fieldEditGroup = new QGroupBox(tr("Field"));
      QGroupBox *floorsGroup = new QGroupBox(tr("Floors"));
      QGroupBox *floorChooseGroup = new QGroupBox();
+     QGroupBox *objectsGroup = new QGroupBox(tr("Objects"));
 
 
      QPushButton *newFloorButton = new QPushButton(tr("ADD"));
@@ -90,6 +100,14 @@
 
      fieldEditLayout = new QGridLayout;
      fieldEditGroup -> setLayout(fieldEditLayout);
+
+     QGridLayout *objectsGroupLayout = new QGridLayout;
+     QPushButton *newStairsButton = new QPushButton(tr("Stairs"));
+     objectsGroupLayout -> addWidget(newStairsButton, 0, 0, Qt::AlignTop);
+     objectsGroup -> setLayout(objectsGroupLayout);
+
+     connect(newStairsButton, SIGNAL(clicked()),
+             this, SLOT(slotDefineStairs()));
 
      floorsLayout = new QGridLayout;
 
@@ -157,8 +175,10 @@
      floorsGroup -> setLayout(floorsLayout);
 
      toolsLayout = new QGridLayout;    
-     toolsLayout -> addWidget(fieldEditGroup, 0, 0, 1, 1);
      toolsLayout -> addWidget(floorsGroup, 0, 1, 2, 1);
+     toolsLayout -> addWidget(fieldEditGroup, 0, 0, 1, 1);
+     toolsLayout -> addWidget(objectsGroup, 1, 0, 1, 1);
+
      //toolsLayout -> addWidget(floorLabel, 0, 0, Qt::AlignTop);
      //toolsLayout -> addWidget(floorsComboBox, 0, 1, Qt::AlignTop);
      //toolsLayout -> addWidget(newFloorButton,0,2,Qt::AlignTop);
@@ -181,7 +201,8 @@
      centralLayout->addWidget(designArea, 0, 0, 2, 1);
      centralLayout->addWidget(previewArea1, 0, 1, 1, 1);
      centralLayout->addWidget(previewArea2, 0, 2, 1, 1);
-     centralLayout->addWidget(reportWidget, 2, 0);
+     centralLayout->addWidget(reportWidget, 2, 0, 1, 2);
+     //centralLayout->addWidget(globals -> stuffArea, 2, 0, 1, 1, Qt::AlignLeft);
      centralLayout->addWidget(toolsGroup, 1, 1, 2, 2);
      centralWidget->setLayout(centralLayout);
      //setLayout(centralLayout);
@@ -191,6 +212,9 @@
 
     designWidget->update();
     previewWidget1->update();
+
+    globals -> drawBoxes = drawBoxes;
+    globals -> renderBoxes = renderBoxes;
  }
 
  void MainWindow::createMenus()
@@ -221,9 +245,7 @@
 
  void MainWindow::changeFloorsView()
  {
-
-     printf("!\n");
-     LObject *actualFloor;
+     LBFloor *actualFloor;
      int cnt = 0;
 
      //for every floor draw its fields
@@ -233,17 +255,17 @@
      //break this while(), when last floor is drawn
      while(1)
      {\
-        LBFloor *helpField = (LBFloor*)actualFloor;
+        LBFloor *helpFloor = (LBFloor*)actualFloor;
 
          if( ! drawBoxes[cnt].isChecked())
-             helpField -> isItDrawn = false;
+             helpFloor -> isItDrawn = false;
          else
-             helpField -> isItDrawn = true;
+             helpFloor -> isItDrawn = true;
 
          if( ! renderBoxes[cnt].isChecked())
-             helpField -> isItRendered = false;
+             helpFloor -> isItRendered = false;
          else
-             helpField -> isItRendered = true;
+             helpFloor -> isItRendered = true;
 
 
          if(actualFloor -> isLast())
@@ -252,5 +274,35 @@
          cnt ++;
      }
 
+     designWidget -> setFocus();
+     //print check
+    if(globals -> floorsTree -> hasChild())
+        actualFloor = (LBFloor*)(globals -> floorsTree -> child);
+
+    while(1)
+    {    
+
+        if(actualFloor -> isLast())
+            break;
+
+        actualFloor = (LBFloor*)(actualFloor -> next);
+    }
+ }
+
+ void MainWindow::designAreaScrollBarXChanged(int x)
+ {
+    designWidget -> scrollX = x;
+    designWidget -> setFocus();
+}
+
+ void MainWindow::designAreaScrollBarYChanged(int y)
+ {
+    designWidget -> scrollY = y;
+    designWidget -> setFocus();
+ }
+
+ void MainWindow::slotDefineStairs()
+ {
+     *(globals -> appState) = definingStairs;
      designWidget -> setFocus();
  }

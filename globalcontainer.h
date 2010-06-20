@@ -6,9 +6,12 @@
 #include "floor.h"
 
 //global state of application (alias "what Designer is doing right now ?")
-enum STATE {none, defining, connecting, addingFloor};
+enum STATE {none, defining, connecting, addingFloor, definingStairs};
 class QComboBox;
+class QCheckBox;
 class LField;
+class QScrollArea;
+class DesignWidget;
 
 class globalContainer
 {
@@ -38,6 +41,15 @@ public:
     QComboBox *floorsComboBox;
 
     void changeFloor(int);
+
+    QCheckBox *drawBoxes;
+    QCheckBox *renderBoxes;
+
+    QScrollArea *stuffArea;
+    void stuffAreaDraw();
+    QScrollArea *designArea;
+
+
 
 };
 
