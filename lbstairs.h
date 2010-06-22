@@ -17,6 +17,8 @@ public:
     LVector cornersTop[2];
 
     void selfDraw();
+
+    LVector horizontalVector;
 };
 
 #endif // LBSTAIRS_H
