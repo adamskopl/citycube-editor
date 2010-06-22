@@ -1,5 +1,6 @@
 #include "globalcontainer.h"
 #include "field.h"
+#include "lbstairs.h"
 
 #include <QtGui>
 #include "paintwidget.h"
@@ -33,6 +34,14 @@ globalContainer::globalContainer()
     stuffArea = new QScrollArea;
     stuffArea->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     stuffArea->setFixedSize(100,100);
+
+    stairsBottom = NULL;
+    stairsTop = NULL;
+    stairsFieldBottomEdge = 0;
+    stairsFieldTopEdge = 0;
+    isBottomFieldSet = false;
+
+    stairsTree = new LBStairs;
 
 }
 

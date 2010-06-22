@@ -6,12 +6,14 @@
 #include "floor.h"
 
 //global state of application (alias "what Designer is doing right now ?")
-enum STATE {none, defining, connecting, addingFloor, definingStairs};
+enum STATE {none, defining, editingField, addingFloor, definingStairs};
 class QComboBox;
 class QCheckBox;
 class LField;
 class QScrollArea;
 class DesignWidget;
+class QSlider;
+class LBStairs;
 
 class globalContainer
 {
@@ -27,6 +29,13 @@ public:
      - level 2 : fields of floors
      */
     LObject *floorsTree;
+
+    /*stairs tree
+
+    - level 0 : root
+    - level 1 : stairs
+      */
+    LBStairs *stairsTree;
 
     //pointer on actual floor - level 1 of the tree
     //it's field, to have floor's height.
@@ -49,7 +58,20 @@ public:
     void stuffAreaDraw();
     QScrollArea *designArea;
 
+    QSlider *fieldSliderOne;
+    QSlider *fieldSliderTwo;
+    QSlider *fieldSliderThree;
+    QSlider *fieldSliderFour;
 
+    //pointers on fields defining stairs
+    LField *stairsBottom;
+    LField *stairsTop;
+
+    //indexes of walls
+    char stairsFieldBottomEdge;
+    char stairsFieldTopEdge;
+    //help variable for deciding if user has chosen bottom field
+    bool isBottomFieldSet;
 
 };
 

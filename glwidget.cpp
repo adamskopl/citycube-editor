@@ -11,6 +11,7 @@ PreviewWidget::PreviewWidget(globalContainer *globals, QWidget *parent)
     clock = new EClock;
     //we are passing whole floorsTree, because we are previewing every floor
     gameWorld = new LWorld(globals -> floorsTree);
+    gameWorld -> stairsTree = globals -> stairsTree;
     gameCamera = gameWorld -> camera;
     loopDone = false;
 
