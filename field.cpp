@@ -2,7 +2,10 @@
 #include "floor.h"
 LField::LField()
 {
-
+    walls[0] = 10.0;
+    walls[1] = 10.0;
+    walls[2] = 10.0;
+    walls[3] = 10.0;
 }
 
 LField::~LField(){}
@@ -10,6 +13,12 @@ LField::~LField(){}
 LField::LField(char KIND, LVector *C): kind(KIND)
 {
 
+
+    //walls have 0 heights
+    walls[0] = 0.0f;
+    walls[1] = 0.0f;
+    walls[2] = 0.0f;
+    walls[3] = 0.0f;
 
   //no connections at the beginning ...
 
@@ -202,16 +211,16 @@ void LField::selfDraw(){
            glVertex3fv(vertex[p1].point);
            glVertex3fv(vertex[p2].point);
 
-           vertex[p1].point[1] += 10.0; //wall's height
-           vertex[p2].point[1] += 10.0;
+           vertex[p1].point[1] += walls[cnt]; //wall's height
+           vertex[p2].point[1] += walls[cnt];//10.0;
 
            glColor4f(0.0, 0.0, 0.0, 1.0);
 
            glVertex3fv(vertex[p2].point);
            glVertex3fv(vertex[p1].point);
 
-           vertex[p1].point[1] -= 10.0;
-           vertex[p2].point[1] -= 10.0;
+           vertex[p1].point[1] -= walls[cnt];
+           vertex[p2].point[1] -= walls[cnt];
       }
 
       /*

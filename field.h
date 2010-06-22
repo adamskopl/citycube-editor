@@ -97,9 +97,12 @@ class LField : public LObject{
 
 
 
-  bool walls; //walls or not ?
+//  bool walls; //walls or not ?
   
  public:
+  //walls heights
+  float walls[4];
+
   LVector corners[4];
 
   //vector from cornerA to cornerB is vectorA

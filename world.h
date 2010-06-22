@@ -21,6 +21,7 @@
 #include "camera.h"
 #include "object.h"
 #include "floor.h"
+#include "lbstairs.h"
 #include "being.h"
 
 #include "vector.h"
@@ -57,9 +58,11 @@ class LWorld{
   LBeing *root;
 
   LObject *floorsTree;
+  LBStairs *stairsTree;
 
 
   int loadLevel(const char *);
   void drawFloors();
+  void drawStairs();
 };
 #endif

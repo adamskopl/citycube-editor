@@ -13,7 +13,7 @@ using namespace std;
 
 
 enum drawStyle {invisible, field, actualField, stylePointedField, styleChosenField, pointer, connection, wall,
-                normal, inactive, floorLine, fieldSide, wallInactive};
+                normal, inactive, floorLine, fieldSide, wallInactive, styleChosenWall, styleStairsTriangle};
 
 //none       - waiting for actions
 //defining   - new field is being defined
@@ -46,13 +46,15 @@ class LField;
       void mouseReleaseEvent(QMouseEvent *);
 
       void setVariables();       
-
+  public:
       //////////////////////////////////////
       void printInfo(const QString &text);
       void printWarning(const QString &text);
       void printError(const QString &text);
       void printSuccess(const QString &text);
       //////////////////////////////////////
+
+  private:
       void drawGrid();
       void drawDefinedFields();
       void drawPointer();
@@ -112,8 +114,9 @@ class LField;
       //is any field pointed right now ?
       bool isFieldPointed;
       LField *pointedField;
+  public:
       LField *chosenField;
-
+  private:
       void removeField(LField *);
 
       void drawFloor(LBFloor *);
@@ -127,6 +130,11 @@ class LField;
 
       void drawPig();
 
+      //index of chosen wall (can be changed with 'A' and 'D' keys)
+  public:
+      char chosenWall;
+      void drawStairsTriangles();
+      void addNewStairs();
 
   };
 

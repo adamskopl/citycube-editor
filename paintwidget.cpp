@@ -2,6 +2,7 @@
 
 #include "paintwidget.h"
 #include "field.h"
+#include "lbstairs.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -53,6 +54,8 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QW
 
     scrollX = 0;
     scrollY = 0;
+
+    chosenWall = 0;
 }
 
 void DesignWidget::setVariables()
@@ -90,6 +93,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
         }
     default:
         {
+            drawStairsTriangles();
             drawDefinedFields();
             drawActualField();
             drawPointer();
@@ -142,7 +146,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     {
                         //chosenFieldID = pointedFieldID;
                         chosenField = pointedField;
-                        *(GC->appState) = connecting;
+                        *(GC->appState) = editingField;
                         printInfo("choose connection ...");
                     }
                     else
@@ -206,8 +210,30 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     }//switch(cornerIndex)
                     break;
                 }//case(none)
-
-            case(connecting):
+            case(definingStairs):
+                {
+                    //if no field for stairs is chosen    
+                    if(isFieldPointed)
+                    {
+                        //if bottom field is not chosen
+                        if(GC -> stairsBottom == NULL)
+                        {
+                            printInfo("... select border from which stairs will begin (hit 'W', when you're done') ...");
+                            GC -> stairsBottom = pointedField;
+                        }
+                        else
+                        {
+                            //if top field is not chosen
+                            if(GC -> stairsTop == NULL)
+                            {
+                                printInfo("... select border where stairs will end (hit 'W', when you're done') ...");
+                                GC -> stairsTop = pointedField;
+                            }
+                        }
+                    }
+                    break;
+                }
+            case(editingField):
                 {
                     if(isFieldPointed)
                     {
@@ -244,10 +270,11 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     break;
                 }           
 
-            case(connecting):
+            case(editingField):
                 {
                     *(GC -> appState) = none;
                     chosenField = NULL;
+                    chosenWall = 0;
                     break;
                 }
             case(none):
@@ -260,11 +287,28 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                         removeField(pointedField);
 
                     }
+                    else // change floor
+                    {
+                        GC -> actualFloor = (LBFloor*)(GC -> actualFloor -> next);
+
+                    }
                     break;
                 }
             case(addingFloor):
                 {    
                     *(GC -> appState) = none;
+                    break;
+                }
+            case(definingStairs):
+                {
+                    GC -> stairsBottom = NULL;
+                    GC -> stairsTop = NULL;
+                    GC -> stairsFieldBottomEdge = 0;
+                    GC -> stairsFieldTopEdge = 0;
+                    GC -> isBottomFieldSet = false;
+
+                    *(GC -> appState) = none;
+                    printInfo("... cancelled.");
                     break;
                 }
 
@@ -319,8 +363,6 @@ void DesignWidget::drawDefinedFields()
         return;
 
     //draw actual floor first
-    //if(GC -> actualFloor -> isItDrawn)
-
     drawFloor(GC -> actualFloor);
 
     //break this while when last floor is drawn
@@ -333,6 +375,21 @@ void DesignWidget::drawDefinedFields()
             helpFloor = (LBFloor*)(helpFloor -> next);
         else
             break;
+    }
+
+    //drawChosenWall
+    if(*(GC -> appState) == editingField)
+    {
+        setDrawStyle(styleChosenWall);
+
+        char a, b;
+        a = chosenWall;
+        if(chosenWall == 3)
+            b = 0;
+        else
+            b = chosenWall+1;
+        painter -> drawLine(chosenField -> corners[a].x, chosenField -> corners[a].z,
+                        chosenField -> corners[b].x, chosenField -> corners[b].z);
     }
 
 }
@@ -482,6 +539,21 @@ void DesignWidget::setDrawStyle(drawStyle style)
 
             break;
         }
+    case(styleChosenWall):
+        {
+            pen.setColor(Qt::green);
+            pen.setStyle(Qt::SolidLine);
+            pen.setWidth(1);
+            break;
+        }
+    case(styleStairsTriangle):
+        {
+            pen.setColor(Qt::black);
+            pen.setStyle(Qt::SolidLine);
+            pen.setWidth(1);
+            brush.setColor(Qt::darkYellow);
+            break;
+        }
     }
 
     painter->setBrush(brush);
@@ -626,7 +698,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
                 }
                 else
                 {
-                    if(*(GC -> appState) == connecting)
+                    if(*(GC -> appState) == editingField)
                         setDrawStyle(inactive);
                     else
                         setDrawStyle(field);
@@ -634,7 +706,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
             }
             else
             {
-                if(*(GC -> appState) == connecting)
+                if(*(GC -> appState) == editingField)
                     setDrawStyle(inactive);
                 else
                     setDrawStyle(field);
@@ -753,7 +825,7 @@ void DesignWidget::drawPig()
             painter -> drawImage(target, image, source);
             break;
         }
-    case(connecting):
+    case(editingField):
         {
             QImage image("pigField.png");
             painter -> drawImage(target, image, source);
@@ -779,4 +851,100 @@ void DesignWidget::drawPig()
             break;
         }
     }
+}
+
+void DesignWidget::drawStairsTriangles()
+{
+    if(*(GC -> appState) == definingStairs)
+    {
+        //if bottom field is chosen
+        if(GC -> stairsBottom)
+        {
+            //draw triangle symbolizing stairs beginning
+            QPolygon drawnTriangle;
+
+
+            char a = GC -> stairsFieldBottomEdge;
+            char b;
+            if( a == 3)
+                b = 0;
+            else
+                b = a + 1;
+
+            LVector normalPoint;
+            normalPoint.x = GC -> stairsBottom -> corners[a].x +
+                            GC -> stairsBottom -> vectors[a].x/2 +
+                            GC -> stairsBottom -> cornersN[a].x * (-20.0f);
+
+            normalPoint.z = GC -> stairsBottom -> corners[a].z +
+                            GC -> stairsBottom -> vectors[a].z/2 +
+                            GC -> stairsBottom -> cornersN[a].z * (-20.0f);
+
+            drawnTriangle << QPoint(GC -> stairsBottom -> corners[a].x, GC -> stairsBottom -> corners[a].z)
+                    << QPoint(normalPoint.x, normalPoint.z)
+                    << QPoint(GC -> stairsBottom -> corners[b].x, GC -> stairsBottom -> corners[b].z);
+
+            setDrawStyle(styleStairsTriangle);
+            painter -> drawPolygon(drawnTriangle);
+
+        }
+        if(GC -> stairsTop)
+        {
+            //draw triangle symbolizing stairs beginning
+            QPolygon drawnTriangle;
+
+
+            char a = GC -> stairsFieldTopEdge;
+            char b;
+            if( a == 3)
+                b = 0;
+            else
+                b = a + 1;
+
+            LVector normalPoint;
+            normalPoint.x = GC -> stairsTop -> corners[a].x +
+                            GC -> stairsTop -> vectors[a].x/2 +
+                            GC -> stairsTop -> cornersN[a].x * (-20.0f);
+
+            normalPoint.z = GC -> stairsTop -> corners[a].z +
+                            GC -> stairsTop -> vectors[a].z/2 +
+                            GC -> stairsTop -> cornersN[a].z * (-20.0f);
+
+            drawnTriangle << QPoint(GC -> stairsTop -> corners[a].x, GC -> stairsTop -> corners[a].z)
+                    << QPoint(normalPoint.x, normalPoint.z)
+                    << QPoint(GC -> stairsTop -> corners[b].x, GC -> stairsTop -> corners[b].z);
+
+            setDrawStyle(styleStairsTriangle);
+            painter -> drawPolygon(drawnTriangle);
+        }
+    }
+}
+
+void DesignWidget::addNewStairs()
+{
+    LBStairs *newStairs = new LBStairs;
+
+    newStairs -> connBottom = GC -> stairsBottom;
+    newStairs -> connTop = GC -> stairsTop;
+
+    char a, b;
+    a = GC -> stairsFieldBottomEdge;
+    if(a == 3)
+        b = 0;
+    else
+        b = a + 1;
+
+    newStairs -> cornersBottom[0] = GC -> stairsBottom -> corners[a];
+    newStairs -> cornersBottom[1] = GC -> stairsBottom -> corners[b];
+
+    a = GC -> stairsFieldTopEdge;
+    if(a == 3)
+        b = 0;
+    else
+        b = a + 1;
+
+    newStairs -> cornersTop[0] = GC -> stairsTop -> corners[a];
+    newStairs -> cornersTop[1] = GC -> stairsTop -> corners[b];
+
+    newStairs -> connectTo(GC -> stairsTree);
 }

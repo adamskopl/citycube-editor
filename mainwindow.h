@@ -18,6 +18,8 @@ class DesignWidget;
 class PreviewWidget;
 class QTextEdit;
 class QGridLayout;
+class QHBoxLayout;
+class QSlider;
 
 class MainWindow : public QMainWindow
 {
@@ -31,6 +33,11 @@ public slots:
     void slotFloorChanged( int );
     void slotNewFloor();
     void slotDefineStairs();
+
+    void slotFloorSliderOneChanged(int);
+    void slotFloorSliderTwoChanged(int);
+    void slotFloorSliderThreeChanged(int);
+    void slotFloorSliderFourChanged(int);
 
     void changeFloorsView();
     void designAreaScrollBarXChanged(int);
@@ -47,6 +54,7 @@ public slots:
 
 
 private:    
+    QSlider *createSlider();
     void createMenus();
 
     QWidget *centralWidget;
@@ -66,7 +74,7 @@ private:
     QMenu *helpMenu;
 
     QGridLayout *toolsLayout;
-    QGridLayout *fieldEditLayout;
+    QHBoxLayout *fieldEditLayout;
     QGridLayout *floorChooseLayout;
     QGridLayout *floorsLayout;
 
@@ -80,6 +88,13 @@ private:
     QLabel floorsHelpLabels[4];
 
     void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *);
+
+    //sliders
+    QSlider *fieldSliderOne;
+    QSlider *fieldSliderTwo;
+    QSlider *fieldSliderThree;
+    QSlider *fieldSliderFour;
 
 };
 

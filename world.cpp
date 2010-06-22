@@ -116,6 +116,26 @@ void LWorld::drawFloors()
     }
 }
 
+void LWorld::drawStairs()
+{
+
+    LBStairs *drawnStairs;
+    if(stairsTree -> hasChild())
+        drawnStairs = (LBStairs*)(stairsTree -> child);
+    else
+        return;
+
+    //break this while, when last stairs are drawn
+    while(1)
+    {
+        drawnStairs -> selfDraw();
+        if(drawnStairs -> isLast())
+            break;
+        drawnStairs = (LBStairs*)(drawnStairs -> next);
+    }
+
+}
+
 void LWorld::draw(LCamera *camera)
 {
   //GL_TEXTURE_2D INVOKED ONLY HERE
@@ -124,6 +144,7 @@ void LWorld::draw(LCamera *camera)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
   drawFloors();
+  drawStairs();
   //TODO : write function for drawing.
 /*
   glPushMatrix();
@@ -145,79 +166,4 @@ void LWorld::draw(LCamera *camera)
   //root -> othersDraw(camera);
 }
 
-/*int LWorld::loadLevel(const char * filename){
-  FILE *filePtr;
 
-  filePtr = fopen(filename,"rb");
-
-  int size;
-  
-  fread(&size, 1, sizeof(int), filePtr);
-  size --;
-
-  for(int a = 0; a < size; a++){
-    char kind;
-    CORNERS c;
-    c.a.y = 0.0;
-    c.b.y = 0.0;
-    c.c.y = 0.0;
-    c.d.y = 0.0;
-    
-    fread(&kind, 1, sizeof(char), filePtr);
-
-    fread(&c.a.x, 1,sizeof(float), filePtr);
-    fread(&c.a.z, 1,sizeof(float), filePtr);
-    fread(&c.b.x, 1,sizeof(float), filePtr);
-    fread(&c.b.z, 1,sizeof(float), filePtr);
-    fread(&c.c.x, 1,sizeof(float), filePtr);
-    fread(&c.c.z, 1,sizeof(float), filePtr);
-    fread(&c.d.x, 1,sizeof(float), filePtr);
-    fread(&c.d.z, 1,sizeof(float), filePtr);
-
-    c.a *= 10;
-    c.b *= 10;
-    c.c *= 10;    
-    c.d *= 10;
-
-    int up, right, down, left;
-    
-    fread(&up, 1,sizeof(int), filePtr);
-    fread(&right, 1,sizeof(int), filePtr);    
-    fread(&down, 1,sizeof(int), filePtr);
-    fread(&left, 1,sizeof(int), filePtr);
-
-
-    LField *temp = new LField(kind, &c);
-    temp->up = up;
-    temp->right = right;
-    temp->down = down;
-    temp->left = left;
-    
-    fields.push_back(*temp);//add readed field
-  }
-
-  
-  fclose(filePtr);
-
-  for(int a = 0; a < size; a++){
-    if(fields[a].up){fields[a].ConnectUp(&(fields[fields[a].up-1]));}
-    if(fields[a].right){fields[a].ConnectRight(&(fields[fields[a].right-1]));}
-    if(fields[a].down){fields[a].ConnectDown(&(fields[fields[a].down-1]));}
-    if(fields[a].left){fields[a].ConnectLeft(&(fields[fields[a].left-1]));}    
-  }
-  
-  hero -> field = &(fields[0]);
-  fields[0].heroEnters();
-
-  float dx = fields[0].corners.b.x - fields[0].corners.a.x;
-  float dz = fields[0].corners.a.z - fields[0].corners.d.z;
-
-  float x = fields[0].corners.b.x - (dx/2);
-  float z = fields[0].corners.b.z - (dz/2);  
-
-  hero -> position = LVector(x,2.5,z);
-
-  return size;
-}
-
-*/

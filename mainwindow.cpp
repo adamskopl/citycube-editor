@@ -98,12 +98,34 @@
      QGroupBox *drawGroup = new QGroupBox(tr("draw floors"));
 
 
-     fieldEditLayout = new QGridLayout;
+     fieldSliderOne = createSlider();
+     fieldSliderTwo = createSlider();
+     fieldSliderThree = createSlider();
+     fieldSliderFour = createSlider();
+
+     globals -> fieldSliderOne = fieldSliderOne;
+     globals -> fieldSliderTwo = fieldSliderTwo;
+     globals -> fieldSliderThree = fieldSliderThree;
+     globals -> fieldSliderFour = fieldSliderFour;
+
+     connect(fieldSliderOne, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderOneChanged(int)));
+     connect(fieldSliderTwo, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderTwoChanged(int)));
+     connect(fieldSliderThree, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderThreeChanged(int)));
+     connect(fieldSliderFour, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderFourChanged(int)));
+
+     fieldEditLayout = new QHBoxLayout;
+     fieldEditLayout -> addWidget(fieldSliderOne);
+     fieldEditLayout -> addWidget(fieldSliderTwo);
+     fieldEditLayout -> addWidget(fieldSliderThree);
+     fieldEditLayout -> addWidget(fieldSliderFour);
+
      fieldEditGroup -> setLayout(fieldEditLayout);
 
-     QGridLayout *objectsGroupLayout = new QGridLayout;
+     QVBoxLayout *objectsGroupLayout = new QVBoxLayout;
      QPushButton *newStairsButton = new QPushButton(tr("Stairs"));
-     objectsGroupLayout -> addWidget(newStairsButton, 0, 0, Qt::AlignTop);
+     QPushButton *newPlatformButton = new QPushButton(tr("Platform"));
+     objectsGroupLayout -> addWidget(newStairsButton);
+     objectsGroupLayout -> addWidget(newPlatformButton);
      objectsGroup -> setLayout(objectsGroupLayout);
 
      connect(newStairsButton, SIGNAL(clicked()),
@@ -304,5 +326,223 @@
  void MainWindow::slotDefineStairs()
  {
      *(globals -> appState) = definingStairs;
+     designWidget -> printInfo("Choose bottom field for stairs ... ");
      designWidget -> setFocus();
+ }
+
+ QSlider *MainWindow::createSlider()
+ {
+     QSlider *slider = new QSlider(Qt::Vertical);
+     slider->setRange(0, 100);
+     slider->setSingleStep(5);
+     slider->setPageStep(20);
+     //slider->setTickInterval(20);
+
+     slider->setTickPosition(QSlider::TicksRight);
+     slider -> setDisabled(true);
+     return slider;
+ }
+
+
+ void MainWindow::slotFloorSliderOneChanged(int value)
+ {
+//     designWidget -> printInfo(QString::number(value));
+     designWidget -> chosenField -> walls[0] = value;
+ }
+ void MainWindow::slotFloorSliderTwoChanged(int value)
+ {
+     designWidget -> chosenField -> walls[1] = value;
+ }
+ void MainWindow::slotFloorSliderThreeChanged(int value)
+ {
+     designWidget -> chosenField -> walls[2] = value;
+ }
+ void MainWindow::slotFloorSliderFourChanged(int value)
+ {
+     designWidget -> chosenField -> walls[3] = value;
+ }
+
+ void MainWindow::keyPressEvent(QKeyEvent *event)
+ {
+
+     switch(event -> key())
+     {
+     //previous wall
+     case(Qt::Key_A):
+         {
+             switch(*(globals -> appState))
+             {
+             case(editingField):
+                 {
+                     designWidget -> chosenWall --;
+                     if (designWidget -> chosenWall < 0)
+                         designWidget -> chosenWall = 3;
+                     designWidget -> repaint();
+                     break;
+                 }
+             case(definingStairs):
+                 {
+                     //if bottom field is not done, but is chosen
+                     if( ! (globals -> isBottomFieldSet) && globals -> stairsBottom )
+                     {
+                         globals -> stairsFieldBottomEdge--;
+                         if(globals -> stairsFieldBottomEdge < 0)
+                             globals -> stairsFieldBottomEdge = 3;
+
+                         designWidget -> repaint();
+                     }
+                     else
+                     {
+                         //if top field is chosen
+                         if(globals -> stairsTop)
+                         {
+                             globals -> stairsFieldTopEdge--;
+                             if(globals -> stairsFieldTopEdge < 0)
+                                 globals -> stairsFieldTopEdge = 3;
+
+                             designWidget -> repaint();
+                         }
+                     }
+                     break;
+                 }
+             default:
+                 {
+                     break;
+                 }
+             }
+             break;
+         }
+     //next wall
+     case(Qt::Key_D):
+         {
+             switch(*(globals -> appState))
+             {
+             case(editingField):
+                 {
+                     designWidget -> chosenWall ++;
+                     if (designWidget -> chosenWall > 3)
+                         designWidget -> chosenWall = 0;
+                     designWidget -> repaint();
+                     break;
+                 }
+             case(definingStairs):
+                 {
+                     if( !(globals -> isBottomFieldSet) && !(globals -> stairsTop))
+                     {
+                         globals -> stairsFieldBottomEdge++;
+                         if(globals -> stairsFieldBottomEdge > 3)
+                             globals -> stairsFieldBottomEdge = 0;
+
+                         designWidget -> repaint();
+                     }
+                     else
+                     {
+                         //if top field is chosen
+                         if(globals -> stairsTop)
+                         {
+                             globals -> stairsFieldTopEdge++;
+                             if(globals -> stairsFieldTopEdge > 3)
+                                 globals -> stairsFieldTopEdge = 0;
+
+                             designWidget -> repaint();
+                         }
+                     }
+
+                     break;
+                 }
+             default:
+                 {
+                     break;
+                 }
+             }
+             break;
+         }
+     case(Qt::Key_W):
+         {
+             switch(*(globals -> appState))
+             {
+             //increase wall's height
+             case(editingField):
+                 {
+                     char wallIndex = designWidget -> chosenWall;
+                     designWidget -> chosenField -> walls[wallIndex] += 5.0f;
+                     break;
+                 }
+             //higher floor
+             case(none):
+                 {
+                     globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> next);
+                     designWidget -> repaint();
+                     break;
+                 }
+             //accepting chosen border
+             case(definingStairs):
+                 {
+                     if(!(globals -> isBottomFieldSet) && globals -> stairsBottom)
+                     {
+                         globals -> isBottomFieldSet = true;
+                         designWidget -> printInfo("... choose top field for stairs ...");
+                     }
+                     else
+                     {
+                         //if top field is chosen
+                         if(globals -> stairsTop)
+                         {
+                             designWidget -> addNewStairs();
+                             designWidget -> printSuccess("... stairs defined.");
+                             *(globals -> appState) = none;
+                             globals -> stairsBottom = NULL;
+                             globals -> stairsTop = NULL;
+                             globals -> stairsFieldBottomEdge = 0;
+                             globals -> stairsFieldTopEdge = 0;
+                             globals -> isBottomFieldSet = false;
+                             designWidget -> repaint();
+                         }
+                         else
+                         {
+                             globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> next);
+                             designWidget -> repaint();
+                         }
+
+                     }
+                     break;
+                 }
+             }
+
+             break;
+         }
+     case(Qt::Key_S):
+         {
+             switch(*(globals -> appState))
+             {
+             case(editingField):
+                 {
+                     char wallIndex = designWidget -> chosenWall;
+                     designWidget -> chosenField -> walls[wallIndex] -= 5.0f;
+                     break;
+                 }
+             }
+             //lower floor
+             case(none):
+                 {
+                     globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> prev);
+                     designWidget -> repaint();
+                     break;
+                 }
+             case(definingStairs):
+                 {
+                     globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> prev);
+                     designWidget -> repaint();
+                     break;
+                 }
+             break;
+         }
+
+
+     default:
+         {
+             break;
+         }
+     }
+
  }
