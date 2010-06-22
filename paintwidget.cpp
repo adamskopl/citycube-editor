@@ -945,6 +945,7 @@ void DesignWidget::addNewStairs()
 
     newStairs -> cornersTop[0] = GC -> stairsTop -> corners[a];
     newStairs -> cornersTop[1] = GC -> stairsTop -> corners[b];
+    newStairs -> horizontalVector = GC -> stairsHorizontalVector;
 
     newStairs -> connectTo(GC -> stairsTree);
 }

@@ -70,6 +70,12 @@ public:
     //indexes of walls
     char stairsFieldBottomEdge;
     char stairsFieldTopEdge;
+
+    /*
+      vector used for drawing steps - their horizontal direction is equal
+      to bottom field wall's normal vector
+      */
+    LVector stairsHorizontalVector;
     //help variable for deciding if user has chosen bottom field
     bool isBottomFieldSet;
 
