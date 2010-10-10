@@ -37,15 +37,16 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QW
     this->reportWidget = reportWidget;
 
     resize(QSize(1000,1000));
-    setBackgroundRole(QPalette::Dark);
-    //setForegroundRole(QPalette::Highlight);
+
+    //set
+    //setForegroundRole(QPalette::Dark);
 
     pen = QPen(Qt::black, 1);
     brush = QBrush(Qt::green);
 
     reportWidget -> setReadOnly(true);
 
-   // painter = new QPainter(this);
+    // painter = new QPainter(this);
     setVariables();
     setMouseTracking(true);
 
@@ -78,7 +79,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
     painter = new QPainter(this);
     drawGrid();
 
-//    QPainter painter(this);
+    //    QPainter painter(this);
 
 
 
@@ -109,6 +110,8 @@ void DesignWidget::paintEvent(QPaintEvent *)
 
 void DesignWidget::drawGrid()
 {
+    setDrawStyle(drawStyleGrid);
+    painter->fillRect(0, 0, worldSize, worldSize, brush);
 
     int crossX, crossY;
 
@@ -121,7 +124,7 @@ void DesignWidget::drawGrid()
             crossX = x; crossY = y;
         }else
             painter->drawPoint(x, y);
-        }
+    }
 
     selectedX = crossX;
     selectedY = crossY;
@@ -131,11 +134,11 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 {
     int x = event->pos().x();
     int y = event->pos().y();
-//    reportWidget -> setText("clicked on: ("+QString::number(x)+", "+QString::number(y)+")");
+    //    reportWidget -> setText("clicked on: ("+QString::number(x)+", "+QString::number(y)+")");
 
     switch(event->button())
     {
-    //left button
+        //left button
     case(1):
         {
             switch(*(GC -> appState)){
@@ -258,7 +261,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 
             break;
         }//case(1) - button
-    //right button
+        //right button
     case(2):
         {
             switch(*(GC-> appState)){
@@ -320,6 +323,10 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 
             break;
         }
+    default:
+      {
+	break;
+      }
 
 
     }
@@ -331,9 +338,12 @@ void DesignWidget::mouseReleaseEvent(QMouseEvent *event)
     {
     case(Qt::MidButton):
         {
-
             break;
         }
+    default:
+      {
+	break;
+      }
 
     }
 
@@ -352,8 +362,8 @@ void DesignWidget::mouseMoveEvent(QMouseEvent *event)
 //draw all fields on each floor. Pass floors, that has
 void DesignWidget::drawDefinedFields()
 {
-    setDrawStyle(field);
-    isFieldPointed = false;
+  setDrawStyle(field);
+  isFieldPointed = false;
 
     LBFloor *helpFloor;
 
@@ -389,7 +399,7 @@ void DesignWidget::drawDefinedFields()
         else
             b = chosenWall+1;
         painter -> drawLine(chosenField -> corners[a].x, chosenField -> corners[a].z,
-                        chosenField -> corners[b].x, chosenField -> corners[b].z);
+                            chosenField -> corners[b].x, chosenField -> corners[b].z);
     }
 
 }
@@ -437,9 +447,19 @@ void DesignWidget::drawActualField()
 
 void DesignWidget::setDrawStyle(drawStyle style)
 {
+    //TODO: dodać wszędzie prefiks "drawStyle"
     switch(style)
-    {
-    //none
+    {        
+        //when drawing grid
+    case(drawStyleGrid):
+        {
+            pen.setColor(Qt::white);
+            brush.setColor(QColor(58,107,200));
+	    pen.setWidth(1);
+            break;
+        }
+
+        //none
     case(invisible):
         {
             pen.setColor(Qt::transparent);
@@ -447,15 +467,15 @@ void DesignWidget::setDrawStyle(drawStyle style)
             break;
         }
 
-    //field
+        //field
     case(field):
         {
             brush.setColor(QColor(160, 170, 180));
-            pen.setColor(Qt::transparent);
+	    pen.setColor(Qt::white);
             pen.setStyle(Qt::SolidLine);
             break;
         }
-    //actual field
+        //actual field
     case(actualField):
         {
             pen.setStyle(Qt::DotLine);
@@ -463,15 +483,15 @@ void DesignWidget::setDrawStyle(drawStyle style)
             pen.setWidth(2);
             break;
         }
-    //selected field
+        //selected field
     case(stylePointedField):
         {
             brush.setColor(Qt::darkGreen);
-            pen.setColor(Qt::transparent);
+	    pen.setColor(Qt::transparent);
             pen.setWidth(1);
             break;
         }
-    //pointer
+        //pointer
     case(pointer):
         {
             brush.setColor(Qt::yellow);
@@ -482,7 +502,7 @@ void DesignWidget::setDrawStyle(drawStyle style)
         }
     case(connection):
         {
-//            brush.setColor(Qt::cyan);
+            //            brush.setColor(Qt::cyan);
             pen.setColor(Qt::yellow);
             pen.setStyle(Qt::SolidLine);
             pen.setWidth(1);
@@ -504,6 +524,7 @@ void DesignWidget::setDrawStyle(drawStyle style)
             break;
         }
 
+        //normal vector (this is how it is in english?)
     case(normal):
         {
             pen.setColor(Qt::magenta);
@@ -568,7 +589,7 @@ void DesignWidget::refreshFields()
     //refresh ID's - in case of removing fields
     //for(int cnt = 0; cnt < fields->size(); cnt++)
     //{
-//        fields->at(cnt).ID = cnt;
+    //        fields->at(cnt).ID = cnt;
     //}
 }
 
@@ -639,7 +660,7 @@ void DesignWidget::drawFieldSide(LField *drawnField)
         int yPos = worldSize - drawnField -> corners[a1].y;
 
         painter -> drawLine(drawnField->corners[a1].x, yPos,
-                    drawnField->corners[a2].x, yPos);
+                            drawnField->corners[a2].x, yPos);
 
     }
 }
@@ -706,10 +727,10 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
             }
             else
             {
-                if(*(GC -> appState) == editingField)
-                    setDrawStyle(inactive);
-                else
-                    setDrawStyle(field);
+	      if(*(GC -> appState) == editingField)
+		setDrawStyle(inactive);
+	      else
+		setDrawStyle(field);
             }
 
             if(helpField == chosenField)
@@ -718,12 +739,12 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
             QPolygon drawField;
 
 
-                drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
-                        << QPoint(helpField->corners[1].x,helpField->corners[1].z)
-                        << QPoint(helpField->corners[2].x,helpField->corners[2].z)
-                        << QPoint(helpField->corners[3].x,helpField->corners[3].z);
+            drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
+                    << QPoint(helpField->corners[1].x,helpField->corners[1].z)
+                    << QPoint(helpField->corners[2].x,helpField->corners[2].z)
+                    << QPoint(helpField->corners[3].x,helpField->corners[3].z);
 
-                painter->drawPolygon(drawField);
+            painter->drawPolygon(drawField);
         }//(if drawnFloor == GC -> actualFloor)
 
 
@@ -846,7 +867,7 @@ void DesignWidget::drawPig()
 
     default:
         {
-            QImage image("pigEmpty.png");
+            QImage image("pigRuler.png");
             painter -> drawImage(target, image, source);
             break;
         }

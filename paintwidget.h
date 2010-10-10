@@ -13,7 +13,7 @@ using namespace std;
 
 
 enum drawStyle {invisible, field, actualField, stylePointedField, styleChosenField, pointer, connection, wall,
-                normal, inactive, floorLine, fieldSide, wallInactive, styleChosenWall, styleStairsTriangle};
+                normal, inactive, floorLine, fieldSide, wallInactive, styleChosenWall, styleStairsTriangle, drawStyleGrid};
 
 //none       - waiting for actions
 //defining   - new field is being defined
