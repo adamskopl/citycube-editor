@@ -12,7 +12,7 @@
 using namespace std;
 
 
-enum drawStyle {invisible, field, actualField, stylePointedField, styleChosenField, pointer, connection, wall,
+enum drawStyle {invisible, drawStyleField, actualField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
                 normal, inactive, floorLine, fieldSide, wallInactive, styleChosenWall, styleStairsTriangle, drawStyleGrid};
 
 //none       - waiting for actions
