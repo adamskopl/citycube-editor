@@ -28,8 +28,8 @@ void LBStairs::selfDraw()
     //to not recalculate same values every time
 
     float stairsHeight = cornersTop[0].y - cornersBottom[0].y;
-    // assumed every step's height
-    float stepHeight = 3.0f;
+    // assumed every step's height (it will be modified to fit stairs height)
+    float desiredHeight = 3.0f;
 
     float stairsWidth = LVector(cornersBottom[0].x - cornersTop[1].x,
                                 0.0f, cornersBottom[0].z - cornersTop[1].z).Length();
@@ -41,8 +41,11 @@ void LBStairs::selfDraw()
     float stairsHeightTop = LVector(cornersTop[0].x - cornersTop[1].x,
                                     0.0f, cornersTop[0].z - cornersTop[1].z).Length();
 
-    int stepsNumber = stairsHeight / stepHeight;
+
+    int stepsNumber = stairsHeight / desiredHeight;
+    float stepHeight = stairsHeight / stepsNumber;
     float stepWidth = stairsWidth / stepsNumber;
+
 
     //printf("%f\n", stairsWidth);
 
@@ -103,7 +106,7 @@ void LBStairs::selfDraw()
         glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
         glVertex3fv(verticalDraw[0].point);
         glVertex3fv(verticalDraw[1].point);
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4f(0.85, 0.2, 0.0, 1.0);
         glVertex3fv(verticalDraw[2].point);
         glVertex3fv(verticalDraw[3].point);
         //draw horizontal part of step

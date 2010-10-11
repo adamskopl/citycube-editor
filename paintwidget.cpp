@@ -362,7 +362,7 @@ void DesignWidget::mouseMoveEvent(QMouseEvent *event)
 //draw all fields on each floor. Pass floors, that has
 void DesignWidget::drawDefinedFields()
 {
-  setDrawStyle(field);
+  setDrawStyle(drawStyleField);
   isFieldPointed = false;
 
     LBFloor *helpFloor;
@@ -468,11 +468,12 @@ void DesignWidget::setDrawStyle(drawStyle style)
         }
 
         //field
-    case(field):
+    case(drawStyleField):
         {
-            brush.setColor(QColor(160, 170, 180));
-	    pen.setColor(Qt::white);
-            pen.setStyle(Qt::SolidLine);
+	  //	  brush.setColor(QColor(160, 170, 180));
+	  //	  pen.setStyle(Qt::SolidLine);
+	  //	  pen.setWidth(1);
+	  brush.setColor(Qt::transparent);
             break;
         }
         //actual field
@@ -508,10 +509,10 @@ void DesignWidget::setDrawStyle(drawStyle style)
             pen.setWidth(1);
             break;
         }
-    case(wall):
+    case(drawStyleWall):
         {
             pen.setStyle(Qt::SolidLine);
-            pen.setColor(Qt::black);
+            pen.setColor(Qt::white);
             pen.setWidth(1);
             break;
         }
@@ -681,8 +682,6 @@ void DesignWidget::addFloor(float height)
     GC -> floorsComboBox -> addItem(tr(floorName->toAscii()));
     (*(GC -> floorsAmount))++;
 
-
-
 }
 
 
@@ -722,7 +721,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
                     if(*(GC -> appState) == editingField)
                         setDrawStyle(inactive);
                     else
-                        setDrawStyle(field);
+                        setDrawStyle(drawStyleField);
                 }
             }
             else
@@ -730,7 +729,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 	      if(*(GC -> appState) == editingField)
 		setDrawStyle(inactive);
 	      else
-		setDrawStyle(field);
+		setDrawStyle(drawStyleField);
             }
 
             if(helpField == chosenField)
@@ -738,11 +737,10 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 
             QPolygon drawField;
 
-
-            drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
-                    << QPoint(helpField->corners[1].x,helpField->corners[1].z)
-                    << QPoint(helpField->corners[2].x,helpField->corners[2].z)
-                    << QPoint(helpField->corners[3].x,helpField->corners[3].z);
+	    drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
+		      << QPoint(helpField->corners[1].x,helpField->corners[1].z)
+		      << QPoint(helpField->corners[2].x,helpField->corners[2].z)
+		      << QPoint(helpField->corners[3].x,helpField->corners[3].z);
 
             painter->drawPolygon(drawField);
         }//(if drawnFloor == GC -> actualFloor)
@@ -788,7 +786,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
                 if(drawnFloor != GC -> actualFloor)
                     setDrawStyle(wallInactive);
                 else
-                    setDrawStyle(wall);
+                    setDrawStyle(drawStyleWall);
             }
 
             painter -> drawLine(helpField->corners[a].x, helpField->corners[a].z,
