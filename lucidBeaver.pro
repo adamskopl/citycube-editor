@@ -20,7 +20,8 @@ HEADERS += glwidget.h \
     lucidbeaver.h \
     globalcontainer.h \
     floor.h \
-    lbstairs.h
+    lbstairs.h \
+    lbpassage.h
 SOURCES += glwidget.cpp \
     paintwidget.cpp \
     mainwindow.cpp \
@@ -41,7 +42,8 @@ SOURCES += glwidget.cpp \
     lucidbeaver.cpp \
     globalcontainer.cpp \
     floor.cpp \
-    lbstairs.cpp
+    lbstairs.cpp \
+    lbpassage.cpp
 QT += opengl
 LIBS += `sdl-config \
     --libs \
