@@ -390,7 +390,7 @@ void DesignWidget::drawDefinedFields()
     //drawChosenWall
     if(*(GC -> appState) == editingField)
     {
-        setDrawStyle(styleChosenWall);
+        setDrawStyle(drawStyleChosenWall);
 
         char a, b;
         a = chosenWall;
@@ -503,8 +503,8 @@ void DesignWidget::setDrawStyle(drawStyle style)
         }
     case(connection):
         {
-            //            brush.setColor(Qt::cyan);
-            pen.setColor(Qt::yellow);
+	   //            brush.setColor(Qt::cyan);
+       	    pen.setColor(Qt::yellow);
             pen.setStyle(Qt::SolidLine);
             pen.setWidth(1);
             break;
@@ -561,11 +561,11 @@ void DesignWidget::setDrawStyle(drawStyle style)
 
             break;
         }
-    case(styleChosenWall):
+    case(drawStyleChosenWall):
         {
             pen.setColor(Qt::green);
             pen.setStyle(Qt::SolidLine);
-            pen.setWidth(1);
+            pen.setWidth(3);
             break;
         }
     case(styleStairsTriangle):
