@@ -13,7 +13,7 @@ using namespace std;
 
 
 enum drawStyle {invisible, drawStyleField, actualField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
-                normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid};
+                normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint};
 
 //none       - waiting for actions
 //defining   - new field is being defined
@@ -115,7 +115,11 @@ class LField;
       bool isFieldPointed;
       LField *pointedField;
   public:
+      //chosen field for defining
       LField *chosenField;
+      //second field, chosen after choosing first one
+      LField *chosenField2;
+
   private:
       void removeField(LField *);
 
@@ -136,6 +140,12 @@ class LField;
       void drawStairsTriangles();
       void addNewStairs();
 
+      void drawEdge();
+
+      bool checkTouching();
+      bool arePointsCollinear(LVector, LVector, LVector, LVector);
+      //points of chosen passage (conecting 2 fields)
+      LVector passageA, passageB;
   };
 
 #endif // PAINTWIDGET_H

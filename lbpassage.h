@@ -3,7 +3,9 @@
 
 #include "field.h"
 
-class lbpassage
+class LField;
+
+class lbpassage : public LObject
 {
  public:
   lbpassage();
