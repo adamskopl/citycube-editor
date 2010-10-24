@@ -4,7 +4,10 @@
 #include "field.h"
 #include "lbstairs.h"
 #include <math.h>
+
 #include <stdio.h>
+
+//TODO: class is too big. add other classes helping DesignWidget
 
 
 void DesignWidget::printInfo(const QString &text)
@@ -81,20 +84,26 @@ void DesignWidget::paintEvent(QPaintEvent *)
 
     //    QPainter painter(this);
 
-
-
     switch(*(GC -> appState))
     {
     case(addingFloor):
         {
-            drawNewFloorLine();
-            drawFloorsSide();
+	  drawNewFloorLine();
+	  drawFloorsSide();
 
-            break;
+	  break;
         }
+    case(connectingFields):
+      {
+	drawEdge();
+	
+
+	drawDefinedFields();
+	break;
+      }
     default:
         {
-            drawStairsTriangles();
+	    drawStairsTriangles();
             drawDefinedFields();
             drawActualField();
             drawPointer();
@@ -102,7 +111,9 @@ void DesignWidget::paintEvent(QPaintEvent *)
         }
     }
 
-
+    setDrawStyle(drawStyleBigPoint);
+    painter->drawPoint(passageA.x, passageA.z);    
+    painter->drawPoint(passageB.x, passageB.z);    
 
     drawPig();
     delete painter;
@@ -150,7 +161,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                         //chosenFieldID = pointedFieldID;
                         chosenField = pointedField;
                         *(GC->appState) = editingField;
-                        printInfo("choose connection ...");
+                        printInfo("choose other field ...");
                     }
                     else
                     {
@@ -240,14 +251,30 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 {
                     if(isFieldPointed)
                     {
-                        if(pointedField->connectTo(chosenField))
+		      /*if(pointedField->connectTo(chosenField))
                             printSuccess("... connection defined");
                         else
                             printError("... wrong field chosen");
-
+		      */
                         //chosenFieldID = -1;
-                        chosenField = NULL;
-                        *(GC -> appState) = none;
+                        chosenField2 = pointedField;
+			if( checkTouching() )
+			  {
+			    printSuccess("YES!");
+			    //			    *(GC -> appState) = connectingFields;
+			    //			    chosenField2 = pointedField;
+			    *(GC -> appState) = none;
+			    chosenField = NULL;
+			    chosenField2 = NULL;
+			  }
+			else
+			  {
+			    printError("NO !");
+			    *(GC -> appState) = none;
+			    chosenField = NULL;
+			    chosenField2 = NULL;
+			  }
+
                     }
                     break;
                 }
@@ -256,7 +283,6 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     addFloor(selectedY);
                     *(GC -> appState) = none;
                 }
-
             }//switch(state)
 
             break;
@@ -563,19 +589,27 @@ void DesignWidget::setDrawStyle(drawStyle style)
         }
     case(drawStyleChosenWall):
         {
-            pen.setColor(Qt::green);
+            pen.setColor(Qt::yellow);
             pen.setStyle(Qt::SolidLine);
             pen.setWidth(3);
             break;
         }
     case(styleStairsTriangle):
-        {
-            pen.setColor(Qt::black);
-            pen.setStyle(Qt::SolidLine);
-            pen.setWidth(1);
-            brush.setColor(Qt::darkYellow);
-            break;
-        }
+      {
+	pen.setColor(Qt::black);
+	pen.setStyle(Qt::SolidLine);
+	pen.setWidth(1);
+	brush.setColor(Qt::darkYellow);
+	break;
+      }
+
+    case(drawStyleBigPoint):
+      {
+	pen.setColor(Qt::red);
+	pen.setWidth(3);
+	brush.setColor(Qt::red);
+      }
+
     }
 
     painter->setBrush(brush);
@@ -701,6 +735,13 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
     //break this while, when last field of actual floor is drawn
     while(1)
     {
+      //Okay, little mess. We have new state: connectingFields
+      //this complicates following code (before drawing floors other than actual one)
+      //if another state will appear, rebuild of following "if" will be needed
+
+
+      //for now: check if field is pointed only if ...
+      if(*(GC -> appState) != connectingFields)
         if(drawnFloor == GC -> actualFloor)
         {
             //check if field is pointed with mouse
@@ -744,6 +785,12 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 
             painter->drawPolygon(drawField);
         }//(if drawnFloor == GC -> actualFloor)
+
+      //draw parts of "connectingFields" state
+      if(*(GC -> appState) == connectingFields)
+	{
+	  
+	}
 
 
         /////////////////////////////////////////////
@@ -967,4 +1014,213 @@ void DesignWidget::addNewStairs()
     newStairs -> horizontalVector = GC -> stairsHorizontalVector;
 
     newStairs -> connectTo(GC -> stairsTree);
+}
+
+void
+DesignWidget::drawEdge()
+{
+  //for every wall's non-empty fragment
+}
+
+//check if chosenField is touching chosenField2 (they have to be set)
+//in such way, that passage can be made. if so - set passageA & passageB
+bool
+DesignWidget::checkTouching()
+{
+  //for every pair of edges from different sectors
+  for(int a = 0; a < 4; a++)
+    {
+      for(int b = 0; b < 4; b++)
+	{
+	  //considered corners
+	  LVector cX[4];
+
+	  if(a == 3) cX[1] = chosenField -> corners[0];
+	  else
+	    cX[1] = chosenField -> corners[a+1];
+	  
+	  if(b == 3) cX[3] = chosenField2 -> corners[0];
+	  else
+	    cX[3] = chosenField2 -> corners[b+1];
+	  
+	  cX[0] = chosenField -> corners[a];
+	  cX[2] = chosenField2 -> corners[b];
+
+
+          if((cX[0].x - cX[1].x)*(cX[2].z - cX[3].z) == 
+	     (cX[2].x - cX[3].x)*(cX[0].z - cX[1].z))//initial condition: collinearity of two edges (but it's not sufficient)
+	    {
+	      //count how many points of one edge belongs to second edge and vice-versa
+	      //2:0 - ok, 2:1 - ok, 2:2 - ok, 1:1 - ok if points are not equal
+
+	      bool isIn[4];
+	      //e.g isA: establish if cX[0] and cX[2] and cX[3] are collinear. if so, check if
+	      // cX[0].x is betweeen cX[2].x and cX[3].x and cA.z between cX[2].z and cX[3].z
+
+	      //A & B belongs to CD?
+	      for(int cnt = 0; cnt < 2; cnt++)
+		{
+		  bool isXok, isZok;
+
+		  //check which .x coor is first
+		  if(cX[2].x < cX[3].x)
+		    {isXok = (cX[cnt].x >= cX[2].x && cX[cnt].x <= cX[3].x);}
+		  else
+		    {isXok = (cX[cnt].x <= cX[2].x && cX[cnt].x >= cX[3].x);}
+
+		  if(cX[2].z < cX[3].z)
+		    {isZok = (cX[cnt].z >= cX[2].z && cX[cnt].z <= cX[3].z);}
+		  else
+		    {isZok = (cX[cnt].z <= cX[2].z && cX[cnt].z >= cX[3].z);}
+
+		  isIn[cnt] = isXok && isZok;
+		}
+
+	      //C & D  belongs to AB?
+	      for(int cnt = 2; cnt < 4; cnt++)
+		{
+		  bool isXok, isZok;
+
+		  //check which .x coor is first
+		  if(cX[0].x < cX[1].x)
+		    {isXok = (cX[cnt].x >= cX[0].x && cX[cnt].x <= cX[1].x);}
+		  else
+		    {isXok = (cX[cnt].x <= cX[0].x && cX[cnt].x >= cX[1].x);}
+
+		  if(cX[0].z < cX[1].z)
+		    {isZok = (cX[cnt].z >= cX[0].z && cX[cnt].z <= cX[1].z);}
+		  else
+		    {isZok = (cX[cnt].z <= cX[0].z && cX[cnt].z >= cX[1].z);}
+
+		  isIn[cnt] = isXok && isZok;
+		}
+	      /*
+	      reportWidget -> 
+		setText(
+			QString::number(cX[0].x)+" "+QString::number(cX[0].z)+"\n"+
+			QString::number(cX[1].x)+" "+QString::number(cX[1].z)+"\n"+
+			QString::number(cX[2].x)+" "+QString::number(cX[2].z)+"\n"+
+			QString::number(cX[3].x)+" "+QString::number(cX[3].z)+"\n"+
+
+				      QString::number(isIn[0])+
+				      QString::number(isIn[1])+
+				      QString::number(isIn[2])+
+				      QString::number(isIn[3])
+				      );*/
+
+	      //looks stupid, but at least it's clear ...
+	      //////////////////////////////
+	      if(isIn[0] && isIn[1])
+		{
+		  //A and B are defining passage
+		  passageA = cX[0];
+		  passageB = cX[1];
+		  //printSuccess("<1>");
+		  return true;
+		}
+
+	      //////////////////////////////
+	      if(!isIn[0] && !isIn[1])
+		{
+		  if( !(isIn[2] && isIn[3]) )
+		    {
+		      //printError("<1>");
+		      continue;
+		    }
+
+		  passageA = cX[2];
+		  passageB = cX[3];
+		  //printSuccess("<2>");
+		  return true;
+		}
+
+	      //////////////////////////////
+	      if(isIn[0] && !isIn[1])
+		{
+		  if(!isIn[2] && !isIn[3])
+		    {
+		      //printError("<2>");
+		      continue;
+		    }
+		  if(isIn[2] & !isIn[3])
+		    {
+		      if(cX[0].x == cX[2].x && cX[0].z == cX[2].z)
+			{
+			  //printError("<3>");
+			  continue;
+			}
+
+		      passageA = cX[0];
+		      passageB = cX[2];
+		      //printSuccess("<3>");
+		      return true;
+		    }
+		  if(!isIn[2] && isIn[3])
+		    {
+		      if(cX[0].x == cX[3].x && cX[0].z == cX[3].z)
+			{
+			  //printError("<4>");
+			  continue;
+			}
+
+		      passageA = cX[0];
+		      passageB = cX[3];
+		      //printSuccess("<4>");
+		      return true;
+		    }
+		  if(isIn[2] && isIn[3])
+		    {
+		      passageA = cX[2];
+		      passageB = cX[3];
+		      //printSuccess("<5>");
+		      return true;
+		    }
+		}
+
+	      //////////////////////////////
+	      if(!isIn[0] && isIn[1])
+		{
+		  if(!isIn[2] && !isIn[3])
+		    {
+		      //printError("<5>");
+		      continue;
+		    }
+		  if(isIn[2] & !isIn[3])
+		    {
+		      if(cX[1].x == cX[2].x && cX[1].z == cX[2].z)
+			{
+			  //printError("<6>");
+			  continue;
+			}
+		      passageA = cX[1];
+		      passageB = cX[2];
+		      //printSuccess("<6>");
+		      return true;
+		    }
+		  if(!isIn[2] && isIn[3])
+		    {
+		      if(cX[1].x == cX[3].x && cX[1].z == cX[3].z)
+			{
+			  //printError("<7>");
+			  continue;
+			}
+
+		      passageA = cX[1];
+		      passageB = cX[3];
+		      //printSuccess("<7>");
+		      return true;
+		    }
+		  if(isIn[2] && isIn[3])
+		    {
+		      passageA = cX[2];
+		      passageB = cX[3];
+		      //printSuccess("<8>");
+		      return true;
+		    }
+		}
+	    }
+	}
+    }
+  //  printError("lines not collinear");
+  return false;
 }

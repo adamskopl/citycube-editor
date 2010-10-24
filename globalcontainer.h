@@ -6,7 +6,7 @@
 #include "floor.h"
 
 //global state of application (alias "what Designer is doing right now ?")
-enum STATE {none, defining, editingField, addingFloor, definingStairs};
+enum STATE {none, defining, editingField, connectingFields, addingFloor, definingStairs};
 class QComboBox;
 class QCheckBox;
 class LField;
@@ -24,9 +24,11 @@ public:
 
     /*floor tree
      for now it looks like this:
-     - level 0 : root
+     - level 0 : root (abstract building)
      - level 1 : floors
      - level 2 : fields of floors
+     - level 3 : walls (always in number fileds*4
+     - level 4 : passages for every wall 
      */
     LObject *floorsTree;
 

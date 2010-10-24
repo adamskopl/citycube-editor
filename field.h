@@ -1,13 +1,17 @@
 #ifndef __EFIELD_H
 #define __EFIELD_H
 
+#include <stdio.h>
 #include "camera.h"
 #include "md2.h"
 #include "node.h"
 #include "vector.h"
+#include "lbpassage.h"
 
-#include <stdio.h>
+
 /*
+  [OLD VERSION]
+
   fields are defined in this way :  
 
   X X X X
@@ -68,7 +72,7 @@
 #define F_D  0x0002
 #define F_L  0x0001
 
-
+class lbpassage;
 
 typedef struct{
   float x, z;
@@ -102,6 +106,7 @@ class LField : public LObject{
  public:
   //walls heights
   float walls[4];
+  lbpassage *passageTree[4];
 
   LVector corners[4];
 
@@ -124,6 +129,8 @@ class LField : public LObject{
   ~LField();
 
   bool isPointIn(LVector point);
+  bool isFieldTouching(LField*);
+  bool isPassagePossible();
 
   void calculateVectorsAndNormals();
 
@@ -159,11 +166,10 @@ class LField : public LObject{
   LField* giveDown(void);
   LField* giveLeft(void);  
 
-  bool connectionExists(LField *connection);
+  //  bool connectionExists(LField *connection);
   bool connectTo(LField *connection);
 
   void remove ();
-  
 };
 
 #endif
