@@ -6,9 +6,12 @@
 #include <math.h>
 
 #include <stdio.h>
-
+#include <iostream>
 //TODO: class is too big. add other classes helping DesignWidget
+//TODO: every object that was created with NEW, has to be deleted on end
 
+//delete this, when cout will not be needed
+using namespace std;
 
 void DesignWidget::printInfo(const QString &text)
 {
@@ -95,25 +98,29 @@ void DesignWidget::paintEvent(QPaintEvent *)
         }
     case(connectingFields):
       {
-	drawEdge();
-	
-
 	drawDefinedFields();
+	drawWallParts();
+	break;
+      }
+    case(breakingHole):
+      {
+	drawDefinedFields();
+	drawBreakingHole();
 	break;
       }
     default:
         {
 	    drawStairsTriangles();
-            drawDefinedFields();
-            drawActualField();
+	    drawDefinedFields();
+            drawDefinedField();
             drawPointer();
             break;
         }
     }
 
     setDrawStyle(drawStyleBigPoint);
-    painter->drawPoint(passageA.x, passageA.z);    
-    painter->drawPoint(passageB.x, passageB.z);    
+    //    painter->drawPoint(WH.passageA.x, WH.passageA.z);
+    //    painter->drawPoint(WH.passageB.x, WH.passageB.z);    
 
     drawPig();
     delete painter;
@@ -124,7 +131,7 @@ void DesignWidget::drawGrid()
     setDrawStyle(drawStyleGrid);
     painter->fillRect(0, 0, worldSize, worldSize, brush);
 
-    int crossX, crossY;
+    int crossX = 0, crossY = 0;
 
     for(int x = 0; x <= worldSize; x += gridSize)
         for(int y = 0; y <= worldSize; y += gridSize)
@@ -143,8 +150,8 @@ void DesignWidget::drawGrid()
 
 void DesignWidget::mousePressEvent(QMouseEvent *event)
 {
-    int x = event->pos().x();
-    int y = event->pos().y();
+  //    int x = event->pos().x();
+  //    int y = event->pos().y();
     //    reportWidget -> setText("clicked on: ("+QString::number(x)+", "+QString::number(y)+")");
 
     switch(event->button())
@@ -263,9 +270,9 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 			    printSuccess("YES!");
 			    //			    *(GC -> appState) = connectingFields;
 			    //			    chosenField2 = pointedField;
-			    *(GC -> appState) = none;
-			    chosenField = NULL;
-			    chosenField2 = NULL;
+			    *(GC -> appState) = connectingFields;
+			    //chosenField = NULL;
+			    //chosenField2 = NULL;
 			  }
 			else
 			  {
@@ -282,7 +289,43 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 {
                     addFloor(selectedY);
                     *(GC -> appState) = none;
+		    break;
                 }
+	    case(connectingFields):
+	      {
+		if(WH.isPartPointed())
+		  *(GC -> appState) = breakingHole;
+		break;
+	      }
+	    case(breakingHole):
+	      {
+		//for future: it is best to try build functions, that would work for every number of variables. e.g: we have dist1, dist2 ... dist30.
+
+		//check on what pointer is pointing, and point on next variable
+		if(WH.distPointer == &WH.dist1)
+		  {
+		    WH.distPointer = &WH.dist2;
+		    WH.pointPointer = &WH.point2;
+		  }
+		else
+		  if(WH.distPointer == &WH.dist2)
+		    {
+		      //create new field's passage
+		      WH.addPassage(chosenField, chosenField2);
+		      chosenField = NULL;
+		      chosenField2 = NULL;
+		      *GC->appState = none;
+		    }
+		  else
+		    {
+		      printError("distPointer is pointint on unknown! (case(breakingHole))");
+		    }
+		break;
+	      }
+	    default:
+	      {
+		printWarning("program warning: new appstate without definition");
+	      }
             }//switch(state)
 
             break;
@@ -340,7 +383,19 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     printInfo("... cancelled.");
                     break;
                 }
-
+	    case(connectingFields):
+	      {
+		resetOnRMB();
+		break;
+	      }
+	    case(breakingHole):
+	      {
+		resetOnRMB();
+	      }
+	    default:
+	      {
+		printWarning("program warning: new appstate without definition");
+	      }
             }
             break;
         }
@@ -398,12 +453,11 @@ void DesignWidget::drawDefinedFields()
     else
         return;
 
-    //draw actual floor first
-    drawFloor(GC -> actualFloor);
 
     //break this while when last floor is drawn
     while(1)
     {
+      //first draw every floor except actual one
         if(helpFloor != GC -> actualFloor)
             drawFloor(helpFloor);
 
@@ -413,12 +467,15 @@ void DesignWidget::drawDefinedFields()
             break;
     }
 
+    //draw actual first in the end - so it covers others
+    drawFloor(GC -> actualFloor);
+
     //drawChosenWall
     if(*(GC -> appState) == editingField)
     {
         setDrawStyle(drawStyleChosenWall);
 
-        char a, b;
+        int a, b;
         a = chosenWall;
         if(chosenWall == 3)
             b = 0;
@@ -439,10 +496,10 @@ void DesignWidget::drawPointer()
     painter->drawRect(QRect(selectedX-5, selectedY-5, 10, 10));
 }
 
-void DesignWidget::drawActualField()
+void DesignWidget::drawDefinedField()
 {
 
-    setDrawStyle(actualField);
+    setDrawStyle(drawStyleDefinedField);
 
     switch(cornerIndex)
     {
@@ -480,7 +537,8 @@ void DesignWidget::setDrawStyle(drawStyle style)
     case(drawStyleGrid):
         {
             pen.setColor(Qt::white);
-            brush.setColor(QColor(58,107,200));
+	    //            brush.setColor(QColor(58,107,200));//blue
+	    brush.setColor(QColor(71,145,0));
 	    pen.setWidth(1);
             break;
         }
@@ -498,24 +556,25 @@ void DesignWidget::setDrawStyle(drawStyle style)
         {
 	  //	  brush.setColor(QColor(160, 170, 180));
 	  //	  pen.setStyle(Qt::SolidLine);
-	  //	  pen.setWidth(1);
+	  pen.setWidth(1);
+	  pen.setColor(Qt::transparent);
 	  brush.setColor(Qt::transparent);
             break;
         }
         //actual field
-    case(actualField):
+    case(drawStyleDefinedField):
         {
-            pen.setStyle(Qt::DotLine);
-            pen.setColor(Qt::red);
-            pen.setWidth(2);
-            break;
+	  pen.setStyle(Qt::DotLine);
+	  pen.setColor(Qt::red);
+	  pen.setWidth(2);
+	  break;
         }
         //selected field
     case(stylePointedField):
         {
             brush.setColor(Qt::darkGreen);
 	    pen.setColor(Qt::transparent);
-            pen.setWidth(1);
+	    pen.setStyle(Qt::SolidLine);
             break;
         }
         //pointer
@@ -554,9 +613,10 @@ void DesignWidget::setDrawStyle(drawStyle style)
         //normal vector (this is how it is in english?)
     case(normal):
         {
-            pen.setColor(Qt::magenta);
-            pen.setWidth(1);
-            break;
+	  pen.setStyle(Qt::SolidLine);
+	  pen.setColor(Qt::magenta);
+	  pen.setWidth(1);
+	  break;
         }
     case(inactive):
         {
@@ -567,10 +627,11 @@ void DesignWidget::setDrawStyle(drawStyle style)
         }
     case(styleChosenField):
         {
-            brush.setColor(Qt::darkRed);
-            pen.setColor(Qt::black);
-            pen.setWidth(1);
-            break;
+	  brush.setColor(Qt::darkRed);
+	  pen.setColor(Qt::black);
+	  pen.setStyle(Qt::SolidLine);
+	  pen.setWidth(1);
+	  break;
         }
     case(floorLine):
         {
@@ -608,11 +669,28 @@ void DesignWidget::setDrawStyle(drawStyle style)
 	pen.setColor(Qt::red);
 	pen.setWidth(3);
 	brush.setColor(Qt::red);
+	break;
       }
+    case(drawStyleHighlightParts):
+      {
+	pen.setColor(Qt::yellow);
+	//	pen.setColor("#00c1ff");
+	pen.setWidth(2);
 
+	break;
+      }
+    case(drawStyleWallChoose):
+      {
+	pen.setStyle(Qt::DashDotDotLine);
+	pen.setColor(Qt::yellow);
+
+	pen.setWidth(1);
+
+	break;
+      }
     }
 
-    painter->setBrush(brush);
+    painter-> setBrush(brush);
     painter->setPen(pen);
 }
 
@@ -646,11 +724,17 @@ void DesignWidget::drawNewFloorLine()
 void DesignWidget::drawFloorsSide()
 {
     //WARNING - overwrites actualFloor pointer!
-    LObject *actualFloor;
+  
+    LObject *actualFloor = NULL;
 
     //for every floor draw its fields
     if(GC -> floorsTree -> hasChild())
         actualFloor = ((LField*)(GC -> floorsTree -> child));
+    else
+      {
+	printError("actualFloor not set!");
+	return;
+      }
 
     //break this while(), when last floor is drawn
     while(1)
@@ -675,7 +759,6 @@ void DesignWidget::drawFloorsSide()
             break;
         actualFloor = (LField*)actualFloor -> next;
     }
-
 }
 
 void DesignWidget::drawFieldSide(LField *drawnField)
@@ -741,41 +824,35 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 
 
       //for now: check if field is pointed only if ...
-      if(*(GC -> appState) != connectingFields)
-        if(drawnFloor == GC -> actualFloor)
-        {
+      if(*(GC -> appState) == none || *(GC -> appState) == editingField)
+	if(drawnFloor == GC -> actualFloor)
+	  {
             //check if field is pointed with mouse
             if(helpField->isPointIn(LVector(mouseX, 0.0f, mouseY)))
             {
                 isFieldPointed = true;
                 GC -> cameraKid -> position = helpField->centerPoint;
                 GC -> cameraKid -> position.y = GC -> actualFloor -> height;
-                //if new field is not defined right now
+
+                //if new field is not being defined right now
                 if(!cornerIndex)
                 {
                     //pointedFieldID = helpField->ID;
                     pointedField = helpField;
-                    setDrawStyle(stylePointedField);
+		    setDrawStyle(stylePointedField);
                 }
-                else
-                {
-                    if(*(GC -> appState) == editingField)
-                        setDrawStyle(inactive);
-                    else
-                        setDrawStyle(drawStyleField);
-                }
-            }
+	    }
             else
-            {
-	      if(*(GC -> appState) == editingField)
-		setDrawStyle(inactive);
-	      else
+	      {
+		if(*(GC -> appState) == editingField)
+		  setDrawStyle(inactive);
+		else
 		setDrawStyle(drawStyleField);
-            }
+	      }
 
             if(helpField == chosenField)
-                setDrawStyle(styleChosenField);
-
+	      setDrawStyle(styleChosenField);
+	    
             QPolygon drawField;
 
 	    drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
@@ -783,8 +860,8 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 		      << QPoint(helpField->corners[2].x,helpField->corners[2].z)
 		      << QPoint(helpField->corners[3].x,helpField->corners[3].z);
 
-            painter->drawPolygon(drawField);
-        }//(if drawnFloor == GC -> actualFloor)
+	    painter->drawPolygon(drawField);
+	  }//(if drawnFloor == GC -> actualFloor)
 
       //draw parts of "connectingFields" state
       if(*(GC -> appState) == connectingFields)
@@ -806,11 +883,16 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
             int x2 = x1 + helpField->cornersN[cntN].x*10.0f;
             int z2 = z1 + helpField->cornersN[cntN].z*10.0f;
 
-            painter -> drawLine(x1, z1, x2, z2);
+	    painter -> drawLine(x1, z1, x2, z2);
         }
 
+
         /////////////////////////////////////////
-        //draw connections or walls (loop would be better. so so so.)
+        //draw walls with defined passages
+	if(drawnFloor == GC -> actualFloor)
+	  setDrawStyle(drawStyleWall);
+	else
+	  setDrawStyle(wallInactive);
 
         for(int cnt = 0; cnt < 4; cnt++)
         {
@@ -821,52 +903,41 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
             else
                 b = a + 1;
 
-            if(helpField->connections[a])
-            {
-                if(drawnFloor != GC -> actualFloor)
-                    continue;
+	    LVector wallVector = helpField -> corners[b] - helpField -> corners[a];
+	    float wallLength = wallVector.Length();
 
-                setDrawStyle(connection);
-            }
-            else
-            {
-                if(drawnFloor != GC -> actualFloor)
-                    setDrawStyle(wallInactive);
-                else
-                    setDrawStyle(drawStyleWall);
-            }
+	    //points for drawing lines defining wall parts
+	    LVector pointA, pointB;
 
-            painter -> drawLine(helpField->corners[a].x, helpField->corners[a].z,
-                                helpField->corners[b].x, helpField->corners[b].z);
+	    pointA = helpField -> corners[a];
 
-        }
-        /*        if(helpField->connections[0])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[0].x, helpField->corners[0].z,
-                            helpField->corners[1].x, helpField->corners[1].z);
+	    if(helpField -> passageTree[a] -> hasChild())
+	      {
+		lbpassage *helpPassage = (lbpassage*)(helpField -> passageTree[a] -> child);
+		while(1)
+		  {
+		    //multiply wall's vector by ratio of passage's point distance and Wall's length
+		    pointB = helpField -> corners[a] + wallVector * (helpPassage -> d1 / wallLength);
+		    painter -> drawLine(pointA.x, pointA.z, pointB.x, pointB.z);
+		    pointA = helpField -> corners[a] + wallVector * (helpPassage -> d2 / wallLength);
 
-        if(helpField->connections[1])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[1].x, helpField->corners[1].z,
-                            helpField->corners[2].x, helpField->corners[2].z);
+		    if( ! helpPassage -> isLast())
+		      {
+			helpPassage = (lbpassage*)(helpPassage -> next);
+		      }
+		    //last passage
+		    else
+		      {
+			break;
+		      }
+		  }
+	      }
 
-        if(helpField->connections[2])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[2].x, helpField->corners[2].z,
-                            helpField->corners[3].x, helpField->corners[3].z);
+	    //draw last wall part (draw whole wall if we don't have passages yet)
+	    pointB = helpField -> corners[b];
+	    painter -> drawLine(pointA.x, pointA.z, pointB.x, pointB.z);
 
-        if(helpField->connections[3])
-            setDrawStyle(connection);
-        else
-            setDrawStyle(wall);
-        painter -> drawLine(helpField->corners[3].x, helpField->corners[3].z,
-                            helpField->corners[0].x, helpField->corners[0].z);*/
+	}
 
         /////////////////////////////
         if(helpField -> isLast())
@@ -930,8 +1001,8 @@ void DesignWidget::drawStairsTriangles()
             QPolygon drawnTriangle;
 
 
-            char a = GC -> stairsFieldBottomEdge;
-            char b;
+            int a = GC -> stairsFieldBottomEdge;
+            int b;
             if( a == 3)
                 b = 0;
             else
@@ -960,8 +1031,8 @@ void DesignWidget::drawStairsTriangles()
             QPolygon drawnTriangle;
 
 
-            char a = GC -> stairsFieldTopEdge;
-            char b;
+            int a = GC -> stairsFieldTopEdge;
+            int b;
             if( a == 3)
                 b = 0;
             else
@@ -993,7 +1064,7 @@ void DesignWidget::addNewStairs()
     newStairs -> connBottom = GC -> stairsBottom;
     newStairs -> connTop = GC -> stairsTop;
 
-    char a, b;
+    int a, b;
     a = GC -> stairsFieldBottomEdge;
     if(a == 3)
         b = 0;
@@ -1016,18 +1087,13 @@ void DesignWidget::addNewStairs()
     newStairs -> connectTo(GC -> stairsTree);
 }
 
-void
-DesignWidget::drawEdge()
-{
-  //for every wall's non-empty fragment
-}
 
 //check if chosenField is touching chosenField2 (they have to be set)
-//in such way, that passage can be made. if so - set passageA & passageB
+//in such way, that passage can be made. if so - set passageA & WH.passageB
 bool
 DesignWidget::checkTouching()
 {
-  //for every pair of edges from different sectors
+  //for every pair of edges from different sectors (using counting variables to set wallsIndex1 and wallIndex2
   for(int a = 0; a < 4; a++)
     {
       for(int b = 0; b < 4; b++)
@@ -1113,8 +1179,10 @@ DesignWidget::checkTouching()
 	      if(isIn[0] && isIn[1])
 		{
 		  //A and B are defining passage
-		  passageA = cX[0];
-		  passageB = cX[1];
+		  WH.passageA = cX[0];
+		  WH.passageB = cX[1];
+		  WH.wallIndex1 = a;
+		  WH.wallIndex2 = b;
 		  //printSuccess("<1>");
 		  return true;
 		}
@@ -1128,8 +1196,10 @@ DesignWidget::checkTouching()
 		      continue;
 		    }
 
-		  passageA = cX[2];
-		  passageB = cX[3];
+		  WH.passageA = cX[2];
+		  WH.passageB = cX[3];
+		  WH.wallIndex1 = a;
+		  WH.wallIndex2 = b;
 		  //printSuccess("<2>");
 		  return true;
 		}
@@ -1150,8 +1220,11 @@ DesignWidget::checkTouching()
 			  continue;
 			}
 
-		      passageA = cX[0];
-		      passageB = cX[2];
+		      WH.passageA = cX[0];
+		      WH.passageB = cX[2];
+		      WH.wallIndex1 = a;
+		      WH.wallIndex2 = b;
+
 		      //printSuccess("<3>");
 		      return true;
 		    }
@@ -1163,15 +1236,19 @@ DesignWidget::checkTouching()
 			  continue;
 			}
 
-		      passageA = cX[0];
-		      passageB = cX[3];
+		      WH.passageA = cX[0];
+		      WH.passageB = cX[3];
+		      WH.wallIndex1 = a;
+		      WH.wallIndex2 = b;
 		      //printSuccess("<4>");
 		      return true;
 		    }
 		  if(isIn[2] && isIn[3])
 		    {
-		      passageA = cX[2];
-		      passageB = cX[3];
+		      WH.passageA = cX[2];
+		      WH.passageB = cX[3];
+		      WH.wallIndex1 = a;
+		      WH.wallIndex2 = b;
 		      //printSuccess("<5>");
 		      return true;
 		    }
@@ -1192,8 +1269,11 @@ DesignWidget::checkTouching()
 			  //printError("<6>");
 			  continue;
 			}
-		      passageA = cX[1];
-		      passageB = cX[2];
+		      WH.passageA = cX[1];
+		      WH.passageB = cX[2];
+		      WH.wallIndex1 = a;
+		      WH.wallIndex2 = b;
+
 		      //printSuccess("<6>");
 		      return true;
 		    }
@@ -1205,15 +1285,21 @@ DesignWidget::checkTouching()
 			  continue;
 			}
 
-		      passageA = cX[1];
-		      passageB = cX[3];
+		      WH.passageA = cX[1];
+		      WH.passageB = cX[3];
+		      WH.wallIndex1 = a;
+		      WH.wallIndex2 = b;
+
 		      //printSuccess("<7>");
 		      return true;
 		    }
 		  if(isIn[2] && isIn[3])
 		    {
-		      passageA = cX[2];
-		      passageB = cX[3];
+		      WH.passageA = cX[2];
+		      WH.passageB = cX[3];
+		      WH.wallIndex1 = a;
+		      WH.wallIndex2 = b;
+
 		      //printSuccess("<8>");
 		      return true;
 		    }
@@ -1223,4 +1309,120 @@ DesignWidget::checkTouching()
     }
   //  printError("lines not collinear");
   return false;
+}
+
+//launched after succesfully connected fields:
+//higlight wall parts, that can be chosen to make a passage.
+//check if one of them is pointed with a mouse - show this choice
+void
+DesignWidget::drawWallParts()
+{
+  //isPartPointed will be set to true in "WH.highlighParts()"
+  WH.newLoop();
+
+  //two points of actually drawn edge
+  LVector A, B;
+
+  //starting point of first drawn part
+  A = WH.passageA;
+  if(!chosenField || !chosenField2)
+    {
+      printError("something went wrong: chosenField and chosenField2 not set");
+      return;
+    }
+
+  setDrawStyle(drawStyleHighlightParts);
+  
+  if(chosenField -> passageTree[0] -> hasChild())
+    {
+      //TODO: implement possibility of choosing only wall parts - not whole walls.
+      //      without that user can create invalid passages
+
+
+      //      while(1)
+      //      {
+
+      //      }
+    }
+
+
+  B = WH.passageB;
+  WH.highlightParts(painter, mouseX, mouseY);
+}
+
+void
+DesignWidget::drawBreakingHole()
+{
+  //TODO: check what things can be calculated only once (once after choosing wall part)
+
+  setDrawStyle(drawStyleHighlightParts);
+  painter -> drawLine(WH.passageA.x, WH.passageA.z,
+	    WH.passageB.x, WH.passageB.z);
+
+  LVector temp = WH.passageB - WH.passageA;
+  LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
+  LVector normal1 = temp^multiplied;
+  normal1.normalize();
+
+  //reportWidget -> setText (QString::number(normal1.x)+QString::number(normal1.z));
+  //  reportWidget -> setText(QString::number(MH.pointLineDistance
+  //					  (1,1,2,2,2,1)));
+
+  float pointDistance = MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY);
+
+  //  reportWidget -> setText(QString::number(MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY)));
+
+  float passLength = temp.Length();
+  
+  LVector mouseVec;
+  mouseVec.x = mouseX - WH.passageA.x;
+  mouseVec.z = mouseY - WH.passageA.z;
+
+  //setting distPointer for the first time
+  if(WH.distPointer == NULL)
+    {
+      WH.distPointer = &WH.dist1;
+      WH.pointPointer = &WH.point1;
+    }
+  
+  //check 2 conditions: mouse is pointing farther than passageA or passageB
+  //(problem was, that equations is showing distance from both sides of wall part)
+
+  //is mouse pointing outside passageA?
+  if((-temp) % mouseVec >= 0)
+    {
+      *WH.pointPointer = WH.passageA;
+      printSuccess(QString::number(0));
+      *WH.distPointer = 0;
+      //      printInfo("vec!");
+    }
+  else
+    //is mouse poining outside passageB?
+    if(pointDistance > passLength)
+      {
+	*WH.pointPointer = WH.passageB;
+	printSuccess(QString::number(temp.Length()));
+	*WH.distPointer = temp.Length();
+	//	printError("distance!");
+      }
+  //mouse is geometrically betweeen passageA and passageB
+    else
+      {
+	WH.pointPointer->x = WH.passageA.x + temp.x*pointDistance/passLength;
+	WH.pointPointer->z = WH.passageA.z + temp.z*pointDistance/passLength;
+	printSuccess(QString::number(pointDistance));
+	*WH.distPointer = pointDistance;
+	//	printSuccess("middle!");
+      }
+  
+    setDrawStyle(drawStyleBigPoint);
+    WH.drawPassagePoints(painter);
+}
+
+void
+DesignWidget::resetOnRMB()
+{
+  chosenField = NULL;
+  chosenField2 = NULL;
+  *GC -> appState = none;
 }

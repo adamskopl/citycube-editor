@@ -8,7 +8,10 @@ LField::LField()
   walls[3] = 10.0;
 }
 
-LField::~LField(){}
+LField::~LField()
+{
+  
+}
 
 LField::LField(char KIND, LVector *C): kind(KIND)
 {
@@ -114,7 +117,7 @@ LField::LField(char KIND, LVector *C): kind(KIND)
   //build 4 empty passage trees (for every wall)
   for(int a = 0; a < 4; a++)
     {
-      passageTree[a] = new lbpassage;
+      passageTree[a] = new lbpassage(0, 0);
     }
 }
 
@@ -200,31 +203,78 @@ void LField::selfDraw(){
   
   glBegin(GL_QUADS);
   
+
+  //for field's edge draw wallparts
   for(int cnt = 0; cnt < 4; cnt++)
     {
-      if( connections[cnt] )
-	continue;
-      
       int p1, p2; //indexes of vertices used for drawing wall
       
       p1 = cnt;
       if(p1 == 3) p2 = 0; else p2 = p1+1;
+
+
+      LVector wallVector = corners[p2] - corners[p1];
+      float wallLength = wallVector.Length();
+
+      //points for storing actually considered wall's parts
+      LVector pointA, pointB;
+
+      pointA = corners[p1];
+
+      if(passageTree[cnt] -> hasChild())
+	{
+	  lbpassage *helpPassage = (lbpassage*)(passageTree[p1] -> child);
+
+	  while(1)
+	    {
+	      pointB = corners[p1] + wallVector * (helpPassage -> d1 / wallLength);
+
+	      //render wall part
+	      glColor4f(0.85, 0.2, 0.0, 1.0);
+      
+	      glVertex3f(pointA.x, pointA.y, pointA.z);
+	      glVertex3f(pointB.x, pointB.y, pointB.z);
+      
+	      pointA.y += walls[cnt]; //wall's height
+	      pointB.y += walls[cnt];//10.0;
+      
+	      glColor4f(0.0, 0.0, 0.0, 1.0);
+      
+	      glVertex3f(pointB.x, pointB.y, pointB.z);
+	      glVertex3f(pointA.x, pointA.y, pointA.z);
+
+	      pointA.y -= walls[cnt]; //wall's height
+	      //pointB.y += walls[cnt];//10.0;
+	      //end of wall's part render
+	      
+	      pointA = corners[p1] + wallVector * (helpPassage -> d2 / wallLength);
+	      
+	      if( ! helpPassage -> isLast())
+		{
+		  helpPassage = (lbpassage*)(helpPassage -> next);
+		}
+	      else
+		{
+		  break;
+		}
+	    }
+	}
+
+      //render last wall part (render whole wall if we don't have passages yet)
+      pointB = corners[p2];
       
       glColor4f(0.85, 0.2, 0.0, 1.0);
       
-      glVertex3fv(vertex[p1].point);
-      glVertex3fv(vertex[p2].point);
+      glVertex3f(pointA.x, pointA.y, pointA.z);
+      glVertex3f(pointB.x, pointB.y, pointB.z);
       
-      vertex[p1].point[1] += walls[cnt]; //wall's height
-      vertex[p2].point[1] += walls[cnt];//10.0;
+      pointA.y += walls[cnt]; //wall's height
+      pointB.y += walls[cnt];//10.0;
       
       glColor4f(0.0, 0.0, 0.0, 1.0);
       
-      glVertex3fv(vertex[p2].point);
-      glVertex3fv(vertex[p1].point);
-      
-      vertex[p1].point[1] -= walls[cnt];
-      vertex[p2].point[1] -= walls[cnt];
+      glVertex3f(pointB.x, pointB.y, pointB.z);
+      glVertex3f(pointA.x, pointA.y, pointA.z);
     }
   glEnd();
   
@@ -565,5 +615,34 @@ void LField::remove()
 bool
 LField::isFieldTouching(LField* field)
 {
+  return false;
+}
 
+//determinate how far from wall's corner the point is
+float
+LField::howFarPointIs(int wallindex, LVector point)
+{
+  lbmathhelper MH;
+
+  int a,b;
+  a = wallindex;
+
+  if(a == 3)
+    {
+      b = 0;
+    }
+  else
+    {
+      b = a+1;
+    }
+
+  LVector temp = corners[b] - corners[a];
+  LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
+  LVector normal1 = temp^multiplied;
+  normal1.normalize();
+
+
+  float pointDistance = MH.pointLineDistance(corners[a].x, corners[a].z, corners[a].x + normal1.x, corners[a].z + normal1.z, point.x, point.z);
+
+  return pointDistance;
 }

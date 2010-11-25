@@ -88,14 +88,14 @@ MainWindow::MainWindow()
     floorChooseLayout -> addWidget(newFloorButton,0,2,Qt::AlignTop);
     floorChooseGroup -> setLayout(floorChooseLayout);
 
-    QCheckBox *drawBox1 = new QCheckBox(tr("draw"));
-    QCheckBox *drawBox2 = new QCheckBox(tr("draw"));
-    QCheckBox *drawBox3 = new QCheckBox(tr("draw"));
-    QLabel *floorLabel1 = new QLabel(tr("floor:"));
-    QLabel *floorLabel2 = new QLabel(tr("floor:"));
+    //    QCheckBox *drawBox1 = new QCheckBox(tr("draw"));
+    //    QCheckBox *drawBox2 = new QCheckBox(tr("draw"));
+    //    QCheckBox *drawBox3 = new QCheckBox(tr("draw"));
+    //    QLabel *floorLabel1 = new QLabel(tr("floor:"));
+    //    QLabel *floorLabel2 = new QLabel(tr("floor:"));
 
-    QGridLayout *drawLayout = new QGridLayout;
-    QGroupBox *drawGroup = new QGroupBox(tr("draw floors"));
+    //    QGridLayout *drawLayout = new QGridLayout;
+    //    QGroupBox *drawGroup = new QGroupBox(tr("draw floors"));
 
 
     fieldSliderOne = createSlider();
@@ -246,9 +246,11 @@ void MainWindow::createMenus()
     helpMenu = menuBar()->addMenu(tr("&Help"));
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event)
-{
-}
+//void MainWindow::mousePressEvent(QMouseEvent *event)
+//{
+
+
+//}
 
 void MainWindow::slotFloorChanged(int floorIndex)
 {
@@ -273,6 +275,12 @@ void MainWindow::changeFloorsView()
     //for every floor draw its fields
     if(globals -> floorsTree -> hasChild())
         actualFloor = ((LBFloor*)(globals -> floorsTree -> child));
+    else
+      {
+	//printError();
+	printf("MainWindow:changeFloorsView error");
+	return;
+      }
 
     //break this while(), when last floor is drawn
     while(1)
@@ -464,7 +472,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 //increase wall's height
             case(editingField):
                 {
-                    char wallIndex = designWidget -> chosenWall;
+                    int wallIndex = designWidget -> chosenWall;
                     designWidget -> chosenField -> walls[wallIndex] += 5.0f;
                     break;
                 }
@@ -514,6 +522,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     }
                     break;
                 }
+	    default:
+	      {
+		break;
+	      }
             }
 
             break;
@@ -524,7 +536,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             {
             case(editingField):
                 {
-                    char wallIndex = designWidget -> chosenWall;
+                    int wallIndex = designWidget -> chosenWall;
                     designWidget -> chosenField -> walls[wallIndex] -= 5.0f;
                     break;
                 }
@@ -541,6 +553,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     designWidget -> repaint();
                     break;
                 }
+	    default:
+	      {
+		break;
+	      }
             }
             break;
         }

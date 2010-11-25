@@ -1,8 +1,17 @@
 #include <QApplication>
-
+#include <iostream>
 #include "mainwindow.h"
 #include "welcomewindow.h"
 #include "lucidbeaver.h"
+
+#include <counter.h>
+#include "field.h"
+#include "lbstairs.h"
+#include "lbpassage.h"
+#include "floor.h"
+
+using namespace std;
+
 int main(int argc, char *argv[])
 {
 
@@ -18,6 +27,12 @@ int main(int argc, char *argv[])
     mainWin.show();
     //welcomeWin.show();
 
-    return app.exec();
+    /*    cout << "application ends: what wasn't deleted?" << endl <<
+            "floors: " << Counter<LBFloor>::howMany() << endl <<
+            "stairs: " << Counter<LBStairs>::howMany() << endl <<
+            "fields: " << Counter<LField>::howMany() << endl <<
+            "passages: " << Counter<lbpassage>::howMany() << endl;
+    */
+            return app.exec();
 }
 

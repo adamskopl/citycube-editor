@@ -8,12 +8,15 @@
 #include <QPrinter>
 #include "lucidbeaver.h"
 #include "globalcontainer.h"
+#include "lbwallhelper.h"
+#include "lbmathhelper.h"
 
 using namespace std;
 
 
-enum drawStyle {invisible, drawStyleField, actualField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
-                normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint};
+enum drawStyle {invisible, drawStyleField, drawStyleDefinedField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
+                normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint, drawStyleWallChoose,
+drawStyleHighlightParts};
 
 //none       - waiting for actions
 //defining   - new field is being defined
@@ -58,7 +61,7 @@ class LField;
       void drawGrid();
       void drawDefinedFields();
       void drawPointer();
-      void drawActualField();
+      void drawDefinedField();
 
       void drawNewFloorLine();
       void drawFloorsSide();
@@ -140,12 +143,19 @@ class LField;
       void drawStairsTriangles();
       void addNewStairs();
 
-      void drawEdge();
+      void drawWallParts();
+      void drawBreakingHole();
 
       bool checkTouching();
       bool arePointsCollinear(LVector, LVector, LVector, LVector);
-      //points of chosen passage (conecting 2 fields)
-      LVector passageA, passageB;
+
+      //class helping in making holes in walls
+      LBWallHelper WH;
+      lbmathhelper MH;
+
+      //things to reset on clicking with right mouse button
+      void resetOnRMB();
+
   };
 
 #endif // PAINTWIDGET_H
