@@ -4,7 +4,7 @@
 #include "object.h"
 #include "field.h"
 
-class LBStairs : public LObject
+class LBStairs : public LObject, public Counter<LBStairs>
 {
 public:
     LBStairs();

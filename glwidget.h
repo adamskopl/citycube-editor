@@ -19,8 +19,8 @@ private:
     void initializeGL();
     void paintGL();
     void resizeGL(int w, int h);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    //    void mousePressEvent(QMouseEvent *event);
+    //    void mouseMoveEvent(QMouseEvent *event);
 
     //from lucidia:
     EClock *clock;

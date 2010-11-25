@@ -30,7 +30,7 @@ PreviewWidget::PreviewWidget(globalContainer *globals, QWidget *parent)
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateScene()));
     timer->start(10);
-    trolltechPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
+    trolltechPurple = QColor::fromCmykF(0.0, 0.0, 0.0, 0.0);
 
     //floorsTree = globals -> floorsTree;
     //actualFloor = globals -> actualFloor;
@@ -83,12 +83,12 @@ void PreviewWidget::resizeGL(int w, int h)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
-{
+//void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
+//{
 
-}
+//}
 
-void PreviewWidget::mousePressEvent(QMouseEvent *event)
-{
+//void PreviewWidget::mousePressEvent(QMouseEvent *event)
+//{
 
-}
+//}

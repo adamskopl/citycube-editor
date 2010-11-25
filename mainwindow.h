@@ -87,7 +87,7 @@ private:
     QLabel floorsLabels[20];
     QLabel floorsHelpLabels[4];
 
-    void mousePressEvent(QMouseEvent *event);
+    //    void mousePressEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *);
 
     //sliders

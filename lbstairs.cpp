@@ -35,11 +35,11 @@ void LBStairs::selfDraw()
                                 0.0f, cornersBottom[0].z - cornersTop[1].z).Length();
 
 
-    float stairsWidthBottom = LVector(cornersBottom[0].x - cornersBottom[1].x,
-                                      0.0f, cornersBottom[0].z - cornersBottom[1].z).Length();
+    //float stairsWidthBottom = LVector(cornersBottom[0].x - cornersBottom[1].x,
+    //                                0.0f, cornersBottom[0].z - cornersBottom[1].z).Length();
 
-    float stairsHeightTop = LVector(cornersTop[0].x - cornersTop[1].x,
-                                    0.0f, cornersTop[0].z - cornersTop[1].z).Length();
+    //float stairsHeightTop = LVector(cornersTop[0].x - cornersTop[1].x,
+    //                              0.0f, cornersTop[0].z - cornersTop[1].z).Length();
 
 
     int stepsNumber = stairsHeight / desiredHeight;

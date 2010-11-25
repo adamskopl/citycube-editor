@@ -50,7 +50,7 @@ LWorld::~LWorld()
 
 void LWorld::OnPrepare(){
 
-  glClearColor(0.5f,0.5f,0.5f,0.0f);
+  glClearColor(0.28f,0.57f,0.0f,0.0f);
   root -> othersPrepare();
 }
 
@@ -89,7 +89,12 @@ void LWorld::drawFloors()
 
     //for every floor draw its fields
     if(floorsTree -> hasChild())
-        actualFloor = ((LBFloor*)(floorsTree -> child));
+      actualFloor = ((LBFloor*)(floorsTree -> child));
+    else
+      {
+	//printError("drawFloors: actualFloor==NULL!");
+	return;
+      }
 
     //break this while(), when last floor is drawn
     while(1)

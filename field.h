@@ -7,7 +7,8 @@
 #include "node.h"
 #include "vector.h"
 #include "lbpassage.h"
-
+#include "counter.h"
+#include "lbmathhelper.h"
 
 /*
   [OLD VERSION]
@@ -82,7 +83,7 @@ typedef struct{
 //FINISH DISTANCE AND CLEAN UP
 // real mess ... Corners, vector_xz, LVector ...
 
-class LField : public LObject{
+class LField : public LObject, public Counter<LField>{
  public:
   char kind; //field's code (XXXX system)
 
@@ -169,7 +170,12 @@ class LField : public LObject{
   //  bool connectionExists(LField *connection);
   bool connectTo(LField *connection);
 
+  float howFarPointIs(int wallIndex, LVector point);
+
   void remove ();
+
+ private:
+  static int fieldsCnt;
 };
 
 #endif

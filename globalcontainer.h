@@ -6,7 +6,7 @@
 #include "floor.h"
 
 //global state of application (alias "what Designer is doing right now ?")
-enum STATE {none, defining, editingField, connectingFields, addingFloor, definingStairs};
+enum STATE {none, defining, editingField, connectingFields, breakingHole, addingFloor, definingStairs};
 class QComboBox;
 class QCheckBox;
 class LField;
@@ -70,8 +70,8 @@ public:
     LField *stairsTop;
 
     //indexes of walls
-    char stairsFieldBottomEdge;
-    char stairsFieldTopEdge;
+    int stairsFieldBottomEdge;
+    int stairsFieldTopEdge;
 
     /*
       vector used for drawing steps - their horizontal direction is equal
