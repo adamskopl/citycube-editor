@@ -50,7 +50,8 @@ LWorld::~LWorld()
 
 void LWorld::OnPrepare(){
 
-  glClearColor(0.28f,0.57f,0.0f,0.0f);
+  //glClearColor(0.22f,0.22f,0.22f,0.0f);
+  glClearColor(0.22f, 0.22f, 0.22f, 0.0f);
   root -> othersPrepare();
 }
 

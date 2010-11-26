@@ -48,7 +48,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QW
     //setForegroundRole(QPalette::Dark);
 
     pen = QPen(Qt::black, 1);
-    brush = QBrush(Qt::green);
+    brush = QBrush(Qt::red);
 
     reportWidget -> setReadOnly(true);
 
@@ -536,9 +536,11 @@ void DesignWidget::setDrawStyle(drawStyle style)
         //when drawing grid
     case(drawStyleGrid):
         {
-            pen.setColor(Qt::white);
+	  //            pen.setColor(Qt::white);
+	  pen.setColor("#8d8d8d");
 	    //            brush.setColor(QColor(58,107,200));//blue
-	    brush.setColor(QColor(71,145,0));
+	    //brush.setColor(QColor(71,145,0));
+	    brush.setColor("#393939");
 	    pen.setWidth(1);
             break;
         }
@@ -557,7 +559,7 @@ void DesignWidget::setDrawStyle(drawStyle style)
 	  //	  brush.setColor(QColor(160, 170, 180));
 	  //	  pen.setStyle(Qt::SolidLine);
 	  pen.setWidth(1);
-	  pen.setColor(Qt::transparent);
+	  pen.setColor(Qt::black);
 	  brush.setColor(Qt::transparent);
             break;
         }
@@ -565,14 +567,15 @@ void DesignWidget::setDrawStyle(drawStyle style)
     case(drawStyleDefinedField):
         {
 	  pen.setStyle(Qt::DotLine);
-	  pen.setColor(Qt::red);
-	  pen.setWidth(2);
+	  pen.setColor("#ff8c19");
+	  pen.setWidth(1);
 	  break;
         }
         //selected field
     case(stylePointedField):
         {
-            brush.setColor(Qt::darkGreen);
+	  //	  brush.setColor(Qt::darkGreen);
+	  brush.setColor("#8a5722");
 	    pen.setColor(Qt::transparent);
 	    pen.setStyle(Qt::SolidLine);
             break;
@@ -597,7 +600,10 @@ void DesignWidget::setDrawStyle(drawStyle style)
     case(drawStyleWall):
         {
             pen.setStyle(Qt::SolidLine);
-            pen.setColor(Qt::white);
+	    pen.setColor("#ffa000");
+	    brush.setColor(Qt::transparent);
+	    //            pen.setColor(Qt::white);
+	    //  pen.setColor(Qt::black);
             pen.setWidth(1);
             break;
         }
@@ -614,7 +620,8 @@ void DesignWidget::setDrawStyle(drawStyle style)
     case(normal):
         {
 	  pen.setStyle(Qt::SolidLine);
-	  pen.setColor(Qt::magenta);
+	  //	  pen.setColor(Qt::magenta);
+	  pen.setColor("#22dddd");
 	  pen.setWidth(1);
 	  break;
         }
@@ -627,7 +634,8 @@ void DesignWidget::setDrawStyle(drawStyle style)
         }
     case(styleChosenField):
         {
-	  brush.setColor(Qt::darkRed);
+	  //	  brush.setColor(Qt::darkRed);
+	  brush.setColor("#8a5722");
 	  pen.setColor(Qt::black);
 	  pen.setStyle(Qt::SolidLine);
 	  pen.setWidth(1);
