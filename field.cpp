@@ -163,7 +163,17 @@ void LField::setKind(char KIND){kind = KIND;}
 
 void LField::selfDraw(){
   
-  glShadeModel(GL_SMOOTH);
+  //  glShadeModel(GL_SMOOTH);
+
+  //!!! READ MORE ABOUT 4 FUNCTIONS INVOKED BELOW !!!
+
+  glEnable( GL_LINE_SMOOTH );
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+  // Enable Blending
+  glEnable(GL_BLEND);
+  // Specifies pixel arithmetic
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   
   glPushMatrix();
   if(empty)
@@ -189,19 +199,24 @@ void LField::selfDraw(){
   vertex[3].point[0] = corners[3].x;
   vertex[3].point[1] = corners[3].y;
   vertex[3].point[2] = corners[3].z;
-  
-  glBegin(GL_QUADS);
+
+
+
+  //draw fields without walls
+  glLineWidth(1.0f);  
+
+  /*  glBegin(GL_LINE_LOOP);
   {
     glVertex3fv(vertex[0].point);
     glVertex3fv(vertex[1].point);
     glVertex3fv(vertex[2].point);
     glVertex3fv(vertex[3].point);	
   }
-  glEnd();
-  glLineWidth(3.0f);
+  glEnd();*/
+
   glColor4f(0.0, 0.0, 0.0, 1.0);
   
-  glBegin(GL_QUADS);
+
   
 
   //for field's edge draw wallparts
@@ -230,21 +245,21 @@ void LField::selfDraw(){
 	      pointB = corners[p1] + wallVector * (helpPassage -> d1 / wallLength);
 
 	      //render wall part
-	      glColor4f(0.85, 0.2, 0.0, 1.0);
-      
+	      //	      glColor4f(0.85, 0.2, 0.0, 1.0);
+	      glBegin(GL_LINE_LOOP);      
 	      glVertex3f(pointA.x, pointA.y, pointA.z);
 	      glVertex3f(pointB.x, pointB.y, pointB.z);
       
 	      pointA.y += walls[cnt]; //wall's height
 	      pointB.y += walls[cnt];//10.0;
       
-	      glColor4f(0.0, 0.0, 0.0, 1.0);
+	      //	      glColor4f(0.0, 0.0, 0.0, 1.0);
       
 	      glVertex3f(pointB.x, pointB.y, pointB.z);
 	      glVertex3f(pointA.x, pointA.y, pointA.z);
-
+	      glEnd();
 	      pointA.y -= walls[cnt]; //wall's height
-	      //pointB.y += walls[cnt];//10.0;
+	      pointB.y -= walls[cnt];//10.0;
 	      //end of wall's part render
 	      
 	      pointA = corners[p1] + wallVector * (helpPassage -> d2 / wallLength);
@@ -263,20 +278,22 @@ void LField::selfDraw(){
       //render last wall part (render whole wall if we don't have passages yet)
       pointB = corners[p2];
       
-      glColor4f(0.85, 0.2, 0.0, 1.0);
-      
+      //      glColor4f(0.85, 0.2, 0.0, 1.0);
+
+      glBegin(GL_LINE_LOOP);
       glVertex3f(pointA.x, pointA.y, pointA.z);
       glVertex3f(pointB.x, pointB.y, pointB.z);
       
       pointA.y += walls[cnt]; //wall's height
       pointB.y += walls[cnt];//10.0;
       
-      glColor4f(0.0, 0.0, 0.0, 1.0);
+      //      glColor4f(0.0, 0.0, 0.0, 1.0);
       
       glVertex3f(pointB.x, pointB.y, pointB.z);
       glVertex3f(pointA.x, pointA.y, pointA.z);
+      glEnd();
     }
-  glEnd();
+  //  glEnd();
   
   glPopMatrix();
   
