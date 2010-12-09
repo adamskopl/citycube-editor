@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "paintwidget.h"
+#include "designwidgetmini.h"
 #include "glwidget.h"
 
 MainWindow::MainWindow()
@@ -20,7 +21,9 @@ MainWindow::MainWindow()
     reportWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     reportWidget->setFixedSize(500,100);
 
-    designWidget = new DesignWidget(globals, reportWidget);
+    designWidgetMini = new DesignWidgetMini(globals);
+    designWidget = new DesignWidget(globals, reportWidget, designWidgetMini);
+
     previewWidget1 = new PreviewWidget(globals);
     previewWidget2 = new PreviewWidget(globals);
 
@@ -33,15 +36,19 @@ MainWindow::MainWindow()
     //previewArea->setMinimumSize(50, 50);
     previewArea1->setFixedSize(300, 300);
 
-    previewArea2 = new QScrollArea;
-    previewArea2->setWidget(previewWidget2);
-    previewArea2->setWidgetResizable(true);
+    //previewArea2 = new QScrollArea;
+    //    previewArea2->setWidget(previewWidget2);
+    //    previewArea2->setWidgetResizable(true);
     //previewArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     //previewArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    previewArea2->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    //    previewArea2->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     //previewArea->setMinimumSize(50, 50);
-    previewArea2->setFixedSize(300, 300);
-
+    //    previewArea2->setFixedSize(300, 300);
+    designAreaMini = new QScrollArea;
+    designAreaMini->setWidget(designWidgetMini);
+    designAreaMini->setWidgetResizable(true);
+    designAreaMini->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    designAreaMini->setFixedSize(300, 300);
 
 
     designArea = new QScrollArea;
@@ -98,38 +105,41 @@ MainWindow::MainWindow()
     //    QGroupBox *drawGroup = new QGroupBox(tr("draw floors"));
 
 
-    fieldSliderOne = createSlider();
+/*    fieldSliderOne = createSlider();
     fieldSliderTwo = createSlider();
     fieldSliderThree = createSlider();
-    fieldSliderFour = createSlider();
+    fieldSliderFour = createSlider();*/
 
-    globals -> fieldSliderOne = fieldSliderOne;
+/*    globals -> fieldSliderOne = fieldSliderOne;
     globals -> fieldSliderTwo = fieldSliderTwo;
     globals -> fieldSliderThree = fieldSliderThree;
-    globals -> fieldSliderFour = fieldSliderFour;
+    globals -> fieldSliderFour = fieldSliderFour;*/
 
-    connect(fieldSliderOne, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderOneChanged(int)));
+/*    connect(fieldSliderOne, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderOneChanged(int)));
     connect(fieldSliderTwo, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderTwoChanged(int)));
     connect(fieldSliderThree, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderThreeChanged(int)));
-    connect(fieldSliderFour, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderFourChanged(int)));
+    connect(fieldSliderFour, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderFourChanged(int)));*/
 
     fieldEditLayout = new QHBoxLayout;
-    fieldEditLayout -> addWidget(fieldSliderOne);
+    /*    fieldEditLayout -> addWidget(fieldSliderOne);
     fieldEditLayout -> addWidget(fieldSliderTwo);
     fieldEditLayout -> addWidget(fieldSliderThree);
     fieldEditLayout -> addWidget(fieldSliderFour);
-
+    */
     fieldEditGroup -> setLayout(fieldEditLayout);
 
     QVBoxLayout *objectsGroupLayout = new QVBoxLayout;
     QPushButton *newStairsButton = new QPushButton(tr("Stairs"));
-    QPushButton *newPlatformButton = new QPushButton(tr("Platform"));
+    QPushButton *newWindowButton = new QPushButton(tr("Window"));
     objectsGroupLayout -> addWidget(newStairsButton);
-    objectsGroupLayout -> addWidget(newPlatformButton);
+    objectsGroupLayout -> addWidget(newWindowButton);
     objectsGroup -> setLayout(objectsGroupLayout);
 
     connect(newStairsButton, SIGNAL(clicked()),
             this, SLOT(slotDefineStairs()));
+
+    connect(newWindowButton, SIGNAL(clicked()),
+            this, SLOT(slotDefineWindow()));
 
     floorsLayout = new QGridLayout;
 
@@ -221,8 +231,8 @@ MainWindow::MainWindow()
 
     QGridLayout *centralLayout = new QGridLayout;
     centralLayout->addWidget(designArea, 0, 0, 2, 1);
+    centralLayout->addWidget(designAreaMini, 0, 2, 1, 1);
     centralLayout->addWidget(previewArea1, 0, 1, 1, 1);
-    centralLayout->addWidget(previewArea2, 0, 2, 1, 1);
     centralLayout->addWidget(reportWidget, 2, 0, 1, 2);
     //centralLayout->addWidget(globals -> stuffArea, 2, 0, 1, 1, Qt::AlignLeft);
     centralLayout->addWidget(toolsGroup, 1, 1, 2, 2);
@@ -338,6 +348,20 @@ void MainWindow::slotDefineStairs()
     designWidget -> setFocus();
 }
 
+void
+MainWindow::slotDefineWindow()
+{
+  if(*(globals -> appState) != editingField)
+    {
+      designWidget -> printInfo("Choose field and it's wall first.");      
+      return;
+    }
+  *(globals -> appState) = definingWindow;
+  //  designWidget -> setFocus();
+  designWidgetMini -> setFocus();
+}
+
+
 QSlider *MainWindow::createSlider()
 {
     QSlider *slider = new QSlider(Qt::Vertical);
@@ -352,7 +376,7 @@ QSlider *MainWindow::createSlider()
 }
 
 
-void MainWindow::slotFloorSliderOneChanged(int value)
+/*void MainWindow::slotFloorSliderOneChanged(int value)
 {
     //     designWidget -> printInfo(QString::number(value));
     designWidget -> chosenField -> walls[0] = value;
@@ -369,7 +393,7 @@ void MainWindow::slotFloorSliderFourChanged(int value)
 {
     designWidget -> chosenField -> walls[3] = value;
 }
-
+*/
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 

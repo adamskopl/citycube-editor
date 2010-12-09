@@ -24,7 +24,11 @@ HEADERS += glwidget.h \
     lbpassage.h \
     lbwallhelper.h \
     lbmathhelper.h \
-    counter.h
+    counter.h \
+    lbstairshelper.h \
+    lbhelpersbase.h \
+    lbwindow.h \
+    designwidgetmini.h
 SOURCES += glwidget.cpp \
     paintwidget.cpp \
     mainwindow.cpp \
@@ -48,7 +52,11 @@ SOURCES += glwidget.cpp \
     lbstairs.cpp \
     lbpassage.cpp \
     lbwallhelper.cpp \
-    lbmathhelper.cpp
+    lbmathhelper.cpp \
+    lbstairshelper.cpp \
+    lbhelpersbase.cpp \
+    lbwindow.cpp \
+    designwidgetmini.cpp
 QT += opengl
 LIBS += `sdl-config \
     --libs \

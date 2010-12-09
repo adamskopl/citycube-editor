@@ -10,13 +10,13 @@
 #include "globalcontainer.h"
 #include "lbwallhelper.h"
 #include "lbmathhelper.h"
+#include "lbstairshelper.h"
+#include "designwidgetmini.h"
 
 using namespace std;
 
 
-enum drawStyle {invisible, drawStyleField, drawStyleDefinedField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
-                normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint, drawStyleWallChoose,
-drawStyleHighlightParts};
+
 
 //none       - waiting for actions
 //defining   - new field is being defined
@@ -37,7 +37,7 @@ class LField;
 
       //vector with fields is passed with pointer, because its shared betwee
       //this class and PreviewWidget
-      DesignWidget(globalContainer *, QTextEdit*, QWidget *parent = 0);
+      DesignWidget(globalContainer *, QTextEdit*, DesignWidgetMini *DM, QWidget *parent = 0);
 
   protected:
       void paintEvent(QPaintEvent *event);
@@ -152,6 +152,10 @@ class LField;
       //class helping in making holes in walls
       LBWallHelper WH;
       lbmathhelper MH;
+      lbStairsHelper *SH;
+
+      //points on &WH or SH
+      LBHelpersBase *HB;
 
       //things to reset on clicking with right mouse button
       void resetOnRMB();

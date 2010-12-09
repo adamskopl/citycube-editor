@@ -114,10 +114,14 @@ LField::LField(char KIND, LVector *C): kind(KIND)
   /*  printf("LEFT : length : %f, Nx : %f, Nz: %f \n",
       length, CornersN[3].x, CornersN[3].z);*/
   
-  //build 4 empty passage trees (for every wall)
+  /* 
+     build 4 empty passage trees (for every wall)
+     build 4 empty window trees (for every wall)
+   */
   for(int a = 0; a < 4; a++)
     {
       passageTree[a] = new lbpassage(0, 0);
+      windowTree[a] = new LBWindow();
     }
 }
 
@@ -205,14 +209,15 @@ void LField::selfDraw(){
   //draw fields without walls
   glLineWidth(1.0f);  
 
-  /*  glBegin(GL_LINE_LOOP);
+  glColor4f(0.0f, 0.0f, 0.0f, 0.1f);
+  glBegin(GL_QUADS);
   {
     glVertex3fv(vertex[0].point);
     glVertex3fv(vertex[1].point);
     glVertex3fv(vertex[2].point);
     glVertex3fv(vertex[3].point);	
   }
-  glEnd();*/
+  glEnd();
 
   glColor4f(0.0, 0.0, 0.0, 1.0);
   

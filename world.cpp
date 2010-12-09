@@ -40,6 +40,7 @@ LWorld::LWorld(LObject *globalFloors)
   hero -> direction = 0.0f;
 
   floorsTree = globalFloors;
+  //  LField::setFieldsGS(FieldsGSNormal);
 }
 
 LWorld::~LWorld()

@@ -3,9 +3,9 @@
 #include "paintwidget.h"
 #include "field.h"
 #include "lbstairs.h"
-#include <math.h>
+#include <cmath>
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 //TODO: class is too big. add other classes helping DesignWidget
 //TODO: every object that was created with NEW, has to be deleted on end
@@ -37,7 +37,7 @@ void DesignWidget::printSuccess(const QString &text)
     reportWidget -> append(text);
 }
 
-DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QWidget *parent)
+DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, DesignWidgetMini *DM, QWidget *parent)
     : QWidget(parent)
 {
     this->reportWidget = reportWidget;
@@ -58,6 +58,11 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, QW
 
     GC = globals;
     //drawBoxes = GC
+
+    SH = new lbStairsHelper(GC);
+    //helper base will point later on SH or &WH (to help invoke common functions
+    //in way depending on current AppState)
+    HB = NULL;
 
     scrollX = 0;
     scrollY = 0;
@@ -108,9 +113,21 @@ void DesignWidget::paintEvent(QPaintEvent *)
 	drawBreakingHole();
 	break;
       }
+    case(definingStairs):
+      {
+	drawDefinedFields();
+	//	drawBreakingHoleStairs();
+	//	drawBreakingHole();
+	//	drawWallParts();
+	break;
+      }
+    case(definingWindow):
+      {
+	break;
+      }
     default:
         {
-	    drawStairsTriangles();
+	  //	    drawStairsTriangles();
 	    drawDefinedFields();
             drawDefinedField();
             drawPointer();
@@ -124,6 +141,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
 
     drawPig();
     delete painter;
+
 }
 
 void DesignWidget::drawGrid()
@@ -239,7 +257,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                         //if bottom field is not chosen
                         if(GC -> stairsBottom == NULL)
                         {
-                            printInfo("... select border from which stairs will begin (hit 'W', when you're done') ...");
+			  //                            printInfo("... select border from which stairs will begin (hit 'W', when you're done') ...");
                             GC -> stairsBottom = pointedField;
                         }
                         else
@@ -247,8 +265,27 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             //if top field is not chosen
                             if(GC -> stairsTop == NULL)
                             {
-                                printInfo("... select border where stairs will end (hit 'W', when you're done') ...");
-                                GC -> stairsTop = pointedField;
+			      //                                printInfo("... select border where stairs will end (hit 'W', when you're done') ...");
+			      GC -> stairsTop = pointedField;
+			      bool success = SH -> tryToPrepareStairs();
+			      reportWidget -> setText(QString::number(success));
+			      
+			      if(success)
+				{
+				  HB = SH;
+				  *(GC -> appState) = connectingFields;
+				}
+			      else
+				{
+				  *(GC->appState) = none;
+				}
+			      //GC->stairsBottom = NULL;
+			      //GC->stairsTop = NULL;
+			      //GC->stairsFieldBottomEdge = 0;
+			      //GC->stairsFieldTopEdge = 0;
+			      //GC->isBottomFieldSet = false;
+
+			      //*(GC -> appState) = none;
                             }
                         }
                     }
@@ -271,6 +308,8 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 			    //			    *(GC -> appState) = connectingFields;
 			    //			    chosenField2 = pointedField;
 			    *(GC -> appState) = connectingFields;
+			    //set helper pointer on WallHelper
+			    HB = &WH;
 			    //chosenField = NULL;
 			    //chosenField2 = NULL;
 			  }
@@ -293,7 +332,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 }
 	    case(connectingFields):
 	      {
-		if(WH.isPartPointed())
+		if(HB->isPartPointed())
 		  *(GC -> appState) = breakingHole;
 		break;
 	      }
@@ -302,18 +341,30 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 		//for future: it is best to try build functions, that would work for every number of variables. e.g: we have dist1, dist2 ... dist30.
 
 		//check on what pointer is pointing, and point on next variable
-		if(WH.distPointer == &WH.dist1)
+		if(HB->distPointer == &(HB->dist1))
 		  {
-		    WH.distPointer = &WH.dist2;
-		    WH.pointPointer = &WH.point2;
+		    HB->distPointer = &(HB->dist2);
+		    HB->pointPointer = &(HB->point2);
 		  }
 		else
-		  if(WH.distPointer == &WH.dist2)
+		  if(HB->distPointer == &(HB->dist2))
 		    {
 		      //create new field's passage
-		      WH.addPassage(chosenField, chosenField2);
-		      chosenField = NULL;
-		      chosenField2 = NULL;
+
+		      if(HB == SH)
+			{
+			  HB->addPassage(GC->stairsBottom, GC->stairsTop);
+			  addNewStairs();
+			  GC->stairsBottom = NULL;
+			  GC->stairsTop = NULL;
+			}
+		      else
+			if(HB == &WH)
+			  {
+			    HB->addPassage(chosenField, chosenField2);
+			    chosenField = NULL;
+			    chosenField2 = NULL;
+			  }
 		      *GC->appState = none;
 		    }
 		  else
@@ -452,7 +503,7 @@ void DesignWidget::drawDefinedFields()
         helpFloor = (LBFloor*) GC-> floorsTree -> child;
     else
         return;
-
+    
 
     //break this while when last floor is drawn
     while(1)
@@ -583,7 +634,7 @@ void DesignWidget::setDrawStyle(drawStyle style)
         //pointer
     case(pointer):
         {
-            brush.setColor(Qt::yellow);
+	  brush.setColor(Qt::transparent);
             pen.setStyle(Qt::SolidLine);
             pen.setColor(Qt::black);
             pen.setWidth(1);
@@ -832,7 +883,13 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 
 
       //for now: check if field is pointed only if ...
-      if(*(GC -> appState) == none || *(GC -> appState) == editingField)
+
+      //TODO: VERY BAD WAY ... CHANGE IT!
+      //following 'if' is for checking what state we actualy have
+      //maybe there's a better way than making OR with desired states
+      
+      if(*(GC -> appState) == none || *(GC -> appState) == editingField ||
+	 *(GC->appState) == definingStairs)
 	if(drawnFloor == GC -> actualFloor)
 	  {
             //check if field is pointed with mouse
@@ -1064,7 +1121,7 @@ void DesignWidget::drawStairsTriangles()
         }
     }
 }
-
+/*
 void DesignWidget::addNewStairs()
 {
     LBStairs *newStairs = new LBStairs;
@@ -1093,8 +1150,63 @@ void DesignWidget::addNewStairs()
     newStairs -> horizontalVector = GC -> stairsHorizontalVector;
 
     newStairs -> connectTo(GC -> stairsTree);
-}
+    }*/
 
+void DesignWidget::addNewStairs()
+{
+  printf("STAIRS");
+
+    LBStairs *newStairs = new LBStairs;
+
+    newStairs -> connBottom = GC -> stairsBottom;
+    newStairs -> connTop = GC -> stairsTop;
+
+    /*    int a, b;
+    //    a = GC -> stairsFieldBottomEdge;
+    a = SH -> wallIndex1;
+    if(a == 3)
+        b = 0;
+    else
+    b = a + 1;*/
+    /*
+    newStairs -> cornersBottom[0] = GC -> stairsBottom -> corners[a];
+    newStairs -> cornersBottom[1] = GC -> stairsBottom -> corners[b];
+    */
+
+    /*
+
+    a = SH -> wallIndex2;
+    if(a == 3)
+        b = 0;
+    else
+    b = a + 1;*/
+    /*
+    newStairs -> cornersTop[0] = GC -> stairsTop -> corners[a];
+    newStairs -> cornersTop[1] = GC -> stairsTop -> corners[b];
+    */
+
+    newStairs -> cornersBottom[0] = SH->point1;
+    newStairs -> cornersBottom[1] = SH->point2;
+
+    /*
+      once again: translateVector is a vector defining fieldTop's translation which
+      result is touching of fieldTop with fieldBottom with chosen edges - chosen
+      with wallIndex1 and wallIndex2
+    */
+
+    newStairs -> cornersTop[0] = SH->point1 - SH->translateVector;
+    newStairs -> cornersTop[1] = SH->point2 - SH->translateVector;
+
+    //set Y coord with field's height
+    newStairs -> cornersBottom[0].y = GC -> stairsBottom -> corners[0].y;
+    newStairs -> cornersBottom[1].y = GC -> stairsBottom -> corners[0].y;
+    newStairs -> cornersTop[0].y = GC -> stairsTop -> corners[0].y;
+    newStairs -> cornersTop[1].y = GC -> stairsTop -> corners[0].y;
+
+    newStairs -> horizontalVector = GC -> stairsTop ->cornersN[SH -> wallIndex2];
+
+    newStairs -> connectTo(GC -> stairsTree);
+}
 
 //check if chosenField is touching chosenField2 (they have to be set)
 //in such way, that passage can be made. if so - set passageA & WH.passageB
@@ -1120,9 +1232,21 @@ DesignWidget::checkTouching()
 	  cX[0] = chosenField -> corners[a];
 	  cX[2] = chosenField2 -> corners[b];
 
+	  /*
+	    First we are checking if two edges are parallel:
+	    1. compare slopes:
+	       - of line created by points of first edge
+	       - of line created by points of second edge
+	    2. if slopes are equal, so edges are parallel
+	    Slope is change in y divided by change in x. Cross multiplying gives:
 
+	    (Of course being parallel is not enough - distance fields also
+	    can have parallerl edges. Further conditions are checked later:
+	    we will check which points belongs to which edges.)
+	    
+	  */
           if((cX[0].x - cX[1].x)*(cX[2].z - cX[3].z) == 
-	     (cX[2].x - cX[3].x)*(cX[0].z - cX[1].z))//initial condition: collinearity of two edges (but it's not sufficient)
+	     (cX[2].x - cX[3].x)*(cX[0].z - cX[1].z))
 	    {
 	      //count how many points of one edge belongs to second edge and vice-versa
 	      //2:0 - ok, 2:1 - ok, 2:2 - ok, 1:1 - ok if points are not equal
@@ -1319,55 +1443,139 @@ DesignWidget::checkTouching()
   return false;
 }
 
-//launched after succesfully connected fields:
+//launched after succesfully choice of 2 fields (either for connection or staris):
 //higlight wall parts, that can be chosen to make a passage.
 //check if one of them is pointed with a mouse - show this choice
 void
 DesignWidget::drawWallParts()
 {
-  //isPartPointed will be set to true in "WH.highlighParts()"
-  WH.newLoop();
 
+  /*
+    drawWallParts() is invoked for many appStates, but works for them almost is the
+    same way. So first prepare variables needed to make prope things depending on
+    appState. Inheritance from one class (lbhelpersbase) is helpful - lbStairsHelper
+    and lbwallhelper have the same variables.
+   */
+
+
+  //temp variables for every desired appState
+  LField *field1 = NULL; 
+  LField *field2 = NULL;;
   //two points of actually drawn edge
   LVector A, B;
 
+  /*
+    HB is already pointed - we came here after editingFields or definingStairs
+    state. Set variables depending on HB value
+   */
+
+  //check on which address HB is pointing at
+  if(HB == SH)
+    {
+      field1 = GC->stairsBottom;
+      field2 = GC->stairsTop;
+    }
+  else
+    if(HB == &WH)
+      {
+	field1 = chosenField;
+	field2 = chosenField2;
+      }
+
+  /*  
+  switch(*(GC->appState))
+    {
+    case(connectingFields):
+      {
+	//isPartPointed will be set to true in "WH.highlighParts()"
+	WH.newLoop();	
+
+	field1 = chosenField;
+	field2 = chosenField2;
+	HB = (LBHelpersBase*)(&WH);
+	break;
+      }
+    case(definingStairs):
+      {
+	//isPartPointed will be set to true in "SH.highlighParts()"
+	SH->newLoop();	
+
+	field1 = GC->stairsBottom;
+	field2 = GC->stairsTop;
+	HB = (LBHelpersBase*)(SH);
+	break;
+      }
+    default:
+      {
+
+	break;
+      }
+      }*/
+  
+  HB->newLoop();
   //starting point of first drawn part
-  A = WH.passageA;
-  if(!chosenField || !chosenField2)
+  A = HB->passageA;
+  if(!field1 || !field2)
     {
       printError("something went wrong: chosenField and chosenField2 not set");
       return;
     }
-
-  setDrawStyle(drawStyleHighlightParts);
   
-  if(chosenField -> passageTree[0] -> hasChild())
+  setDrawStyle(drawStyleHighlightParts);
+
+  /*
+    TODO: implement possibility of choosing only wall parts - not whole walls.
+        without that user can create invalid passages!
+  */
+
+  
+  /*  if(chosenField -> passageTree[0] -> hasChild())
     {
-      //TODO: implement possibility of choosing only wall parts - not whole walls.
-      //      without that user can create invalid passages
 
-
+      
+      
       //      while(1)
       //      {
-
+      
       //      }
-    }
+      }*/
 
-
-  B = WH.passageB;
-  WH.highlightParts(painter, mouseX, mouseY);
+  B = HB->passageB;
+  //draw ellipse and others ...
+  HB->highlightParts(painter, mouseX, mouseY);
 }
 
 void
 DesignWidget::drawBreakingHole()
 {
   //TODO: check what things can be calculated only once (once after choosing wall part)
+  /*
+    As in drawWallParts:
+     "drawWallParts() is invoked for many appStates, but works for them almost is the
+     same way. So first prepare variables needed to make prope things depending on
+     appState. Inheritance from one class (lbhelpersbase) is helpful - lbStairsHelper
+     and lbwallhelper have the same variables."
+   */
+
+  
+  /*  if(HB == SH)
+    {
+      field1 = GC->stairsBottom;
+      field2 = GC->stairsTop;
+    }
+  else
+    if(HB == &WH)
+      {
+	field1 = chosenField;
+	field2 = chosenField2;
+	}*/
+  
 
   setDrawStyle(drawStyleHighlightParts);
-  painter -> drawLine(WH.passageA.x, WH.passageA.z,
-	    WH.passageB.x, WH.passageB.z);
+  painter -> drawLine(HB->passageA.x, HB->passageA.z,
+	    HB->passageB.x, HB->passageB.z);
 
-  LVector temp = WH.passageB - WH.passageA;
+  LVector temp = HB->passageB - HB->passageA;
   LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
   LVector normal1 = temp^multiplied;
   normal1.normalize();
@@ -1376,21 +1584,21 @@ DesignWidget::drawBreakingHole()
   //  reportWidget -> setText(QString::number(MH.pointLineDistance
   //					  (1,1,2,2,2,1)));
 
-  float pointDistance = MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY);
+  float pointDistance = MH.pointLineDistance(HB->passageA.x, HB->passageA.z, HB->passageA.x + normal1.x, HB->passageA.z + normal1.z, mouseX, mouseY);
 
   //  reportWidget -> setText(QString::number(MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY)));
 
   float passLength = temp.Length();
   
   LVector mouseVec;
-  mouseVec.x = mouseX - WH.passageA.x;
-  mouseVec.z = mouseY - WH.passageA.z;
+  mouseVec.x = mouseX - HB->passageA.x;
+  mouseVec.z = mouseY - HB->passageA.z;
 
   //setting distPointer for the first time
-  if(WH.distPointer == NULL)
+  if(HB->distPointer == NULL)
     {
-      WH.distPointer = &WH.dist1;
-      WH.pointPointer = &WH.point1;
+      HB->distPointer = &(HB->dist1);
+      HB->pointPointer = &(HB->point1);
     }
   
   //check 2 conditions: mouse is pointing farther than passageA or passageB
@@ -1399,32 +1607,32 @@ DesignWidget::drawBreakingHole()
   //is mouse pointing outside passageA?
   if((-temp) % mouseVec >= 0)
     {
-      *WH.pointPointer = WH.passageA;
+      *(HB->pointPointer) = HB->passageA;
       printSuccess(QString::number(0));
-      *WH.distPointer = 0;
+      *(HB->distPointer) = 0;
       //      printInfo("vec!");
     }
   else
     //is mouse poining outside passageB?
     if(pointDistance > passLength)
       {
-	*WH.pointPointer = WH.passageB;
+	*(HB->pointPointer) = HB->passageB;
 	printSuccess(QString::number(temp.Length()));
-	*WH.distPointer = temp.Length();
+	*(HB->distPointer) = temp.Length();
 	//	printError("distance!");
       }
   //mouse is geometrically betweeen passageA and passageB
     else
       {
-	WH.pointPointer->x = WH.passageA.x + temp.x*pointDistance/passLength;
-	WH.pointPointer->z = WH.passageA.z + temp.z*pointDistance/passLength;
+	HB->pointPointer->x = HB->passageA.x + temp.x*pointDistance/passLength;
+	HB->pointPointer->z = HB->passageA.z + temp.z*pointDistance/passLength;
 	printSuccess(QString::number(pointDistance));
-	*WH.distPointer = pointDistance;
+	*(HB->distPointer) = pointDistance;
 	//	printSuccess("middle!");
       }
   
     setDrawStyle(drawStyleBigPoint);
-    WH.drawPassagePoints(painter);
+    HB->drawPassagePoints(painter);
 }
 
 void
@@ -1434,3 +1642,67 @@ DesignWidget::resetOnRMB()
   chosenField2 = NULL;
   *GC -> appState = none;
 }
+/*
+void 
+DesignWidget::drawBreakingHoleStairs()
+{
+  setDrawStyle(drawStyleHighlightParts);
+
+  painter -> drawLine(SH -> passageA.x, SH -> passageA.z,
+		      SH->passageB.x, SH->passageB.z);
+
+  painter -> drawLine(SH->passageA.x - SH->translateVector.x, 
+		      SH->passageA.z - SH->translateVector.z,
+		      SH->passageB.x - SH->translateVector.x, 
+		      SH->passageB.z - SH->translateVector.z);
+
+  LVector temp = WH.passageB - WH.passageA;
+  LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
+  LVector normal1 = temp^multiplied;
+  normal1.normalize();
+
+  float pointDistance = MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY);
+
+  float passLength = temp.Length();
+  
+  LVector mouseVec;
+  mouseVec.x = mouseX - SH->passageA.x;
+  mouseVec.z = mouseY - SH->passageA.z;  
+  
+  //setting distPointer for the first time
+  if(SH->distPointer == NULL)
+    {
+      SH->distPointer = &(SH->dist1);
+      SH->pointPointer = &(SH->point1);
+    }
+  
+  if((-temp) % mouseVec >= 0)
+    {
+      *(SH->pointPointer) = SH->passageA;
+      //      printSuccess(QString::number(0));
+      *(SH->distPointer) = 0;
+      //      printInfo("vec!");
+    }
+  else
+    //is mouse poining outside passageB?
+    if(pointDistance > passLength)
+      {
+	*(SH->pointPointer) = WH.passageB;
+	//	printSuccess(QString::number(temp.Length()));
+	*(SH->distPointer) = temp.Length();
+	//	printError("distance!");
+      }
+  //mouse is geometrically betweeen passageA and passageB
+    else
+      {
+	SH->pointPointer->x = SH->passageA.x + temp.x*pointDistance/passLength;
+	SH->pointPointer->z = SH->passageA.z + temp.z*pointDistance/passLength;
+	//	printSuccess(QString::number(pointDistance));
+	*(SH->distPointer) = pointDistance;
+	//	printSuccess("middle!");
+      }
+  
+    setDrawStyle(drawStyleBigPoint);
+    WH.drawPassagePoints(painter);
+}
+*/

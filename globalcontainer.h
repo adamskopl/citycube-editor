@@ -4,9 +4,10 @@
 #include "object.h"
 #include "field.h"
 #include "floor.h"
+#include "lbmathhelper.h"
 
 //global state of application (alias "what Designer is doing right now ?")
-enum STATE {none, defining, editingField, connectingFields, breakingHole, addingFloor, definingStairs};
+enum STATE {none, defining, editingField, connectingFields, breakingHole, addingFloor, definingStairs, definingWindow};
 class QComboBox;
 class QCheckBox;
 class LField;
@@ -14,6 +15,10 @@ class QScrollArea;
 class DesignWidget;
 class QSlider;
 class LBStairs;
+
+enum drawStyle {invisible, drawStyleField, drawStyleDefinedField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
+                normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint, drawStyleWallChoose,
+drawStyleHighlightParts};
 
 class globalContainer
 {
@@ -81,6 +86,7 @@ public:
     //help variable for deciding if user has chosen bottom field
     bool isBottomFieldSet;
 
+    lbmathhelper *math;
 };
 
 #endif // GLOBALCONTAINER_H
