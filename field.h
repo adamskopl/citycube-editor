@@ -7,6 +7,7 @@
 #include "node.h"
 #include "vector.h"
 #include "lbpassage.h"
+#include "lbwindow.h"
 #include "counter.h"
 #include "lbmathhelper.h"
 
@@ -79,9 +80,20 @@ typedef struct{
   float x, z;
 }vector_xz;
 
+/*
+  used to set global state of fields - for example "actual" means to draw fields
+  other way than usual (to point which of them are actual)
+*/
+
+/*typedef struct{
+  //pos on Wall, not in global space
+  LVector pos;
+  float width, height;
+  }LBWindow;*/
 
 //FINISH DISTANCE AND CLEAN UP
 // real mess ... Corners, vector_xz, LVector ...
+
 
 class LField : public LObject, public Counter<LField>{
  public:
@@ -107,7 +119,11 @@ class LField : public LObject, public Counter<LField>{
  public:
   //walls heights
   float walls[4];
+  
+  //every edge has its own passage tree
   lbpassage *passageTree[4];
+  //every wall has its own window tree
+  LBWindow *windowTree[4];
 
   LVector corners[4];
 
@@ -173,9 +189,12 @@ class LField : public LObject, public Counter<LField>{
   float howFarPointIs(int wallIndex, LVector point);
 
   void remove ();
+  
+  //  static void setFieldsGS(fieldsGS);
 
  private:
   static int fieldsCnt;
 };
+
 
 #endif

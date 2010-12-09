@@ -3,6 +3,8 @@
 #include "object.h"
 #include "counter.h"
 
+//enum floorStatus {FSNormal, FSChosen};
+
 class LBFloor : public LObject, public Counter<LBFloor>
 {
     //floor is a root of fields belonging to it
@@ -16,7 +18,9 @@ public:
     bool isItRendered;
 
     void drawFloor();
-
+    //    void setFloorStatus(floorStatus);
+ private:
+    //    floorStatus FS;
 
 };
 

@@ -34,23 +34,9 @@ void LBStairs::selfDraw()
     float stairsWidth = LVector(cornersBottom[0].x - cornersTop[1].x,
                                 0.0f, cornersBottom[0].z - cornersTop[1].z).Length();
 
-
-    //float stairsWidthBottom = LVector(cornersBottom[0].x - cornersBottom[1].x,
-    //                                0.0f, cornersBottom[0].z - cornersBottom[1].z).Length();
-
-    //float stairsHeightTop = LVector(cornersTop[0].x - cornersTop[1].x,
-    //                              0.0f, cornersTop[0].z - cornersTop[1].z).Length();
-
-
     int stepsNumber = stairsHeight / desiredHeight;
     float stepHeight = stairsHeight / stepsNumber;
     float stepWidth = stairsWidth / stepsNumber;
-
-
-    //printf("%f\n", stairsWidth);
-
-
-
 
     //variables keeping current step's coordinates:
 
@@ -94,27 +80,40 @@ void LBStairs::selfDraw()
 
     glShadeModel(GL_SMOOTH);
 
-    glColor4f(0.0,0.0,0.0,0.5);
+    glColor4f(0.0,0.0,0.0,1.0);
     glPushMatrix();
+    glBegin(GL_LINE);
+    glVertex3fv(vBottom[0].point);
+    glVertex3fv(vTop[0].point);   
+    glVertex3fv(vBottom[1].point);
+    glVertex3fv(vTop[1].point);    
+    glEnd();
 
-    glBegin(GL_QUADS);
+    /*
 
     for(int stepCnt = 0; stepCnt < stepsNumber; stepCnt++)
     {
-        //draw vertical part of step
 
-        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+      glBegin(GL_LINE_LOOP);
+      {
+        //draw vertical part of step
         glVertex3fv(verticalDraw[0].point);
         glVertex3fv(verticalDraw[1].point);
-        glColor4f(0.85, 0.2, 0.0, 1.0);
         glVertex3fv(verticalDraw[2].point);
-        glVertex3fv(verticalDraw[3].point);
-        //draw horizontal part of step
-        glVertex3fv(horizontalDraw[0].point);
-        glVertex3fv(horizontalDraw[1].point);
-        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-        glVertex3fv(horizontalDraw[2].point);
-        glVertex3fv(horizontalDraw[3].point);
+	glVertex3fv(verticalDraw[3].point);
+      }
+      glEnd();
+	
+      glBegin(GL_LINE_LOOP);
+      {
+	//draw horizontal part of step
+	glVertex3fv(horizontalDraw[0].point);
+	glVertex3fv(horizontalDraw[1].point);
+	glVertex3fv(horizontalDraw[2].point);
+	glVertex3fv(horizontalDraw[3].point);
+      }
+      glEnd();
+    
 
         //set parts of next step
         for(int setCnt = 0; setCnt < 4; setCnt++)
@@ -129,16 +128,7 @@ void LBStairs::selfDraw()
             verticalDraw[setCnt].point[2] += horizontalVector.z * stepWidth;
             horizontalDraw[setCnt].point[2] += horizontalVector.z * stepWidth;
         }
-    }
-    
-    /*    glBegin(GL_QUADS);
-    {
-        glVertex3fv(vBottom[0].point);
-        glVertex3fv(vBottom[1].point);
-        glVertex3fv(vTop[0].point);
-        glVertex3fv(vTop[1].point);
-    }*/
+	}*/
 
-    glEnd();
     glPopMatrix();
 }

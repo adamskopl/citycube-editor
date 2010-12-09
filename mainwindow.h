@@ -15,6 +15,7 @@ using namespace std;
 
 class QScrollArea;
 class DesignWidget;
+class DesignWidgetMini;
 class PreviewWidget;
 class QTextEdit;
 class QGridLayout;
@@ -33,11 +34,12 @@ public slots:
     void slotFloorChanged( int );
     void slotNewFloor();
     void slotDefineStairs();
+    void slotDefineWindow();
 
-    void slotFloorSliderOneChanged(int);
+    /*    void slotFloorSliderOneChanged(int);
     void slotFloorSliderTwoChanged(int);
     void slotFloorSliderThreeChanged(int);
-    void slotFloorSliderFourChanged(int);
+    void slotFloorSliderFourChanged(int);*/
 
     void changeFloorsView();
     void designAreaScrollBarXChanged(int);
@@ -61,11 +63,13 @@ private:
 
     //bigger area for designe (2d)
     QScrollArea *designArea;
+    QScrollArea *designAreaMini;
     //smaller area for preview (3d)
     QScrollArea *previewArea1;
-    QScrollArea *previewArea2;
+    //    QScrollArea *previewArea2;
 
     DesignWidget *designWidget;
+    DesignWidgetMini *designWidgetMini;
     PreviewWidget *previewWidget1;
     PreviewWidget *previewWidget2;
 
@@ -91,10 +95,10 @@ private:
     void keyPressEvent(QKeyEvent *);
 
     //sliders
-    QSlider *fieldSliderOne;
+    /*    QSlider *fieldSliderOne;
     QSlider *fieldSliderTwo;
     QSlider *fieldSliderThree;
-    QSlider *fieldSliderFour;
+    QSlider *fieldSliderFour;*/
 
 };
 

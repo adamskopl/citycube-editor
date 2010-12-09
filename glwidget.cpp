@@ -45,6 +45,7 @@ PreviewWidget::~PreviewWidget()
 void PreviewWidget::updateScene()
 {
     updateGL();
+
 }
 
 void PreviewWidget::initializeGL()
@@ -64,6 +65,7 @@ void PreviewWidget::paintGL()
     gameWorld -> prepare();
     gameWorld -> draw(gameCamera);
     gameWorld -> animate(timePassed);
+
 }
 
 void PreviewWidget::resizeGL(int w, int h)

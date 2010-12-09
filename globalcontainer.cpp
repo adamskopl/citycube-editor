@@ -7,6 +7,8 @@
 globalContainer::globalContainer()
 {
 
+    math = new lbmathhelper();
+
     //create root
     floorsTree = new LObject;
 
