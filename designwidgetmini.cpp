@@ -454,6 +454,7 @@ DesignWidgetMini::mousePressEvent(QMouseEvent *event)
 		}
 	      else
 		{
+		  GC -> chosenField = NULL;
 		  *(GC->appState) = none;
 		}
 	      break;

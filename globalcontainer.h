@@ -44,6 +44,10 @@ public:
       */
     LBStairs *stairsTree;
 
+    //fields chosen to edit in classes using globalContainer
+    LField *chosenField;
+    LField *chosenField2;
+
     //pointer on actual floor - level 1 of the tree
     //it's field, to have floor's height.
     //IS IT NEEDED ?????

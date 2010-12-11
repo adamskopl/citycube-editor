@@ -56,10 +56,12 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
     reportWidget -> setReadOnly(true);
 
     // painter = new QPainter(this);
+    GC = globals;
+
     setVariables();
     setMouseTracking(true);
 
-    GC = globals;
+
     //drawBoxes = GC
 
     SH = new lbStairsHelper(GC);
@@ -85,7 +87,9 @@ void DesignWidget::setVariables()
     //pointedFieldID = -1; //no field pointed
 
     pointedField = NULL;
-    chosenField = NULL;
+
+    GC->chosenField = NULL;
+    GC->chosenField2 = NULL;
     //appState = none;
 
 }
@@ -190,7 +194,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     if(isFieldPointed)
                     {
                         //chosenFieldID = pointedFieldID;
-                        chosenField = pointedField;
+                        GC->chosenField = pointedField;
                         *(GC->appState) = editingField;
                         printInfo("choose other field ...");
                     }
@@ -306,7 +310,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             printError("... wrong field chosen");
 		      */
                         //chosenFieldID = -1;
-                        chosenField2 = pointedField;
+                        GC->chosenField2 = pointedField;
 			if( checkTouching() )
 			  {
 			    printSuccess("YES!");
@@ -322,8 +326,8 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 			  {
 			    printError("NO !");
 			    *(GC -> appState) = none;
-			    chosenField = NULL;
-			    chosenField2 = NULL;
+			    GC->chosenField = NULL;
+			    GC->chosenField2 = NULL;
 			  }
 
                     }
@@ -366,9 +370,9 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 		      else
 			if(HB == &WH)
 			  {
-			    HB->addPassage(chosenField, chosenField2);
-			    chosenField = NULL;
-			    chosenField2 = NULL;
+			    HB->addPassage(GC->chosenField, GC->chosenField2);
+			    GC->chosenField = NULL;
+			    GC->chosenField2 = NULL;
 			  }
 		      *GC->appState = none;
 		    }
@@ -401,7 +405,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
             case(editingField):
                 {
                     *(GC -> appState) = none;
-                    chosenField = NULL;
+                    GC->chosenField = NULL;
                     chosenWall = 0;
                     break;
                 }
@@ -543,8 +547,8 @@ void DesignWidget::drawDefinedFields()
             b = 0;
         else
             b = chosenWall+1;
-        painter -> drawLine(chosenField -> corners[a].x, chosenField -> corners[a].z,
-                            chosenField -> corners[b].x, chosenField -> corners[b].z);
+        painter -> drawLine(GC->chosenField -> corners[a].x, GC->chosenField -> corners[a].z,
+                            GC->chosenField -> corners[b].x, GC->chosenField -> corners[b].z);
     }
 
 }
@@ -926,7 +930,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 		setDrawStyle(drawStyleField);
 	      }
 
-            if(helpField == chosenField)
+            if(helpField == GC->chosenField)
 	      setDrawStyle(styleChosenField);
 	    
             QPolygon drawField;
@@ -1232,16 +1236,16 @@ DesignWidget::checkTouching()
 	  //considered corners
 	  LVector cX[4];
 
-	  if(a == 3) cX[1] = chosenField -> corners[0];
+	  if(a == 3) cX[1] = GC->chosenField -> corners[0];
 	  else
-	    cX[1] = chosenField -> corners[a+1];
+	    cX[1] = GC->chosenField -> corners[a+1];
 	  
-	  if(b == 3) cX[3] = chosenField2 -> corners[0];
+	  if(b == 3) cX[3] = GC->chosenField2 -> corners[0];
 	  else
-	    cX[3] = chosenField2 -> corners[b+1];
+	    cX[3] = GC->chosenField2 -> corners[b+1];
 	  
-	  cX[0] = chosenField -> corners[a];
-	  cX[2] = chosenField2 -> corners[b];
+	  cX[0] = GC->chosenField -> corners[a];
+	  cX[2] = GC->chosenField2 -> corners[b];
 
 	  /*
 	    First we are checking if two edges are parallel:
@@ -1489,8 +1493,8 @@ DesignWidget::drawWallParts()
   else
     if(HB == &WH)
       {
-	field1 = chosenField;
-	field2 = chosenField2;
+	field1 = GC->chosenField;
+	field2 = GC->chosenField2;
       }
 
   /*  
@@ -1649,8 +1653,8 @@ DesignWidget::drawBreakingHole()
 void
 DesignWidget::resetOnRMB()
 {
-  chosenField = NULL;
-  chosenField2 = NULL;
+  GC->chosenField = NULL;
+  GC->chosenField2 = NULL;
   *GC -> appState = none;
 }
 /*
