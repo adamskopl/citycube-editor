@@ -13,6 +13,9 @@
 //delete this, when cout will not be needed
 using namespace std;
 
+statusFieldTypes LField::statusFields = noneField;
+statusFloorTypes LBFloor::statusFloors = noneFloor;
+
 void DesignWidget::printInfo(const QString &text)
 {
     reportWidget -> setTextColor(Qt::darkBlue);
@@ -68,6 +71,8 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
     scrollY = 0;
 
     chosenWall = 0;
+
+    designMini = DM;
 }
 
 void DesignWidget::setVariables()
@@ -123,6 +128,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
       }
     case(definingWindow):
       {
+	drawDefinedFields();
 	break;
       }
     default:
@@ -223,7 +229,6 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             cornerIndex = 0;
                             newCorners[3].x = selectedX;
                             newCorners[3].z = selectedY;
-
                             //set HEIGHT
                             newCorners[0].y = GC -> actualFloor -> height;
                             newCorners[1].y = GC -> actualFloor -> height;
@@ -231,7 +236,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             newCorners[3].y = GC -> actualFloor -> height;
 
 
-                            LField *temp = new LField(WWWW, newCorners);
+                            LField *temp = new LField(newCorners);
                             //temp -> ID = fields->size();
                             //fieldID++;
                             //!fields->push_back(*temp);
@@ -412,8 +417,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     }
                     else // change floor
                     {
-                        GC -> actualFloor = (LBFloor*)(GC -> actualFloor -> next);
-
+		      GC->chooseNextFloor();
                     }
                     break;
                 }
@@ -442,6 +446,13 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 	    case(breakingHole):
 	      {
 		resetOnRMB();
+		break;
+	      }
+
+	    case(definingWindow):
+	      {
+		resetOnRMB();
+		break;
 	      }
 	    default:
 	      {

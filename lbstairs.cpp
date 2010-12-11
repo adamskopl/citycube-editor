@@ -28,11 +28,16 @@ void LBStairs::selfDraw()
     //to not recalculate same values every time
 
     float stairsHeight = cornersTop[0].y - cornersBottom[0].y;
+
     // assumed every step's height (it will be modified to fit stairs height)
     float desiredHeight = 3.0f;
 
-    float stairsWidth = LVector(cornersBottom[0].x - cornersTop[1].x,
-                                0.0f, cornersBottom[0].z - cornersTop[1].z).Length();
+    float stairsWidth = LVector(cornersBottom[0].x - cornersTop[0].x,
+    				0.0f, cornersBottom[0].z - cornersTop[0].z).Length();
+
+    lbmathhelper math;
+
+    //    float stairsWidth = math.pointLineDistance(vBottom[0].point[2], vBottom[0].point[0], vTop[0].point[2], vTop[0].point[0], vTop[1].point[2], vTop[1].point[0]);
 
     int stepsNumber = stairsHeight / desiredHeight;
     float stepHeight = stairsHeight / stepsNumber;
@@ -79,18 +84,18 @@ void LBStairs::selfDraw()
     //printf("%f, %f\n", horizontalVector.x, horizontalVector.z);
 
     glShadeModel(GL_SMOOTH);
-
-    glColor4f(0.0,0.0,0.0,1.0);
-    glPushMatrix();
-    glBegin(GL_LINE);
-    glVertex3fv(vBottom[0].point);
-    glVertex3fv(vTop[0].point);   
-    glVertex3fv(vBottom[1].point);
-    glVertex3fv(vTop[1].point);    
-    glEnd();
-
     /*
+      glColor4f(0.0,0.0,0.0,1.0);
+      glPushMatrix();
+      glBegin(GL_LINE);
+      glVertex3fv(vBottom[0].point);
+      glVertex3fv(vTop[0].point);   
+      glVertex3fv(vBottom[1].point);
+      glVertex3fv(vTop[1].point);    
+      glEnd();
+    */
 
+    
     for(int stepCnt = 0; stepCnt < stepsNumber; stepCnt++)
     {
 
@@ -128,7 +133,7 @@ void LBStairs::selfDraw()
             verticalDraw[setCnt].point[2] += horizontalVector.z * stepWidth;
             horizontalDraw[setCnt].point[2] += horizontalVector.z * stepWidth;
         }
-	}*/
+    }
 
     glPopMatrix();
 }

@@ -358,6 +358,8 @@ MainWindow::slotDefineWindow()
     }
   *(globals -> appState) = definingWindow;
   //  designWidget -> setFocus();
+  //  designWidgetMini->setEditedField(designWidget->chosenField, designWidget->chosenWall);
+  designWidgetMini -> beginNewEditing(designWidget->chosenField, designWidget->chosenWall);
   designWidgetMini -> setFocus();
 }
 
@@ -497,55 +499,24 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             case(editingField):
                 {
                     int wallIndex = designWidget -> chosenWall;
-                    designWidget -> chosenField -> walls[wallIndex] += 5.0f;
+                    designWidget -> chosenField -> walls[wallIndex] += 10.0f;
                     break;
                 }
                 //higher floor
             case(none):
                 {
-                    globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> next);
-                    designWidget -> repaint();
+		  /*		  globals->actualFloor
+				  globals->actualFloor = (LBFloor*)(globals -> actualFloor -> next);*/
+		  globals->chooseNextFloor();
+		  designWidget -> repaint();
                     break;
                 }
-                //accepting chosen border
-            case(definingStairs):
-                {
-                    if(!(globals -> isBottomFieldSet) && globals -> stairsBottom)
-                    {
-                        globals -> isBottomFieldSet = true;
-                        /*
-                          new stairs horizontal vector is equal to
-                          chosen bottom field wall's negative normal vector
-                        */
-                        globals -> stairsHorizontalVector =
-                                -(globals -> stairsBottom ->
-                                cornersN[globals -> stairsFieldBottomEdge]);
-                        designWidget -> printInfo("... choose top field for stairs ...");
-                    }
-                    else
-                    {
-                        //if top field is chosen
-                        if(globals -> stairsTop)
-                        {
-                            designWidget -> addNewStairs();
-                            designWidget -> printSuccess("... stairs defined.");
-                            *(globals -> appState) = none;
-                            globals -> stairsBottom = NULL;
-                            globals -> stairsTop = NULL;
-                            globals -> stairsFieldBottomEdge = 0;
-                            globals -> stairsFieldTopEdge = 0;
-                            globals -> isBottomFieldSet = false;
-                            designWidget -> repaint();
-                        }
-                        else
-                        {
-                            globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> next);
-                            designWidget -> repaint();
-                        }
-
-                    }
-                    break;
-                }
+	    case(definingStairs):
+	      {
+		globals->chooseNextFloor();
+		break;
+	      }
+	      
 	    default:
 	      {
 		break;
@@ -567,14 +538,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 //lower floor
             case(none):
                 {
-                    globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> prev);
-                    designWidget -> repaint();
+		  //                    globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> prev);
+		  globals->choosePrevFloor();
+		  designWidget -> repaint();
                     break;
                 }
             case(definingStairs):
                 {
-                    globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> prev);
-                    designWidget -> repaint();
+		  //                    globals -> actualFloor = (LBFloor*)(globals -> actualFloor -> prev);
+		  globals->choosePrevFloor();
+		  designWidget -> repaint();
                     break;
                 }
 	    default:

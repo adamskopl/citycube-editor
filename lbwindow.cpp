@@ -1,10 +1,4 @@
 #include "lbwindow.h"
 
-LBWindow::LBWindow()
-{
-    pos.x = 0;
-    pos.y = 0;
-    pos.z = 0;
-    width = 0;
-    height = 0;
-}
+LBWindow::LBWindow(LVector pos, float w, float h): pos(pos), width(w), height(h)
+{}

@@ -2,11 +2,13 @@
 #define LBWINDOW_H
 
 #include "vector.h"
+#include "object.h"
 
-class LBWindow
+class LBWindow : public LObject
 {
 public:
-    LBWindow();
+  LBWindow(LVector pos, float w, float h);
+  LBWindow(){}
 
     LVector pos;
     float width, height;

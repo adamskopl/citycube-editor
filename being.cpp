@@ -142,7 +142,7 @@ void LBeing::checkField(float DX, float DZ){
   printf("\n");*/
 
   
-  
+  /*  
   if(Vdistance < 0.0){
     if(field->Passage(F_U)){
       field -> heroLeaves();
@@ -217,5 +217,5 @@ void LBeing::checkField(float DX, float DZ){
       position.x -= DX;
       position.z -= DZ;
     }
-  }
+    }*/
 }
