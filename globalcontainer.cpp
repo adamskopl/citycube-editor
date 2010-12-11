@@ -12,6 +12,9 @@ globalContainer::globalContainer()
     //create root
     floorsTree = new LObject;
 
+    chosenField = NULL;
+    chosenField2 = NULL;
+
     floorsAmount = new int; 
     *floorsAmount = 1;
 

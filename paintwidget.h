@@ -121,9 +121,9 @@ class LField;
       DesignWidgetMini *designMini;
   public:
       //chosen field for defining
-      LField *chosenField;
+      //      LField *chosenField;
       //second field, chosen after choosing first one
-      LField *chosenField2;
+      //      LField *chosenField2;
 
   private:
       void removeField(LField *);

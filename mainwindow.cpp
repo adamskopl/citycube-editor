@@ -359,7 +359,7 @@ MainWindow::slotDefineWindow()
   *(globals -> appState) = definingWindow;
   //  designWidget -> setFocus();
   //  designWidgetMini->setEditedField(designWidget->chosenField, designWidget->chosenWall);
-  designWidgetMini -> beginNewEditing(designWidget->chosenField, designWidget->chosenWall);
+  designWidgetMini -> beginNewEditing(globals->chosenField, designWidget->chosenWall);
   designWidgetMini -> setFocus();
 }
 
@@ -499,7 +499,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             case(editingField):
                 {
                     int wallIndex = designWidget -> chosenWall;
-                    designWidget -> chosenField -> walls[wallIndex] += 10.0f;
+                    globals -> chosenField -> walls[wallIndex] += 10.0f;
                     break;
                 }
                 //higher floor
@@ -532,7 +532,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             case(editingField):
                 {
                     int wallIndex = designWidget -> chosenWall;
-                    designWidget -> chosenField -> walls[wallIndex] -= 5.0f;
+                    globals -> chosenField -> walls[wallIndex] -= 5.0f;
                     break;
                 }
                 //lower floor
