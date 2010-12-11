@@ -117,6 +117,8 @@ class LField;
       //is any field pointed right now ?
       bool isFieldPointed;
       LField *pointedField;
+
+      DesignWidgetMini *designMini;
   public:
       //chosen field for defining
       LField *chosenField;

@@ -106,7 +106,22 @@ void LWorld::drawFloors()
         if(actualFloor -> isItRendered)
             if(actualFloor -> hasChild())
             {
-                drawnField = ((LField*)(actualFloor -> child));
+	      drawnField = ((LField*)(actualFloor -> child));
+
+
+	      /*
+		If floor is chosen one, draw all its Fields in specific way.
+		set FieldsS back to normal, when floor other than chosen one
+		will be met.
+	      */
+	      if(actualFloor->giveSFloor() == chosenFloor)
+		{
+		  LField::setSFields(chosenField);
+		}
+	      else
+		{
+		  LField::setSFields(noneField);
+		}
 
             //break this while(), when last field is drawn
             while(1)

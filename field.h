@@ -11,79 +11,24 @@
 #include "counter.h"
 #include "lbmathhelper.h"
 
-/*
-  [OLD VERSION]
-
-  fields are defined in this way :  
-
-  X X X X
-  _______
-  A B C D
-
-  1 - wall
-  0 - passage (clear)
-
-                    A   
-                 _______
- 	        |       |
-	    D   |       |   B
- 	        |       |
- 	        |_______|
- 
-	            C
-
-  The system is simple : 
-  [0x000D] in binary is 1101,
-  so the defined field looks like that ...
-                 _______
-                |       |
-                |       |
-                |       |
-                |       |
-
-
-   ... and for 0x0006 (0110) ...
-
-   
-                        |
-                        |
-                        |
-                 _______|
-
-*/
-
-#define CCCC 0x0000  
-#define CCCW 0x0001  
-#define CCWC 0x0002 
-#define CCWW 0x0003 
-#define CWCC 0x0004 
-#define CWCW 0x0005 
-#define CWWC 0x0006 
-#define CWWW 0x0007 
-#define WCCC 0x0008 
-#define WCCW 0x0009 
-#define WCWC 0x000A 
-#define WCWW 0x000B 
-#define WWCC 0x000C 
-#define WWCW 0x000D 
-#define WWWC 0x000E 
-#define WWWW 0x000F 
-
-#define F_U  0x0008
-#define F_R  0x0004
-#define F_D  0x0002
-#define F_L  0x0001
-
 class lbpassage;
 
 typedef struct{
   float x, z;
 }vector_xz;
 
+
 /*
-  used to set global state of fields - for example "actual" means to draw fields
-  other way than usual (to point which of them are actual)
+  used to set status of field or all fields - for example "actual" means to draw 
+  fields other way than usual (to point which of them are actual)
 */
+enum statusFieldTypes
+  {
+    noneField,
+    chosenField
+  };
+
+
 
 /*typedef struct{
   //pos on Wall, not in global space
@@ -97,8 +42,6 @@ typedef struct{
 
 class LField : public LObject, public Counter<LField>{
  public:
-  char kind; //field's code (XXXX system)
-
 
   //CHANGE NAME, or code - conflict with cornersN
   vector_xz CornersN[4]; //UnitNormals (for DISTANCE)
@@ -106,16 +49,6 @@ class LField : public LObject, public Counter<LField>{
 
   bool empty;
 
-  //section with connections - pointers on other fields
-  LField* conn_up;
-  LField* conn_right;
-  LField* conn_down;
-  LField* conn_left;
-
-
-
-//  bool walls; //walls or not ?
-  
  public:
   //walls heights
   float walls[4];
@@ -141,7 +74,7 @@ class LField : public LObject, public Counter<LField>{
   
   int up, right, down, left; //needed to loading levels
 
-  LField(char KIND, LVector*);
+  LField(LVector*);
   LField();
   ~LField();
 
@@ -154,8 +87,6 @@ class LField : public LObject, public Counter<LField>{
   float GiveHorizontalDistance(float X, float Z);
   float GiveVerticalDistance(float X, float Z);    
 
-  char giveKind(); //returns field's code
-  void setKind(char KIND); //sets field's code
   void heroEnters(void);
   void heroLeaves(void);
   
@@ -167,34 +98,23 @@ class LField : public LObject, public Counter<LField>{
   
   char Passage(char);
 
-  void ConnectUp(LField *connection, char);
-  void ConnectRight(LField *connection, char);
-  void ConnectDown(LField *connection, char);
-  void ConnectLeft(LField *connection,char);  
-
-  void ConnectUp(LField *connection);
-  void ConnectRight(LField *connection);
-  void ConnectDown(LField *connection);
-  void ConnectLeft(LField *connection);  
-  
-  //return connected field
-  LField* giveUp(void);
-  LField* giveRight(void);
-  LField* giveDown(void);
-  LField* giveLeft(void);  
-
-  //  bool connectionExists(LField *connection);
-  bool connectTo(LField *connection);
-
   float howFarPointIs(int wallIndex, LVector point);
 
   void remove ();
-  
-  //  static void setFieldsGS(fieldsGS);
 
+  void setSField(statusFieldTypes S){statusField = S;}
+  static void setSFields(statusFieldTypes S){statusFields = S;}
+  
  private:
   static int fieldsCnt;
+
+  //status of this one particular field
+  statusFieldTypes statusField;
+  //status of all fields
+  static statusFieldTypes statusFields;
 };
+
+
 
 
 #endif

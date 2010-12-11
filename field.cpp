@@ -13,22 +13,15 @@ LField::~LField()
   
 }
 
-LField::LField(char KIND, LVector *C): kind(KIND)
+LField::LField(LVector *C)
 {
-  
+  statusField = noneField;
   
   //walls have 0 heights
   walls[0] = 0.0f;
   walls[1] = 0.0f;
   walls[2] = 0.0f;
   walls[3] = 0.0f;
-  
-  //no connections at the beginning ...
-  
-  conn_up = NULL;
-  conn_right = NULL;
-  conn_down = NULL;
-  conn_left = NULL;
   
   empty = true;
   
@@ -142,9 +135,6 @@ void LField::calculateVectorsAndNormals()
   cornersN[3] = vectors[3]^multiplied; cornersN[3].normalize();
 }
 
-char LField::giveKind(){return kind;}
-void LField::setKind(char KIND){kind = KIND;}
-
 //char LField::giveX(){return x;}
 //char LField::giveY(){return y;}
 
@@ -180,12 +170,8 @@ void LField::selfDraw(){
 
   
   glPushMatrix();
-  if(empty)
-    glColor4f(0.0,0.0,0.0,1.0);
-  //    glColor4f(0.85, 0.2, 0.0, 1.0);
-  else
-    glColor4f(1.0,0.0,0.0,1.0);
-  //    glColor4f(0.2,0.2,0.2,1.0);    
+
+
   triangle vertex[4];
   
   vertex[0].point[0] = corners[0].x;
@@ -209,7 +195,17 @@ void LField::selfDraw(){
   //draw fields without walls
   glLineWidth(1.0f);  
 
-  glColor4f(0.0f, 0.0f, 0.0f, 0.1f);
+  if(statusFields == chosenField || statusField == chosenField)
+    {
+      glColor4f(1.0f, 0.0f, 0.0f, 0.1f);   
+    }
+  else
+    {
+      glColor4f(0.0f, 0.0f, 0.0f, 0.1f);   
+    }
+
+
+
   glBegin(GL_QUADS);
   {
     glVertex3fv(vertex[0].point);
@@ -365,198 +361,6 @@ void LField::heroLeaves(void){
   empty = true;
 }
 
-void LField::ConnectUp(LField *connection, char which_passage)
-{
-  if (conn_up != NULL) return;
-  conn_up = connection;
-  
-  switch(which_passage){
-  case(F_U):{connection -> ConnectUp(this, 0);break;}
-  case(F_R):{connection -> ConnectRight(this, 0);break;}
-  case(F_D):{connection -> ConnectDown(this, 0);break;}
-  case(F_L):{connection -> ConnectLeft(this, 0);break;}
-  case(0):{return;}
-    
-  default:
-    {
-      //error info
-    }
-  }
-}
-void LField::ConnectRight(LField *connection, char which_passage)
-{
-  
-  if (conn_right != NULL) return;
-  conn_right = connection;
-  
-  switch(which_passage){
-  case(F_U):{connection -> ConnectUp(this, 0);break;}
-  case(F_R):{connection -> ConnectRight(this, 0);break;}
-  case(F_D):{connection -> ConnectDown(this, 0);break;}
-  case(F_L):{connection -> ConnectLeft(this, 0);break;}
-  case(0):{return;}
-    
-  default:
-    {
-      //error
-    }
-    
-  }
-  
-  
-}
-void LField::ConnectDown(LField *connection, char which_passage)
-{
-  if (conn_down != NULL) return;
-  conn_down = connection;
-  
-  switch(which_passage){
-  case(F_U):{connection -> ConnectUp(this, 0);break;}
-  case(F_R):{connection -> ConnectRight(this, 0);break;}
-  case(F_D):{connection -> ConnectDown(this, 0);break;}
-  case(F_L):{connection -> ConnectLeft(this, 0);break;}
-  case(0):{return;}
-    
-  default:
-    {
-      //error
-    }
-  }
-  
-}
-void LField::ConnectLeft(LField *connection, char which_passage)
-{
-  if (conn_left != NULL) return;
-  conn_left = connection;
-  
-  switch(which_passage){
-  case(F_U):{connection -> ConnectUp(this, 0);break;}
-  case(F_R):{connection -> ConnectRight(this, 0);break;}
-  case(F_D):{connection -> ConnectDown(this, 0);break;}
-  case(F_L):{connection -> ConnectLeft(this, 0);break;}
-  case(0):{return;}
-    
-  default:
-    {
-      //error
-    }
-  }
-}
-
-void LField::ConnectUp(LField *connection)
-{
-  conn_up = connection;
-}
-void LField::ConnectRight(LField *connection)
-{
-  conn_right = connection;
-}
-void LField::ConnectDown(LField *connection)
-{
-  conn_down = connection;
-}
-void LField::ConnectLeft(LField *connection)
-{
-  conn_left = connection;
-}
-
-char LField::Passage(char code)//F_U, F_R ...
-{
-  
-  if(kind & code)
-    return 0;
-  else
-    return 1;
-  
-}
-
-LField * LField::giveUp(){
-  //  if(conn_up == NULL)LError("giving non-existing connection ! up");
-  
-  return conn_up;
-}
-LField * LField::giveRight(){
-  //  if(conn_right == NULL)LError("giving non-existing connection ! right");
-  
-  return conn_right;
-}
-LField * LField::giveDown(){
-  //  if(conn_down == NULL)LError("giving non-existing connection ! down");
-  
-  return conn_down;
-}
-LField * LField::giveLeft(){
-  //  if(conn_left == NULL)LError("giving non-existing connection ! left");
-  
-  return conn_left;
-}
-
-/*void LField::DrawMini(){
-//PUSH MATRIX NEEDED ???
-glPushMatrix();
-
-OnDrawMini();
-if (hasChild())
-((LField*)child)->DrawMini();
-glPopMatrix();
-
-
-if (hasParent() && !isLast())
-((LField*)next)->DrawMini();
-
-}
-
-void LField::OnDrawMini(){
-/*
-glColor4f(0.0,1.0,0.0,1.0);
-
-//map will be static, so count everything in constructor
-
-glBegin(GL_LINES);
-for(int a = 0, x = 8; a < 4; a++, x /= 2)
-if(kind & x){
-switch(a){
-case 0:{
-
-glVertex3f(corners[0].x/10*8.82+500, corners[0].z/10*8.82,0.0);
-glVertex3f(corners[1].x/10*8.82+500, corners[1].z/10*8.82,0.0);	    
-
-break;}
-case 1:{
-
-glVertex3f(corners[1].x/10*8.82+500, corners[1].z/10*8.82,0.0);
-glVertex3f(corners[2].x/10*8.82+500, corners[2].z/10*8.82,0.0);	    
-
-break;}
-case 2:{
-
-glVertex3f(corners[2].x/10*8.82+500, corners[2].z/10*8.82,0.0);
-glVertex3f(corners[3].x/10*8.82+500, corners[3].z/10*8.82,0.0);	    
-
-break;}
-case 3:{
-
-glVertex3f(corners[3].x/10*8.82+500, corners[3].z/10*8.82,0.0);
-glVertex3f(corners[0].x/10*8.82+500, corners[0].z/10*8.82,0.0);	    
-
-break;}
-}
-}//draw wall
-glEnd();
-*/
-
-/*
-  glLineWidth(0.8);
-  glBegin(GL_LINE_STRIP);
-  glVertex3f(corners[0].x+500, corners[0].z,0.0);
-  glVertex3f(corners[1].x+500, corners[1].z,0.0);
-  glVertex3f(corners[2].x+500, corners[2].z,0.0);
-  glVertex3f(corners[3].x+500, corners[3].z,0.0);
-  glVertex3f(corners[0].x+500, corners[0].z,0.0);  
-  glEnd();*/
-
-//}
-
 bool
 LField::isPointIn(LVector point)
 {
@@ -573,43 +377,6 @@ LField::isPointIn(LVector point)
     }
   
   return true;
-}
-
-bool
-LField::connectTo(LField *connection)
-{
-  int a1, a2, b1, b2;
-  
-  
-  for(int cnt = 0; cnt < 4; cnt++)
-    {
-      a1 = cnt;
-      if(cnt == 3) a2 = 0; else a2 = a1 + 1;
-      
-      for(int cnt1 = 0; cnt1 < 4; cnt1++)
-	{
-	  b1 = cnt1;
-	  if(cnt1 == 3) b2 = 0; else b2 = b1 + 1;
-	  
-	  //check if any wall has a mirror image in 'connection'
-	  if(corners[a1] == connection -> corners[b2] &&
-	     corners[a2] == connection -> corners[b1])
-	    {
-	      
-	      //connect them and return
-	      connections[cnt] = connection;
-	      
-	      //hmm .. maybe a function, that would be doing connections,
-	      //would be a better idea - and connections should be private
-	      connection -> connections[cnt1] = this;
-	      
-	      return true;
-	    }
-	}
-    }
-  
-  //failure
-  return false;
 }
 
 void LField::remove()
@@ -630,14 +397,6 @@ void LField::remove()
     }
   disconnect();
   //disallocating memory done somewhere else
-}
-
-//check if field is touching other field:
-//in such way, that passage can be made
-bool
-LField::isFieldTouching(LField* field)
-{
-  return false;
 }
 
 //determinate how far from wall's corner the point is

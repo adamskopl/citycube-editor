@@ -80,3 +80,19 @@ void globalContainer::stuffAreaDraw()
 
     painter -> drawImage(target, image, source);
 }
+
+void
+globalContainer::chooseNextFloor()
+{
+  actualFloor->setSFloor(noneFloor);
+  actualFloor=(LBFloor*)(actualFloor -> next);
+  actualFloor->setSFloor(chosenFloor);
+}
+
+void
+globalContainer::choosePrevFloor()
+{
+  actualFloor->setSFloor(noneFloor);
+  actualFloor=(LBFloor*)(actualFloor -> prev);
+  actualFloor->setSFloor(chosenFloor);
+}
