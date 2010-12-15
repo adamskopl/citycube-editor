@@ -296,8 +296,97 @@ void LField::selfDraw(){
     }
   //  glEnd();
   
+
+  //render windows:
+
+  for(int cntWin = 0; cntWin < 4; cntWin++)
+    {
+      //wall has windows - draw them
+      if( windowTree[cntWin]->hasChild() )
+	{
+	  /*
+	    indexes of vertices used for calculating vector for proper window 
+	    drawing
+	  */
+	  int p1, p2; 
+      
+	  p1 = cntWin;
+	  if(p1 == 3) p2 = 0; else p2 = p1+1;
+
+	  LVector wallVector = corners[p2] - corners[p1];
+	  float wallLength = wallVector.Length();
+
+	  LBWindow *helpWindow = (LBWindow*)(windowTree[p1] -> child);	  
+	  
+	  while(1)
+	    {
+	      //render helpWindow ...
+
+	      /*
+		window's 'X' coord divided by wall's length gives
+		proportion that can be used to calcualte 'Z' coord
+	      */
+	      float div = helpWindow->pos.x/wallLength;
+
+	      float cx = corners[p1].x;
+	      float cy = corners[p1].y;
+	      float cz = corners[p1].z;
+
+	      LVector windowVector;
+	      {
+		windowVector.x = cx + wallVector.x * div;
+		windowVector.y = cy + helpWindow->pos.y;
+		windowVector.z = cz + wallVector.z * div;
+	      }
+
+	      triangle vertex[4];
+
+
+	      /*
+		proportions that help to calculate some coordinations
+	      */
+	      float div1 = (helpWindow->pos.x - helpWindow->width/2)/wallLength;
+	      float div2 = (helpWindow->pos.x + helpWindow->width/2)/wallLength;
+
+	      vertex[0].point[0] = cx + wallVector.x * div1;
+	      vertex[0].point[1] = cy + windowVector.y + helpWindow->height/2;
+	      vertex[0].point[2] = cz + wallVector.z * div1;
+
+	      vertex[1].point[0] = cx + wallVector.x * div2;
+	      vertex[1].point[1] = cy + windowVector.y + helpWindow->height/2;
+	      vertex[1].point[2] = cz + wallVector.z * div2;
+
+	      vertex[2].point[0] = cx + wallVector.x * div2;
+	      vertex[2].point[1] = cy + windowVector.y - helpWindow->height/2;
+	      vertex[2].point[2] = cz + wallVector.z * div2;
+
+	      vertex[3].point[0] = cx + wallVector.x * div1;
+	      vertex[3].point[1] = cy + windowVector.y - helpWindow->height/2;
+	      vertex[3].point[2] = cz + wallVector.z * div1;
+
+
+	      glBegin(GL_LINE_LOOP);
+	      {
+		glVertex3fv(vertex[0].point);
+		glVertex3fv(vertex[1].point);
+		glVertex3fv(vertex[2].point);
+		glVertex3fv(vertex[3].point);
+	      }
+	      glEnd();
+
+	      if( ! helpWindow -> isLast())
+		{
+		  helpWindow = (LBWindow*)(helpWindow -> next);
+		}
+	      else
+		{
+		  break;
+		}
+	    }
+	}
+    }
+
   glPopMatrix();
-  
 }
 
 float LField::GiveHorizontalDistance(float X, float Z){
