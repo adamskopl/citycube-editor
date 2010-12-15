@@ -47,6 +47,7 @@ class LField;
       void mousePressEvent(QMouseEvent *event);
       void mouseMoveEvent(QMouseEvent *);
       void mouseReleaseEvent(QMouseEvent *);
+      void wheelEvent(QWheelEvent *);
 
       void setVariables();       
   public:
@@ -93,7 +94,9 @@ class LField;
       float gridSize;
       float clickedPos;
 
-      float mouseX, mouseY;
+      //look out! mouseV has 3d coords - so it's not XY but XZ
+      LVector mouseV;
+      LVector selectedV;
 
       //which corner is defined now ?
       char cornerIndex;
@@ -102,8 +105,9 @@ class LField;
       LVector newCorners[4];
       LField definedField;
 
-      float selectedX, selectedY;
 
+
+      float SCALE;
 
       //LObject *worldList;
       //LObject *floorsTree;
@@ -119,6 +123,8 @@ class LField;
       LField *pointedField;
 
       DesignWidgetMini *designMini;
+      
+      QMatrix globalMatrix;
   public:
       //chosen field for defining
       //      LField *chosenField;

@@ -75,6 +75,8 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
     chosenWall = 0;
 
     designMini = DM;
+
+    GC->chooseNextFloor();
 }
 
 void DesignWidget::setVariables()
@@ -91,12 +93,22 @@ void DesignWidget::setVariables()
     GC->chosenField = NULL;
     GC->chosenField2 = NULL;
     //appState = none;
+    globalMatrix.reset();
+    SCALE = 1.0f;
 
 }
 
 void DesignWidget::paintEvent(QPaintEvent *)
 {
+
+
+
+
     painter = new QPainter(this);
+    //    painter->rotate(90.0);
+    //    painter.setWindow(QRect(-50, -50, 100, 100));
+    //    QMatrix trans(1, 0, 0, 1, 50.0, 50.0);
+    printInfo("("+QString::number(selectedV.x) + ", "+QString::number(selectedV.z)+")");
     drawGrid();
 
     //    QPainter painter(this);
@@ -156,7 +168,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
 
 void DesignWidget::drawGrid()
 {
-    setDrawStyle(drawStyleGrid);
+  /*    setDrawStyle(drawStyleGrid);
     painter->fillRect(0, 0, worldSize, worldSize, brush);
 
     int crossX = 0, crossY = 0;
@@ -164,16 +176,25 @@ void DesignWidget::drawGrid()
     for(int x = 0; x <= worldSize; x += gridSize)
         for(int y = 0; y <= worldSize; y += gridSize)
         {
-        if(mouseX - x <= 5 && mouseY - y <=5
-           && mouseX - x >= -4 && mouseY -y >= -4)
+        if(mouseV.x - x <= 5 && mouseV.z - y <=5
+           && mouseV.x - x >= -4 && mouseV.z -y >= -4)
         {
             crossX = x; crossY = y;
         }else
             painter->drawPoint(x, y);
-    }
+	    }*/
 
-    selectedX = crossX;
-    selectedY = crossY;
+  //    selectedV.x = crossX;
+  //    selectedV.z = crossY;
+  selectedV.x = mouseV.x;
+  selectedV.z = mouseV.z;
+  /*  
+  QMatrix tempM = globalMatrix;
+  tempM.translate((qreal)mouseV.x,(qreal)mouseV.z);
+  tempM.scale((qreal)SCALE, (qreal)SCALE);
+  tempM.translate(-(qreal)mouseV.x, -(qreal)mouseV.z);*/
+  
+    selectedV.setMatrix(globalMatrix);
 }
 
 void DesignWidget::mousePressEvent(QMouseEvent *event)
@@ -203,8 +224,8 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                         //the beggining of defining
                         *(GC -> appState) = defining;
                         cornerIndex++;
-                        newCorners[0].x = selectedX;
-                        newCorners[0].z = selectedY;
+                        newCorners[0].x = selectedV.x;
+                        newCorners[0].z = selectedV.z;
                     }
                     break;
                 }
@@ -217,22 +238,22 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                     case(1):
                         {
                             cornerIndex++;
-                            newCorners[1].x = selectedX;
-                            newCorners[1].z = selectedY;
+                            newCorners[1].x = selectedV.x;
+                            newCorners[1].z = selectedV.z;
                             break;
                         }
                     case(2):
                         {
                             cornerIndex++;
-                            newCorners[2].x = selectedX;
-                            newCorners[2].z = selectedY;
+                            newCorners[2].x = selectedV.x;
+                            newCorners[2].z = selectedV.z;
                             break;
                         }
                     case(3):
                         {
                             cornerIndex = 0;
-                            newCorners[3].x = selectedX;
-                            newCorners[3].z = selectedY;
+                            newCorners[3].x = selectedV.x;
+                            newCorners[3].z = selectedV.z;
                             //set HEIGHT
                             newCorners[0].y = GC -> actualFloor -> height;
                             newCorners[1].y = GC -> actualFloor -> height;
@@ -335,7 +356,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 }
             case(addingFloor):
                 {
-                    addFloor(selectedY);
+                    addFloor(selectedV.z);
                     *(GC -> appState) = none;
 		    break;
                 }
@@ -498,9 +519,10 @@ void DesignWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void DesignWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    mouseX = event->pos().x();
-    mouseY = event->pos().y();
-
+  //    mouseV.x = event->pos().x();
+  //    mouseV.z = event->pos().y();
+  mouseV.x = event->pos().x();
+  mouseV.z = event->pos().y();
 
     //update needed on every mouse motion (shape's highliting etc.)
     update();
@@ -556,10 +578,10 @@ void DesignWidget::drawDefinedFields()
 
 void DesignWidget::drawPointer()
 {
-    if(isFieldPointed)
-        return;
-    setDrawStyle(pointer);
-    painter->drawRect(QRect(selectedX-5, selectedY-5, 10, 10));
+  //    if(isFieldPointed)
+  //        return;
+  //    setDrawStyle(pointer);
+  //    painter->drawRect(QRect(selectedV.x-5, selectedV.z-5, 10, 10));
 }
 
 void DesignWidget::drawDefinedField()
@@ -572,14 +594,14 @@ void DesignWidget::drawDefinedField()
     case(1):
         {
 
-            painter->drawLine(newCorners[0].x, newCorners[0].z, selectedX, selectedY);
+            painter->drawLine(newCorners[0].x, newCorners[0].z, selectedV.x, selectedV.z);
             break;
         }
 
     case(2):
         {
             painter->drawLine(newCorners[0].x, newCorners[0].z, newCorners[1].x, newCorners[1].z);
-            painter->drawLine(newCorners[1].x, newCorners[1].z, selectedX, selectedY);
+            painter->drawLine(newCorners[1].x, newCorners[1].z, selectedV.x, selectedV.z);
             break;
         }
 
@@ -587,8 +609,8 @@ void DesignWidget::drawDefinedField()
         {            
             painter->drawLine(newCorners[0].x, newCorners[0].z, newCorners[1].x, newCorners[1].z);
             painter->drawLine(newCorners[1].x, newCorners[1].z, newCorners[2].x, newCorners[2].z);
-            painter->drawLine(newCorners[2].x, newCorners[2].z, selectedX, selectedY);
-            painter->drawLine(newCorners[0].x, newCorners[0].z, selectedX, selectedY);
+            painter->drawLine(newCorners[2].x, newCorners[2].z, selectedV.x, selectedV.z);
+            painter->drawLine(newCorners[0].x, newCorners[0].z, selectedV.x, selectedV.z);
             break;
         }
     }
@@ -791,7 +813,7 @@ void DesignWidget::removeField(LField *rem)
 void DesignWidget::drawNewFloorLine()
 {
     setDrawStyle(floorLine);
-    painter -> drawLine(0, selectedY, 1000 , selectedY);
+    painter -> drawLine(0, selectedV.z, 1000 , selectedV.z);
 
 }
 
@@ -908,7 +930,7 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 	if(drawnFloor == GC -> actualFloor)
 	  {
             //check if field is pointed with mouse
-            if(helpField->isPointIn(LVector(mouseX, 0.0f, mouseY)))
+            if(helpField->isPointIn(LVector(mouseV.x, 0.0f, mouseV.z)))
             {
                 isFieldPointed = true;
                 GC -> cameraKid -> position = helpField->centerPoint;
@@ -935,12 +957,31 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 	    
             QPolygon drawField;
 
-	    drawField << QPoint(helpField->corners[0].x, helpField->corners[0].z)
-		      << QPoint(helpField->corners[1].x,helpField->corners[1].z)
-		      << QPoint(helpField->corners[2].x,helpField->corners[2].z)
-		      << QPoint(helpField->corners[3].x,helpField->corners[3].z);
+	    LField *drawnField = new LField(*helpField);
+
+	    /*	    QMatrix tempM = globalMatrix;
+	    tempM.translate((qreal)mouseV.x,(qreal)mouseV.z);
+	    tempM.scale((qreal)SCALE, (qreal)SCALE);
+	    tempM.translate(-(qreal)mouseV.x, -(qreal)mouseV.z);*/
+	    for(int a = 0; a < 4; a++)
+	      {
+		drawnField->corners[a].setMatrix(globalMatrix);
+	      }
+	    drawField << QPoint(drawnField->corners[0].x, drawnField->corners[0].z)
+		      << QPoint(drawnField->corners[1].x,drawnField->corners[1].z)
+		      << QPoint(drawnField->corners[2].x,drawnField->corners[2].z)
+		      << QPoint(drawnField->corners[3].x,drawnField->corners[3].z);
 
 	    painter->drawPolygon(drawField);
+
+	    //	    for(int a = 0; a < 4; a++)
+	    //	      {
+	    //		helpField->corners[a].setMatrix(globalMatrix);
+	    //	      }
+
+
+
+
 	  }//(if drawnFloor == GC -> actualFloor)
 
       //draw parts of "connectingFields" state
@@ -1557,7 +1598,7 @@ DesignWidget::drawWallParts()
 
   B = HB->passageB;
   //draw ellipse and others ...
-  HB->highlightParts(painter, mouseX, mouseY);
+  HB->highlightParts(painter, mouseV.x, mouseV.z);
 }
 
 void
@@ -1599,15 +1640,15 @@ DesignWidget::drawBreakingHole()
   //  reportWidget -> setText(QString::number(MH.pointLineDistance
   //					  (1,1,2,2,2,1)));
 
-  float pointDistance = MH.pointLineDistance(HB->passageA.x, HB->passageA.z, HB->passageA.x + normal1.x, HB->passageA.z + normal1.z, mouseX, mouseY);
+  float pointDistance = MH.pointLineDistance(HB->passageA.x, HB->passageA.z, HB->passageA.x + normal1.x, HB->passageA.z + normal1.z, mouseV.x, mouseV.z);
 
-  //  reportWidget -> setText(QString::number(MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY)));
+  //  reportWidget -> setText(QString::number(MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseV.x, mouseV.z)));
 
   float passLength = temp.Length();
   
   LVector mouseVec;
-  mouseVec.x = mouseX - HB->passageA.x;
-  mouseVec.z = mouseY - HB->passageA.z;
+  mouseVec.x = mouseV.x - HB->passageA.x;
+  mouseVec.z = mouseV.z - HB->passageA.z;
 
   //setting distPointer for the first time
   if(HB->distPointer == NULL)
@@ -1657,67 +1698,50 @@ DesignWidget::resetOnRMB()
   GC->chosenField2 = NULL;
   *GC -> appState = none;
 }
-/*
-void 
-DesignWidget::drawBreakingHoleStairs()
+
+void
+DesignWidget::wheelEvent(QWheelEvent *event)
 {
-  setDrawStyle(drawStyleHighlightParts);
+  //  printInfo(QString::number(event->delta()));
 
-  painter -> drawLine(SH -> passageA.x, SH -> passageA.z,
-		      SH->passageB.x, SH->passageB.z);
-
-  painter -> drawLine(SH->passageA.x - SH->translateVector.x, 
-		      SH->passageA.z - SH->translateVector.z,
-		      SH->passageB.x - SH->translateVector.x, 
-		      SH->passageB.z - SH->translateVector.z);
-
-  LVector temp = WH.passageB - WH.passageA;
-  LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
-  LVector normal1 = temp^multiplied;
-  normal1.normalize();
-
-  float pointDistance = MH.pointLineDistance(WH.passageA.x, WH.passageA.z, WH.passageA.x + normal1.x, WH.passageA.z + normal1.z, mouseX, mouseY);
-
-  float passLength = temp.Length();
+  //  qreal scaleDelta = abs(event->delta() * 0.01f);
   
-  LVector mouseVec;
-  mouseVec.x = mouseX - SH->passageA.x;
-  mouseVec.z = mouseY - SH->passageA.z;  
-  
-  //setting distPointer for the first time
-  if(SH->distPointer == NULL)
+  if(event->delta() >= 0)
     {
-      SH->distPointer = &(SH->dist1);
-      SH->pointPointer = &(SH->point1);
-    }
-  
-  if((-temp) % mouseVec >= 0)
-    {
-      *(SH->pointPointer) = SH->passageA;
-      //      printSuccess(QString::number(0));
-      *(SH->distPointer) = 0;
-      //      printInfo("vec!");
+      SCALE = 1.1;
     }
   else
-    //is mouse poining outside passageB?
-    if(pointDistance > passLength)
-      {
-	*(SH->pointPointer) = WH.passageB;
-	//	printSuccess(QString::number(temp.Length()));
-	*(SH->distPointer) = temp.Length();
-	//	printError("distance!");
-      }
-  //mouse is geometrically betweeen passageA and passageB
-    else
-      {
-	SH->pointPointer->x = SH->passageA.x + temp.x*pointDistance/passLength;
-	SH->pointPointer->z = SH->passageA.z + temp.z*pointDistance/passLength;
-	//	printSuccess(QString::number(pointDistance));
-	*(SH->distPointer) = pointDistance;
-	//	printSuccess("middle!");
-      }
+    {
+      SCALE = 1/1.1;
+    }
+  printf("%d DELTA\n", event->delta());
   
-    setDrawStyle(drawStyleBigPoint);
-    WH.drawPassagePoints(painter);
+  //  printf("delta: %d, scaleDelta: %f, SCALE: %f\n", event->delta(), scaleDelta, SCALE);
+  
+
+  globalMatrix.translate((qreal)selectedV.x, (qreal)selectedV.z);
+  globalMatrix.scale((qreal)SCALE, (qreal)SCALE);
+  globalMatrix.translate(-(qreal)selectedV.x, -(qreal)selectedV.z);
+  update();
+  
+  
+    //  tempM.translate((qreal)mouseV.x,(qreal)mouseV.z);
+    //  tempM.scale((qreal)SCALE, (qreal)SCALE);
+    //  tempM.translate(-(qreal)mouseV.x, -(qreal)mouseV.z);*/
+
+  
+  //  globalMatrix.
+  /*
+  LVector haha(2.0f, 0.0f, 0.0f);
+  QMatrix tralala;
+  printf("%f, %f\n", haha.x, haha.z);
+
+  tralala.scale(0.5, 1);
+  haha.setMatrix(tralala);
+  printf("%f, %f\n", haha.x, haha.z);
+
+  tralala.scale(2*/
+  
+  
 }
-*/
+

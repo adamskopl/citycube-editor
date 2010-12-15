@@ -304,34 +304,50 @@ DesignWidgetMini::mouseMoveEvent(QMouseEvent *event)
 void
 DesignWidgetMini::drawChosenWall()
 {
-  //scale wall to nice fit in 300x300
+  setDrawStyle(drawStyleWallWindow);
 
-  //wall's dimens ions
-  //  float wallW, wallH;
-
-
-  //scale having on mind bigger dimension (leave 2 points from 2 sides of bigger dimension)
-
-  //drawn dimensions will be scaled - so they will differ from real ones
-  //  float drawnH, drawnW;
-  //  float biggerDimension = 260.0f;
-
-  //
-  //  float scale = biggerDimension / wallW;
-
-  //  float topMargin, leftMargin;
-
-  //  printf("\n%f, %f\n", wallW, wallH);
 
   /*
-    scale two dimensions with value dictated by bigger dimension 
-    in this way second dimension will surely fit
+    draw wall taking into mind wall's passages
+    (almost like in LField::selfDraw()
   */
 
-  setDrawStyle(drawStyleWallWindow);
-  painter->drawRect(leftMargin, topMargin, drawnW, drawnH);
+  int p1, p2; //indexes of vertices used for drawing wall
+  p1 = wallIndex;
+  if(p1 == 3) p2 = 0; else p2 = p1+1;
 
-  //  printf("wallW%f, wallH%f, biggerDimension%f, scale%f, drawnW%f, drawnH%f, topMargin%f, leftMargin%f\n", wallW, wallH, biggerDimension, scale, drawnW, drawnH, topMargin, leftMargin);
+  
+  //distA and distB have values of passages in considered wall
+  float distA, distB;
+
+  distA = 0.0f;
+
+  if(editedField -> passageTree[wallIndex] -> hasChild())
+    {
+      lbpassage *helpPassage = (lbpassage*)(editedField->passageTree[wallIndex]->child);    
+
+      while(1)
+	{
+	  distB = (helpPassage -> d1)*scale;
+
+	  painter->drawRect(distA + leftMargin, topMargin, distB - distA, drawnH);
+	  distA = (helpPassage -> d2)*scale;
+
+	  if( ! helpPassage->isLast())
+	    {
+	      helpPassage = (lbpassage*)(helpPassage->next);
+	    }
+	  else
+	    {
+	      break;
+	    }
+	}
+    }
+
+  //render last wall part (render whole wall if we don't have passages yet)
+  distB = drawnW;
+
+  painter->drawRect(distA + leftMargin, topMargin, distB - distA, drawnH);
 
 }
 
@@ -410,6 +426,7 @@ DesignWidgetMini::mousePressEvent(QMouseEvent *event)
 			{
 			  posX = newWindowCorners[0].x + tempW/2;
 			}
+
 		      if(newWindowCorners[0].y > newWindowCorners[1].y)
 			{
 			  posY = newWindowCorners[1].y + tempH/2;
@@ -419,7 +436,13 @@ DesignWidgetMini::mousePressEvent(QMouseEvent *event)
 			  posY = newWindowCorners[0].y + tempH/2;
 			}
 
-		      LBWindow *tempWindow = new LBWindow(LVector(posX, posY, 0.0f), tempW, tempH);
+		      /*
+			in Qt, 2d has Y coord directed down. In openGL Y coord
+			is directed up.
+		      */
+		      
+
+		      LBWindow *tempWindow = new LBWindow(LVector(posX/scale, (drawnH-posY)/scale, 0.0f), tempW/scale, tempH/scale);
 		      tempWindow -> connectTo(editedField -> windowTree[wallIndex]);
 
 		      windowCornerIndex = 0;
@@ -516,10 +539,12 @@ DesignWidgetMini::drawDefinedWindows()
   while(1)
     {
 
-      float drawPosX = leftMargin + tempWindow->pos.x - tempWindow->width/2;
-      float drawPosY = topMargin + tempWindow->pos.y - tempWindow->height/2;
+      float drawPosX = leftMargin + tempWindow->pos.x*scale - tempWindow->width/2*scale;
+      //      float drawPosY = topMargin + tempWindow->pos.y*scale - tempWindow->height/2*scale;
 
-      painter->drawRect(drawPosX, drawPosY, tempWindow->width, tempWindow->height);
+      float drawPosY = -tempWindow->height*scale + topMargin + drawnH -( tempWindow->pos.y*scale - tempWindow->height/2*scale);
+
+      painter->drawRect(drawPosX, drawPosY, tempWindow->width*scale, tempWindow->height*scale);
 
       //draw
       if(! tempWindow -> isLast())
