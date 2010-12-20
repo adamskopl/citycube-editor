@@ -67,7 +67,7 @@ LField::LField(LVector *C)
     }
   //////////////////////////////////////////////////////////////////////////
   
-  connections[0] = connections[1] = connections[2] = connections[3] = NULL;
+  //  connections[0] = connections[1] = connections[2] = connections[3] = NULL;
   
   //FOR COUNTING DISTANCE PART
   float dx, dz, length;
@@ -113,7 +113,7 @@ LField::LField(LVector *C)
    */
   for(int a = 0; a < 4; a++)
     {
-      passageTree[a] = new lbpassage(0, 0);
+      passageTree[a] = new lbpassage(0, 0, NULL);
       windowTree[a] = new LBWindow();
     }
 }
@@ -470,22 +470,28 @@ LField::isPointIn(LVector point)
 
 void LField::remove()
 {
-  
   //actualize connected fields
-  for(int cnt = 0; cnt < 4; cnt++)
+  for(int cntPass = 0; cntPass < 4; cntPass++)
     {
-      if(connections[cnt])
+      if(passageTree[cntPass] -> hasChild())
 	{
-	  for(int cnt1 = 0; cnt1 < 4; cnt1++)
+	  lbpassage *helpPassage = (lbpassage*)(passageTree[cntPass]->child);
+	  while(1)
 	    {
-	      if(connections[cnt]->connections[cnt1] == this)
-		connections[cnt]->connections[cnt1] = NULL;
+	      helpPassage -> destField -> deletePassagesTo(this);
+
+	      if( ! helpPassage -> isLast())
+		{
+		  helpPassage = (lbpassage*)(helpPassage->next);
+		}
+	      else
+		{
+		  break;
+		}
 	    }
 	}
-      
-    }
+    }      
   disconnect();
-  //disallocating memory done somewhere else
 }
 
 //determinate how far from wall's corner the point is
@@ -515,4 +521,41 @@ LField::howFarPointIs(int wallindex, LVector point)
   float pointDistance = MH.pointLineDistance(corners[a].x, corners[a].z, corners[a].x + normal1.x, corners[a].z + normal1.z, point.x, point.z);
 
   return pointDistance;
+}
+
+void
+LField::deletePassagesTo(LField *destF)
+{
+  for(int cntPass = 0; cntPass < 4; cntPass++)
+    {
+      if(passageTree[cntPass] -> hasChild())
+	{
+	  lbpassage *helpPassage = (lbpassage*)(passageTree[cntPass]->child);
+
+	  while(1)
+	    {
+	      if( ! helpPassage -> isLast())
+		{
+		  if(helpPassage -> destField == destF)
+		    {
+		      lbpassage *deletePass = helpPassage;
+		      helpPassage = (lbpassage*)(helpPassage->next);
+		      deletePass -> disconnect();
+		    }
+		  else
+		    {
+		      helpPassage = (lbpassage*)(helpPassage -> next);
+		    }
+		}
+	      else
+		{
+		  if(helpPassage -> destField == destF)
+		    {
+		      helpPassage -> disconnect();
+		    }
+		  break;
+		}
+	    }
+	}
+    }
 }

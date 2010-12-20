@@ -9,7 +9,7 @@ class LField;
 class lbpassage : public LObject, public Counter<lbpassage>
 {
  public:
-  lbpassage(float, float);
+  lbpassage(float, float, LField*);
   
 
   // distance of beginning or end from wall's vector's first point
