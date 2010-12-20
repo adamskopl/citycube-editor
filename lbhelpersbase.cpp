@@ -118,8 +118,8 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2)
 
 
   //final passages for chosen1 and chosen2
-  lbpassage *tempPass = new lbpassage(dist1a, dist2a);
-  lbpassage *tempPass2 = new lbpassage(dist1b, dist2b);
+  lbpassage *tempPass = new lbpassage(dist1a, dist2a, chosen2);
+  lbpassage *tempPass2 = new lbpassage(dist1b, dist2b, chosen1);
 
 
     //okay ... now we will do crazy thing, because Adam wants fast effects:
@@ -138,7 +138,7 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2)
       }
     else
       {
-	lbpassage *tempTree = new lbpassage(0, 0);
+	lbpassage *tempTree = new lbpassage(0, 0, NULL);
 	while( chosen1 -> passageTree[wallIndex1] -> hasChild() )
 	  {
 	    lbpassage *discPass = (lbpassage*)(chosen1 -> passageTree[wallIndex1] -> child);
@@ -176,7 +176,7 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2)
       }
     else
       {
-	lbpassage *tempTree = new lbpassage(0, 0);
+	lbpassage *tempTree = new lbpassage(0, 0, NULL);
 	while( chosen2 -> passageTree[wallIndex2] -> hasChild() )
 	  {
 	    lbpassage *discPass = (lbpassage*)(chosen2 -> passageTree[wallIndex2] -> child);

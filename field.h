@@ -68,7 +68,7 @@ class LField : public LObject, public Counter<LField>{
   LVector cornersN[4];
 
   //every vector has its own connection pointer (on other field's wall)
-  LField* connections[4];
+  //  LField* connections[4];
 
   LVector centerPoint;
   
@@ -105,6 +105,9 @@ class LField : public LObject, public Counter<LField>{
   void setSField(statusFieldTypes S){statusField = S;}
   static void setSFields(statusFieldTypes S){statusFields = S;}
   
+  //delete all passages leading to destField
+  void deletePassagesTo(LField *destField);
+
  private:
   static int fieldsCnt;
 
