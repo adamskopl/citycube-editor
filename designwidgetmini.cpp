@@ -443,6 +443,8 @@ DesignWidgetMini::mousePressEvent(QMouseEvent *event)
 		      
 
 		      LBWindow *tempWindow = new LBWindow(LVector(posX/scale, (drawnH-posY)/scale, 0.0f), tempW/scale, tempH/scale);
+
+		      printf("window's height: %f\n", tempWindow->pos.y);
 		      tempWindow -> connectTo(editedField -> windowTree[wallIndex]);
 
 		      windowCornerIndex = 0;

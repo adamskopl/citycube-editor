@@ -47,7 +47,7 @@ class LField;
       void mousePressEvent(QMouseEvent *event);
       void mouseMoveEvent(QMouseEvent *);
       void mouseReleaseEvent(QMouseEvent *);
-      void wheelEvent(QWheelEvent *);
+      //      void wheelEvent(QWheelEvent *);
 
       void setVariables();       
   public:
@@ -105,9 +105,10 @@ class LField;
       LVector newCorners[4];
       LField definedField;
 
+      
 
-
-      float SCALE;
+      //      qreal SCALE;
+      //      LVector worldV;
 
       //LObject *worldList;
       //LObject *floorsTree;
@@ -124,7 +125,8 @@ class LField;
 
       DesignWidgetMini *designMini;
       
-      QMatrix globalMatrix;
+      //      QMatrix globalMatrix;
+      //      QMatrix globalMatrix2;
   public:
       //chosen field for defining
       //      LField *chosenField;

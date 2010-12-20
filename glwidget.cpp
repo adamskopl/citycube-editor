@@ -25,7 +25,10 @@ PreviewWidget::PreviewWidget(globalContainer *globals, QWidget *parent)
     //cameraKid -> position = LVector(500.0f, 0.0f, 500.0f);
     //cameraKid -> direction = -45.0f;
 
-    gameWorld -> camera -> spyMode(globals -> cameraKid);
+    LObject *camKid = globals -> cameraKid;
+    camKid -> direction = 20.0f;
+
+    gameWorld -> camera -> spyMode(camKid);
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateScene()));
@@ -85,12 +88,35 @@ void PreviewWidget::resizeGL(int w, int h)
     glMatrixMode(GL_MODELVIEW);
 }
 
-//void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
-//{
+void PreviewWidget::mousePressEvent(QMouseEvent *event)
+{
+  lastPos = event->pos();
+}
 
-//}
 
-//void PreviewWidget::mousePressEvent(QMouseEvent *event)
-//{
+void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
+{
+  int dx = event->x() - lastPos.x();
+  int dy = event->y() - lastPos.y();
+  
+  if (event->buttons() & Qt::LeftButton) {
+    gameCamera -> modRotActB(4 * dx);
+    gameCamera -> modRotXB(dy);
+  } 
+  else 
+    if (event->buttons() & Qt::RightButton) 
+      {
+	gameCamera -> modHeightB(-dy);
+      }
+    else
+      if (event->buttons() & Qt::MidButton)
+	{
+	  gameCamera -> reset();
+	}
+  lastPos = event->pos();
+}
 
-//}
+void PreviewWidget::wheelEvent(QWheelEvent *event)
+{
+  gameCamera->modDistB((float)(-(event->delta())));
+}
