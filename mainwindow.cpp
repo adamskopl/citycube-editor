@@ -58,6 +58,8 @@ MainWindow::MainWindow()
     designArea->setMinimumSize(100, 100);
     designArea->setFixedSize(600, 600);
 
+    designArea->horizontalScrollBar()->setSliderPosition(30);
+
     //erm ... are these kinds of connections OK ?
     connect(designArea -> horizontalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(designAreaScrollBarXChanged(int)));

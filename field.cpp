@@ -335,7 +335,7 @@ void LField::selfDraw(){
 	      LVector windowVector;
 	      {
 		windowVector.x = cx + wallVector.x * div;
-		windowVector.y = cy + helpWindow->pos.y;
+		windowVector.y = helpWindow->pos.y; //( +cy is not needed)
 		windowVector.z = cz + wallVector.z * div;
 	      }
 

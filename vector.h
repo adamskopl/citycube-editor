@@ -189,7 +189,7 @@ class LVector
   }
   
   //matrix for making operations in XZ
-  void setMatrix(QMatrix m)
+  void mulMatrix(QMatrix m)
   {
     //convert qreal values to floats
     float m11 = (float)m.m11();

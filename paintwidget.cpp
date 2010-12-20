@@ -45,11 +45,6 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
 {
     this->reportWidget = reportWidget;
 
-    resize(QSize(1000,1000));
-
-    //set
-    //setForegroundRole(QPalette::Dark);
-
     pen = QPen(Qt::black, 1);
     brush = QBrush(Qt::red);
 
@@ -60,7 +55,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
 
     setVariables();
     setMouseTracking(true);
-
+    resize(QSize(worldSize, worldSize));
 
     //drawBoxes = GC
 
@@ -93,25 +88,36 @@ void DesignWidget::setVariables()
     GC->chosenField = NULL;
     GC->chosenField2 = NULL;
     //appState = none;
-    globalMatrix.reset();
-    SCALE = 1.0f;
+    //globalMatrix.reset();
+    //globalMatrix2.reset();
+    //SCALE = 1.0;
 
 }
 
 void DesignWidget::paintEvent(QPaintEvent *)
 {
 
+  //TODO: window's scaling during world's scaling
+  /*
+  LVector size(worldSize, 0.0f, worldSize);
+  size.mulMatrix(globalMatrix2);
 
+  if(size.x >= worldSize)
+    {
+      resize(QSize(size.x, size.z));
+    }
+  else
+    {
+      LVector size(worldSize, 0.0f, worldSize);
+      size.mulMatrix(globalMatrix);
+      resize(QSize(size.x, size.z));
+    }
+    //  resize(QSize(size.x, size.z));
+    */
 
 
     painter = new QPainter(this);
-    //    painter->rotate(90.0);
-    //    painter.setWindow(QRect(-50, -50, 100, 100));
-    //    QMatrix trans(1, 0, 0, 1, 50.0, 50.0);
-    printInfo("("+QString::number(selectedV.x) + ", "+QString::number(selectedV.z)+")");
     drawGrid();
-
-    //    QPainter painter(this);
 
     switch(*(GC -> appState))
     {
@@ -152,7 +158,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
 	  //	    drawStairsTriangles();
 	    drawDefinedFields();
             drawDefinedField();
-            drawPointer();
+	    drawPointer();
             break;
         }
     }
@@ -168,7 +174,7 @@ void DesignWidget::paintEvent(QPaintEvent *)
 
 void DesignWidget::drawGrid()
 {
-  /*    setDrawStyle(drawStyleGrid);
+  setDrawStyle(drawStyleGrid);
     painter->fillRect(0, 0, worldSize, worldSize, brush);
 
     int crossX = 0, crossY = 0;
@@ -182,19 +188,14 @@ void DesignWidget::drawGrid()
             crossX = x; crossY = y;
         }else
             painter->drawPoint(x, y);
-	    }*/
+	}
 
-  //    selectedV.x = crossX;
-  //    selectedV.z = crossY;
-  selectedV.x = mouseV.x;
-  selectedV.z = mouseV.z;
-  /*  
-  QMatrix tempM = globalMatrix;
-  tempM.translate((qreal)mouseV.x,(qreal)mouseV.z);
-  tempM.scale((qreal)SCALE, (qreal)SCALE);
-  tempM.translate(-(qreal)mouseV.x, -(qreal)mouseV.z);*/
-  
-    selectedV.setMatrix(globalMatrix);
+    selectedV.x = crossX;
+    selectedV.z = crossY;
+
+    //    drawPointer();
+
+    //    selectedV.mulMatrix(globalMatrix2);
 }
 
 void DesignWidget::mousePressEvent(QMouseEvent *event)
@@ -524,8 +525,14 @@ void DesignWidget::mouseMoveEvent(QMouseEvent *event)
   mouseV.x = event->pos().x();
   mouseV.z = event->pos().y();
 
-    //update needed on every mouse motion (shape's highliting etc.)
-    update();
+  /*  selectedV.x = mouseV.x;
+  selectedV.z = mouseV.z;
+
+  selectedV.mulMatrix(globalMatrix2);*/
+
+  //printf("sel+world: %f, %f\n",selectedV.x+worldV.x, selectedV.z+worldV.z);
+  //update needed on every mouse motion (shape's highliting etc.)
+  update();
 }
 
 //draw all fields on each floor. Pass floors, that has
@@ -578,10 +585,11 @@ void DesignWidget::drawDefinedFields()
 
 void DesignWidget::drawPointer()
 {
-  //    if(isFieldPointed)
-  //        return;
-  //    setDrawStyle(pointer);
-  //    painter->drawRect(QRect(selectedV.x-5, selectedV.z-5, 10, 10));
+  if(isFieldPointed)
+    return;
+  setDrawStyle(pointer);
+
+  painter->drawRect(QRect(selectedV.x-5, selectedV.z-5, 10, 10));
 }
 
 void DesignWidget::drawDefinedField()
@@ -959,28 +967,19 @@ void DesignWidget::drawFloor(LBFloor *drawnFloor)
 
 	    LField *drawnField = new LField(*helpField);
 
-	    /*	    QMatrix tempM = globalMatrix;
-	    tempM.translate((qreal)mouseV.x,(qreal)mouseV.z);
-	    tempM.scale((qreal)SCALE, (qreal)SCALE);
-	    tempM.translate(-(qreal)mouseV.x, -(qreal)mouseV.z);*/
 	    for(int a = 0; a < 4; a++)
 	      {
-		drawnField->corners[a].setMatrix(globalMatrix);
+		//for scaling with mouse wheel
+		//		drawnField->corners[a].mulMatrix(globalMatrix);
 	      }
+
+
 	    drawField << QPoint(drawnField->corners[0].x, drawnField->corners[0].z)
 		      << QPoint(drawnField->corners[1].x,drawnField->corners[1].z)
 		      << QPoint(drawnField->corners[2].x,drawnField->corners[2].z)
 		      << QPoint(drawnField->corners[3].x,drawnField->corners[3].z);
 
 	    painter->drawPolygon(drawField);
-
-	    //	    for(int a = 0; a < 4; a++)
-	    //	      {
-	    //		helpField->corners[a].setMatrix(globalMatrix);
-	    //	      }
-
-
-
 
 	  }//(if drawnFloor == GC -> actualFloor)
 
@@ -1699,49 +1698,30 @@ DesignWidget::resetOnRMB()
   *GC -> appState = none;
 }
 
-void
+/*void
 DesignWidget::wheelEvent(QWheelEvent *event)
 {
-  //  printInfo(QString::number(event->delta()));
-
-  //  qreal scaleDelta = abs(event->delta() * 0.01f);
-  
+  //SCALING NOT IMPLEMENTED 
   if(event->delta() >= 0)
     {
-      SCALE = 1.1;
+      SCALE = 1.2;
     }
   else
     {
-      SCALE = 1/1.1;
+      SCALE = 1/1.2;
     }
-  printf("%d DELTA\n", event->delta());
-  
-  //  printf("delta: %d, scaleDelta: %f, SCALE: %f\n", event->delta(), scaleDelta, SCALE);
-  
 
-  globalMatrix.translate((qreal)selectedV.x, (qreal)selectedV.z);
+  LVector tr(selectedV.x, 0.0f, selectedV.z);
+  printf("scaled through: %f, %f\n", tr.x, tr.z);
+
+
+  //  globalMatrix.translate((qreal)tr.x, (qreal)tr.z);
   globalMatrix.scale((qreal)SCALE, (qreal)SCALE);
-  globalMatrix.translate(-(qreal)selectedV.x, -(qreal)selectedV.z);
+  //  globalMatrix.translate(-((qreal)tr.x), -((qreal)tr.z));
+
+  //  globalMatrix2.translate((qreal)tr.x, (qreal)tr.z);
+  globalMatrix2.scale((qreal)(1/SCALE), (qreal)(1/SCALE));
+  //  globalMatrix2.translate(-((qreal)tr.x), -((qreal)tr.z));
+
   update();
-  
-  
-    //  tempM.translate((qreal)mouseV.x,(qreal)mouseV.z);
-    //  tempM.scale((qreal)SCALE, (qreal)SCALE);
-    //  tempM.translate(-(qreal)mouseV.x, -(qreal)mouseV.z);*/
-
-  
-  //  globalMatrix.
-  /*
-  LVector haha(2.0f, 0.0f, 0.0f);
-  QMatrix tralala;
-  printf("%f, %f\n", haha.x, haha.z);
-
-  tralala.scale(0.5, 1);
-  haha.setMatrix(tralala);
-  printf("%f, %f\n", haha.x, haha.z);
-
-  tralala.scale(2*/
-  
-  
-}
-
+  }*/
