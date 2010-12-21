@@ -83,7 +83,7 @@ void PreviewWidget::resizeGL(int w, int h)
 
     //REPLACE gluPerspective WITH SOMETHING ELSE
     //no GLU at all
-    gluPerspective(54.0f,(GLfloat)w/(GLfloat)h,0.1,500.0f);
+    gluPerspective(54.0f,(GLfloat)w/(GLfloat)h,0.1,1000.0f);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -99,10 +99,11 @@ void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
   int dx = event->x() - lastPos.x();
   int dy = event->y() - lastPos.y();
   
-  if (event->buttons() & Qt::LeftButton) {
-    gameCamera -> modRotActB(4 * dx);
-    gameCamera -> modRotXB(dy);
-  } 
+  if (event->buttons() & Qt::LeftButton) 
+    {
+      gameCamera -> modRotActB(4 * dx);
+      gameCamera -> modRotXB(dy);
+    } 
   else 
     if (event->buttons() & Qt::RightButton) 
       {
@@ -113,6 +114,7 @@ void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
 	{
 	  gameCamera -> reset();
 	}
+
   lastPos = event->pos();
 }
 

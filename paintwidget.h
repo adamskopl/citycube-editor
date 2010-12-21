@@ -170,6 +170,9 @@ class LField;
       //things to reset on clicking with right mouse button
       void resetOnRMB();
 
+      //print distance between two points
+      void drawDistPoints(LVector, LVector, float wallH);
+
   };
 
 #endif // PAINTWIDGET_H

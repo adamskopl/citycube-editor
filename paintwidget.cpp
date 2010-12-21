@@ -76,7 +76,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
 
 void DesignWidget::setVariables()
 {
-    worldSize = 1000.0f;
+    worldSize = 2500.0f;
     gridSize = 10.0f;
     cornerIndex = 0;
     fieldID = 0;
@@ -163,9 +163,9 @@ void DesignWidget::paintEvent(QPaintEvent *)
         }
     }
 
+
+
     setDrawStyle(drawStyleBigPoint);
-    //    painter->drawPoint(WH.passageA.x, WH.passageA.z);
-    //    painter->drawPoint(WH.passageB.x, WH.passageB.z);    
 
     drawPig();
     delete painter;
@@ -332,7 +332,15 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             printError("... wrong field chosen");
 		      */
                         //chosenFieldID = -1;
+
                         GC->chosenField2 = pointedField;
+
+			if(GC->chosenField2 == GC->chosenField)
+			  {
+			    GC->chosenField2 = NULL;
+			    break;
+			  }
+
 			if( checkTouching() )
 			  {
 			    printSuccess("YES!");
@@ -565,9 +573,10 @@ void DesignWidget::drawDefinedFields()
     //draw actual first in the end - so it covers others
     drawFloor(GC -> actualFloor);
 
-    //drawChosenWall
+
     if(*(GC -> appState) == editingField)
     {
+      //drawChosenWall
         setDrawStyle(drawStyleChosenWall);
 
         int a, b;
@@ -576,8 +585,28 @@ void DesignWidget::drawDefinedFields()
             b = 0;
         else
             b = chosenWall+1;
-        painter -> drawLine(GC->chosenField -> corners[a].x, GC->chosenField -> corners[a].z,
-                            GC->chosenField -> corners[b].x, GC->chosenField -> corners[b].z);
+        painter -> drawLine(GC->chosenField -> corners[a].x, 
+			    GC->chosenField -> corners[a].z,
+                            GC->chosenField -> corners[b].x, 
+			    GC->chosenField -> corners[b].z);
+
+	for(int a = 0; a < 4; a++)
+	  {
+	    int p1, p2;
+	    p1 = a;
+	    if(p1 == 3)
+	      {
+		p2 = 0;
+	      }
+	    else
+	      {
+		p2 = p1+1;
+	      }
+
+	    drawDistPoints(GC->chosenField->corners[p1], 
+			   GC->chosenField->corners[p2], 
+			   GC->chosenField->walls[p1]);
+	  }
     }
 
 }
@@ -603,6 +632,8 @@ void DesignWidget::drawDefinedField()
         {
 
             painter->drawLine(newCorners[0].x, newCorners[0].z, selectedV.x, selectedV.z);
+
+	    drawDistPoints(newCorners[0], selectedV,0.0f);
             break;
         }
 
@@ -610,6 +641,10 @@ void DesignWidget::drawDefinedField()
         {
             painter->drawLine(newCorners[0].x, newCorners[0].z, newCorners[1].x, newCorners[1].z);
             painter->drawLine(newCorners[1].x, newCorners[1].z, selectedV.x, selectedV.z);
+
+	    drawDistPoints(newCorners[0], newCorners[1],0.0f);
+	    drawDistPoints(newCorners[1], selectedV, 0.0f);
+
             break;
         }
 
@@ -619,6 +654,11 @@ void DesignWidget::drawDefinedField()
             painter->drawLine(newCorners[1].x, newCorners[1].z, newCorners[2].x, newCorners[2].z);
             painter->drawLine(newCorners[2].x, newCorners[2].z, selectedV.x, selectedV.z);
             painter->drawLine(newCorners[0].x, newCorners[0].z, selectedV.x, selectedV.z);
+
+	    drawDistPoints(newCorners[0], newCorners[1], 0.0f);
+	    drawDistPoints(newCorners[1], newCorners[2], 0.0f);
+	    drawDistPoints(newCorners[2], selectedV, 0.0f);
+	    drawDistPoints(newCorners[0], selectedV, 0.0f);
             break;
         }
     }
@@ -792,6 +832,12 @@ void DesignWidget::setDrawStyle(drawStyle style)
 
 	break;
       }
+    case(drawStyleTextDist):
+      {
+	pen.setWidth(1);
+	pen.setColor(Qt::white);
+	break;
+      }
     }
 
     painter-> setBrush(brush);
@@ -821,8 +867,9 @@ void DesignWidget::removeField(LField *rem)
 void DesignWidget::drawNewFloorLine()
 {
     setDrawStyle(floorLine);
-    painter -> drawLine(0, selectedV.z, 1000 , selectedV.z);
+    painter -> drawLine(0, selectedV.z, worldSize, selectedV.z);
 
+    drawDistPoints(selectedV, LVector(selectedV.x, 0.0f, worldSize), 0.0);
 }
 
 void DesignWidget::drawFloorsSide()
@@ -1209,8 +1256,6 @@ void DesignWidget::addNewStairs()
 
 void DesignWidget::addNewStairs()
 {
-  printf("STAIRS");
-
     LBStairs *newStairs = new LBStairs;
 
     newStairs -> connBottom = GC -> stairsBottom;
@@ -1598,6 +1643,8 @@ DesignWidget::drawWallParts()
   B = HB->passageB;
   //draw ellipse and others ...
   HB->highlightParts(painter, mouseV.x, mouseV.z);
+
+  drawDistPoints(HB->passageA, HB->passageB, 0);
 }
 
 void
@@ -1688,6 +1735,16 @@ DesignWidget::drawBreakingHole()
   
     setDrawStyle(drawStyleBigPoint);
     HB->drawPassagePoints(painter);
+
+    /////////// DRAW DISTANCES ///////////////
+    drawDistPoints(HB->passageA, HB->point1, 0.0f);
+
+    if(HB -> distPointer == &(HB -> dist2))
+      {
+	drawDistPoints(HB->passageB, HB->point2, 0.0f);
+	drawDistPoints(HB->point1,HB->point2,0.0f);
+      }
+    /////////// DRAW DISTANCES ///////////////
 }
 
 void
@@ -1725,3 +1782,22 @@ DesignWidget::wheelEvent(QWheelEvent *event)
 
   update();
   }*/
+
+void
+DesignWidget::drawDistPoints(LVector p1, LVector p2, float wallH)
+{
+  setDrawStyle(drawStyleTextDist);
+
+  LVector pointsV(p2 - p1);
+
+  LVector textPos(p1 + pointsV/2);
+
+  QString textDisp(QString::number(pointsV.Length()/20) + tr("m"));
+
+  if(wallH != 0)
+    {
+      textDisp.append(tr(" x ") + QString::number(wallH/20) + tr("m"));
+    }
+
+  painter->drawText(textPos.x, textPos.z, textDisp);  
+}

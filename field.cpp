@@ -156,6 +156,7 @@ void LField::calculateVectorsAndNormals()
   }*/
 
 void LField::selfDraw(){
+
   
   //  glShadeModel(GL_SMOOTH);
 
@@ -189,8 +190,6 @@ void LField::selfDraw(){
   vertex[3].point[0] = corners[3].x;
   vertex[3].point[1] = corners[3].y;
   vertex[3].point[2] = corners[3].z;
-
-
 
   //draw fields without walls
   glLineWidth(1.0f);  

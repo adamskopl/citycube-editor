@@ -58,7 +58,7 @@ MainWindow::MainWindow()
     designArea->setMinimumSize(100, 100);
     designArea->setFixedSize(600, 600);
 
-    designArea->horizontalScrollBar()->setSliderPosition(30);
+    //    designArea->horizontalScrollBar()->setSliderPosition(30);
 
     //erm ... are these kinds of connections OK ?
     connect(designArea -> horizontalScrollBar(), SIGNAL(valueChanged(int)),
@@ -501,7 +501,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             case(editingField):
                 {
                     int wallIndex = designWidget -> chosenWall;
+
+		    //wall higher on 0.5m (1 pix = 5cm)
                     globals -> chosenField -> walls[wallIndex] += 10.0f;
+		    designWidget -> update();
                     break;
                 }
                 //higher floor
@@ -534,7 +537,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             case(editingField):
                 {
                     int wallIndex = designWidget -> chosenWall;
-                    globals -> chosenField -> walls[wallIndex] -= 5.0f;
+                    globals -> chosenField -> walls[wallIndex] -= 10.0f;
+		    designWidget -> update();
                     break;
                 }
                 //lower floor

@@ -30,7 +30,8 @@ void LBStairs::selfDraw()
     float stairsHeight = cornersTop[0].y - cornersBottom[0].y;
 
     // assumed every step's height (it will be modified to fit stairs height)
-    float desiredHeight = 3.0f;
+    //1 pix = 5cm
+    float desiredHeight = 4.0f;
 
     float stairsWidth = LVector(cornersBottom[0].x - cornersTop[0].x,
     				0.0f, cornersBottom[0].z - cornersTop[0].z).Length();

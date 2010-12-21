@@ -18,7 +18,7 @@ class LBStairs;
 
 enum drawStyle {invisible, drawStyleField, drawStyleDefinedField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
                 normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint, drawStyleWallChoose,
-		drawStyleHighlightParts, drawStyleWallWindow};
+		drawStyleHighlightParts, drawStyleWallWindow, drawStyleTextDist};
 
 class globalContainer
 {

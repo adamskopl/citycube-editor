@@ -57,8 +57,8 @@ LCamera::spyMode(LObject* actor)
   CP.pos_AM = 2.0f;
   CP.pos_D = 0.0f;
 
-  CP.distB = 100.0f;
-  CP.distA = 100.0f;
+  CP.distB = 300.0f;
+  CP.distA = 300.0f;
   CP.dist_S = 0.0f;
   CP.dist_A = 0.0f;
   CP.dist_SM = 1.5f;
@@ -73,8 +73,8 @@ LCamera::spyMode(LObject* actor)
   CP.rotAct_AM = 2.0f;
   CP.rotAct_D = 0.0f;
 
-  CP.heightB = 50.0f;
-  CP.heightA = 50.0f;
+  CP.heightB = 200.0f;
+  CP.heightA = 200.0f;
   CP.height_S = 0.0f;
   CP.height_A = 0.0f;
   CP.height_SM = 3.0f;
@@ -327,6 +327,6 @@ LCamera::reset()
 {
   CP.rotActB = 0.0f;
   CP.rotXB = 20.0f;
-  CP.heightB = 50.0f;
-  CP.distB = 100.0f;
+  CP.heightB = 200.0f;
+  CP.distB = 300.0f;
 }
