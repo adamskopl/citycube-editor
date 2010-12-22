@@ -25,7 +25,8 @@ typedef struct{
 enum statusFieldTypes
   {
     noneField,
-    chosenField
+    chosenField,
+    pointedField
   };
 
 

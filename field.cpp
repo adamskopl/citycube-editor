@@ -204,7 +204,6 @@ void LField::selfDraw(){
     }
 
 
-
   glBegin(GL_QUADS);
   {
     glVertex3fv(vertex[0].point);
@@ -245,25 +244,65 @@ void LField::selfDraw(){
 	      pointB = corners[p1] + wallVector * (helpPassage -> d1 / wallLength);
 
 	      //render wall part
-	      //	      glColor4f(0.85, 0.2, 0.0, 1.0);
 	      glBegin(GL_LINE_LOOP);      
-	      glVertex3f(pointA.x, pointA.y, pointA.z);
-	      glVertex3f(pointB.x, pointB.y, pointB.z);
+	      {
+		glVertex3f(pointA.x, pointA.y, pointA.z);
+		glVertex3f(pointB.x, pointB.y, pointB.z);
       
-	      pointA.y += walls[cnt]; //wall's height
-	      pointB.y += walls[cnt];//10.0;
+		pointA.y += walls[cnt]; //wall's height
+		pointB.y += walls[cnt];//10.0;
       
-	      //	      glColor4f(0.0, 0.0, 0.0, 1.0);
-      
-	      glVertex3f(pointB.x, pointB.y, pointB.z);
-	      glVertex3f(pointA.x, pointA.y, pointA.z);
+		glVertex3f(pointB.x, pointB.y, pointB.z);
+		glVertex3f(pointA.x, pointA.y, pointA.z);
+
+		pointA.y -= walls[cnt]; //wall's height
+		pointB.y -= walls[cnt];//10.0;
+	      }
 	      glEnd();
-	      pointA.y -= walls[cnt]; //wall's height
-	      pointB.y -= walls[cnt];//10.0;
 	      //end of wall's part render
 	      
+
+	      //next point (first point for next wallPart, second point for doors)
 	      pointA = corners[p1] + wallVector * (helpPassage -> d2 / wallLength);
 	      
+	      //does passage have doors?
+	      if(helpPassage -> doorsHeight)
+		{
+
+		  //draw doors
+		  glBegin(GL_LINE_LOOP);      
+		  {
+		    glVertex3f(pointA.x, pointA.y, pointA.z);
+		    glVertex3f(pointB.x, pointB.y, pointB.z);
+      
+		    pointA.y += helpPassage -> doorsHeight;
+		    pointB.y += helpPassage -> doorsHeight;
+      
+		    glVertex3f(pointB.x, pointB.y, pointB.z);
+		    glVertex3f(pointA.x, pointA.y, pointA.z);
+
+		    pointA.y -= helpPassage -> doorsHeight; 
+		    pointB.y -= helpPassage -> doorsHeight;
+		  }
+
+		  glEnd();
+		  glColor4f(0.0, 0.0, 0.0, 1.0);
+
+		  //draw top line above the doors
+		  glBegin(GL_LINE);
+		  {
+		    pointA.y += walls[cnt];
+		    pointB.y += walls[cnt];
+
+		    glVertex3f(pointA.x, pointA.y, pointA.z);
+		    glVertex3f(pointB.x, pointB.y, pointB.z);
+
+		    pointA.y -= walls[cnt];
+		    pointB.y -= walls[cnt];
+		  }
+		  glEnd();
+		}
+
 	      if( ! helpPassage -> isLast())
 		{
 		  helpPassage = (lbpassage*)(helpPassage -> next);

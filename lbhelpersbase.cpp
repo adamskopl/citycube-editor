@@ -52,7 +52,7 @@ LBHelpersBase::drawPassagePoints(QPainter *painter)
 }
 
 void
-LBHelpersBase::addPassage(LField *chosen1, LField *chosen2)
+LBHelpersBase::addPassage(LField *chosen1, LField *chosen2, float doorsHeight)
 {
 
   //distances for 2 new passages
@@ -118,9 +118,8 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2)
 
 
   //final passages for chosen1 and chosen2
-  lbpassage *tempPass = new lbpassage(dist1a, dist2a, chosen2);
-  lbpassage *tempPass2 = new lbpassage(dist1b, dist2b, chosen1);
-
+  lbpassage *tempPass = new lbpassage(dist1a, dist2a, chosen2, doorsHeight);
+  lbpassage *tempPass2 = new lbpassage(dist1b, dist2b, chosen1, doorsHeight);
 
     //okay ... now we will do crazy thing, because Adam wants fast effects:
 

@@ -31,7 +31,7 @@ public:
 
     LField *field1, field2;
     virtual void drawPassagePoints(QPainter*);      
-    virtual void addPassage(LField *chosen1, LField *chosen2);
+    virtual void addPassage(LField *chosen1, LField *chosen2, float doorsHeight = 0.0f);
 
  protected:
     bool partPointed;

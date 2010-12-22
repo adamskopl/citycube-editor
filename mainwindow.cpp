@@ -133,8 +133,11 @@ MainWindow::MainWindow()
     QVBoxLayout *objectsGroupLayout = new QVBoxLayout;
     QPushButton *newStairsButton = new QPushButton(tr("Stairs"));
     QPushButton *newWindowButton = new QPushButton(tr("Window"));
+    QPushButton *newDoorsButton = new QPushButton(tr("Doors"));
+
     objectsGroupLayout -> addWidget(newStairsButton);
     objectsGroupLayout -> addWidget(newWindowButton);
+    objectsGroupLayout -> addWidget(newDoorsButton);
     objectsGroup -> setLayout(objectsGroupLayout);
 
     connect(newStairsButton, SIGNAL(clicked()),
@@ -142,6 +145,9 @@ MainWindow::MainWindow()
 
     connect(newWindowButton, SIGNAL(clicked()),
             this, SLOT(slotDefineWindow()));
+
+    connect(newDoorsButton, SIGNAL(clicked()),
+	    this, SLOT(slotDefineDoors()));
 
     floorsLayout = new QGridLayout;
 
@@ -571,4 +577,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
     }
 
+}
+
+void 
+MainWindow::slotDefineDoors()
+{
+  if( *(globals -> appState) == connectingFields)
+    {
+      globals -> isPassWithDoors = true;
+    }
+  designWidget -> update();
 }
