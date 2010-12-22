@@ -35,6 +35,7 @@ public slots:
     void slotNewFloor();
     void slotDefineStairs();
     void slotDefineWindow();
+    void slotDefineDoors();
 
     /*    void slotFloorSliderOneChanged(int);
     void slotFloorSliderTwoChanged(int);

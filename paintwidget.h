@@ -170,8 +170,15 @@ class LField;
       //things to reset on clicking with right mouse button
       void resetOnRMB();
 
-      //print distance between two points
-      void drawDistPoints(LVector, LVector, float wallH);
+      /*
+	print distance between two points
+	p1 and p2 are the points
+	wallH is wall's height
+	left and top are valuse for translations
+
+	default values are 0.0f, because neither height,left or top are required
+      */
+      void drawDistPoints(LVector p1, LVector p2, float wallH = 0.0f, float left = 0.0f, float top = 0.0f);
 
   };
 

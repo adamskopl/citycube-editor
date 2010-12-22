@@ -72,6 +72,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
     designMini = DM;
 
     GC->chooseNextFloor();
+    GC->isPassWithDoors = false;
 }
 
 void DesignWidget::setVariables()
@@ -343,7 +344,6 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 
 			if( checkTouching() )
 			  {
-			    printSuccess("YES!");
 			    //			    *(GC -> appState) = connectingFields;
 			    //			    chosenField2 = pointedField;
 			    *(GC -> appState) = connectingFields;
@@ -354,7 +354,6 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 			  }
 			else
 			  {
-			    printError("NO !");
 			    *(GC -> appState) = none;
 			    GC->chosenField = NULL;
 			    GC->chosenField2 = NULL;
@@ -400,7 +399,17 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 		      else
 			if(HB == &WH)
 			  {
-			    HB->addPassage(GC->chosenField, GC->chosenField2);
+			    //add passage with doors or without them?
+			    if(GC->isPassWithDoors)
+			      {
+				//passage with doors (1pix = 5cm height)
+				HB->addPassage(GC->chosenField, GC->chosenField2, 42.0f);
+			      }
+			    else
+			      {
+				HB->addPassage(GC->chosenField, GC->chosenField2);
+			      }
+
 			    GC->chosenField = NULL;
 			    GC->chosenField2 = NULL;
 			  }
@@ -817,7 +826,15 @@ void DesignWidget::setDrawStyle(drawStyle style)
       }
     case(drawStyleHighlightParts):
       {
-	pen.setColor(Qt::yellow);
+	pen.setColor(Qt::white);
+	//	pen.setColor("#00c1ff");
+	pen.setWidth(2);
+
+	break;
+      }
+    case(drawStyleHighlightPartsD):
+      {
+	pen.setColor(Qt::black);
 	//	pen.setColor("#00c1ff");
 	pen.setWidth(2);
 
@@ -836,6 +853,10 @@ void DesignWidget::setDrawStyle(drawStyle style)
       {
 	pen.setWidth(1);
 	pen.setColor(Qt::white);
+	break;
+      }
+    case(drawStyleWallWindow):
+      {
 	break;
       }
     }
@@ -926,7 +947,7 @@ void DesignWidget::drawFieldSide(LField *drawnField)
             a2 = a1+1;
 
         //0 height is in the center - so the negative values could be lower and positive higher
-        int yPos = worldSize - drawnField -> corners[a1].y;
+         int yPos = worldSize - drawnField -> corners[a1].y;
 
         painter -> drawLine(drawnField->corners[a1].x, yPos,
                             drawnField->corners[a2].x, yPos);
@@ -942,9 +963,39 @@ void DesignWidget::addFloor(float height)
     GC -> renderBoxes[*(GC -> floorsAmount)].setDisabled(false);
     GC -> renderBoxes[*(GC -> floorsAmount)].setChecked(true);
 
-    LBFloor *help = new LBFloor(worldSize - height);
+    LBFloor *helpFloor = new LBFloor(worldSize - height);
 
-    ((LObject*)help) -> connectTo(GC -> floorsTree);
+
+    //SORT OPERATION (connect floor without breaking order of heights)
+    LBFloor *tempTree = new LBFloor(0);
+    while( GC->floorsTree -> hasChild() )
+      {
+	LBFloor *discFloor = (LBFloor*)(GC->floorsTree->child);
+	discFloor -> connectTo(tempTree);
+      }
+    //all floors are in tempTree. connect them again, check where is place for
+    //tempFloor
+    while(tempTree -> hasChild())
+      {
+	if(helpFloor != NULL)
+	  {
+	    LBFloor *tempTreeChild = ((LBFloor*)(tempTree->child));
+	    if(helpFloor -> height < tempTreeChild -> height)
+	      {
+		((LObject*)helpFloor) -> connectTo(GC->floorsTree);
+		helpFloor = NULL;
+	      }
+	  }
+	tempTree->child->connectTo(GC->floorsTree);
+      }
+
+    //if tempPass is not yet connected, it goes to the end
+    if(helpFloor != NULL)
+      {
+	((LObject*)helpFloor) -> connectTo(GC -> floorsTree);
+      }
+    //SORT OPERATION (connect floor without breaking order of heights)
+
 
     QString *floorName = new QString("floor" + QString::number(*(GC -> floorsAmount)));
     GC -> floorsComboBox -> addItem(tr(floorName->toAscii()));
@@ -1147,7 +1198,26 @@ void DesignWidget::drawPig()
             painter -> drawImage(target, image, source);
             break;
         }
+    case(connectingFields):
+      {
+	QImage image("pigDoors.png");
 
+	if(GC -> isPassWithDoors)
+	  {
+	    painter -> drawImage(target, image, source);
+	  }
+	break;
+      }
+    case(breakingHole):
+      {
+	QImage image("pigDoors.png");
+
+	if(GC -> isPassWithDoors)
+	  {
+	    painter -> drawImage(target, image, source);
+	  }
+	break;
+      }
     default:
         {
             QImage image("pigRuler.png");
@@ -1621,7 +1691,14 @@ DesignWidget::drawWallParts()
       return;
     }
   
-  setDrawStyle(drawStyleHighlightParts);
+  if(GC -> isPassWithDoors)
+    {
+      setDrawStyle(drawStyleHighlightPartsD);
+    }
+  else
+    {
+      setDrawStyle(drawStyleHighlightParts);
+    }
 
   /*
     TODO: implement possibility of choosing only wall parts - not whole walls.
@@ -1644,7 +1721,7 @@ DesignWidget::drawWallParts()
   //draw ellipse and others ...
   HB->highlightParts(painter, mouseV.x, mouseV.z);
 
-  drawDistPoints(HB->passageA, HB->passageB, 0);
+  drawDistPoints(HB->passageA, HB->passageB, 0, -10.0f);
 }
 
 void
@@ -1672,8 +1749,15 @@ DesignWidget::drawBreakingHole()
 	field2 = chosenField2;
 	}*/
   
+  if(GC -> isPassWithDoors)
+    {
+      setDrawStyle(drawStyleHighlightPartsD);
+    }
+  else
+    {
+      setDrawStyle(drawStyleHighlightParts);
+    }
 
-  setDrawStyle(drawStyleHighlightParts);
   painter -> drawLine(HB->passageA.x, HB->passageA.z,
 	    HB->passageB.x, HB->passageB.z);
 
@@ -1710,7 +1794,7 @@ DesignWidget::drawBreakingHole()
   if((-temp) % mouseVec >= 0)
     {
       *(HB->pointPointer) = HB->passageA;
-      printSuccess(QString::number(0));
+      //      printSuccess(QString::number(0));
       *(HB->distPointer) = 0;
       //      printInfo("vec!");
     }
@@ -1719,7 +1803,7 @@ DesignWidget::drawBreakingHole()
     if(pointDistance > passLength)
       {
 	*(HB->pointPointer) = HB->passageB;
-	printSuccess(QString::number(temp.Length()));
+	//	printSuccess(QString::number(temp.Length()));
 	*(HB->distPointer) = temp.Length();
 	//	printError("distance!");
       }
@@ -1728,7 +1812,7 @@ DesignWidget::drawBreakingHole()
       {
 	HB->pointPointer->x = HB->passageA.x + temp.x*pointDistance/passLength;
 	HB->pointPointer->z = HB->passageA.z + temp.z*pointDistance/passLength;
-	printSuccess(QString::number(pointDistance));
+	//	printSuccess(QString::number(pointDistance));
 	*(HB->distPointer) = pointDistance;
 	//	printSuccess("middle!");
       }
@@ -1737,12 +1821,12 @@ DesignWidget::drawBreakingHole()
     HB->drawPassagePoints(painter);
 
     /////////// DRAW DISTANCES ///////////////
-    drawDistPoints(HB->passageA, HB->point1, 0.0f);
+    drawDistPoints(HB->passageA, HB->point1);
 
     if(HB -> distPointer == &(HB -> dist2))
       {
-	drawDistPoints(HB->passageB, HB->point2, 0.0f);
-	drawDistPoints(HB->point1,HB->point2,0.0f);
+	drawDistPoints(HB->passageB, HB->point2);
+	drawDistPoints(HB->point1,HB->point2);
       }
     /////////// DRAW DISTANCES ///////////////
 }
@@ -1753,6 +1837,7 @@ DesignWidget::resetOnRMB()
   GC->chosenField = NULL;
   GC->chosenField2 = NULL;
   *GC -> appState = none;
+  GC->isPassWithDoors = false;
 }
 
 /*void
@@ -1784,7 +1869,7 @@ DesignWidget::wheelEvent(QWheelEvent *event)
   }*/
 
 void
-DesignWidget::drawDistPoints(LVector p1, LVector p2, float wallH)
+DesignWidget::drawDistPoints(LVector p1, LVector p2, float wallH, float left, float top)
 {
   setDrawStyle(drawStyleTextDist);
 
@@ -1799,5 +1884,5 @@ DesignWidget::drawDistPoints(LVector p1, LVector p2, float wallH)
       textDisp.append(tr(" x ") + QString::number(wallH/20) + tr("m"));
     }
 
-  painter->drawText(textPos.x, textPos.z, textDisp);  
+  painter->drawText(textPos.x + left, textPos.z + top, textDisp);  
 }
