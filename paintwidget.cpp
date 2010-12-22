@@ -77,7 +77,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
 
 void DesignWidget::setVariables()
 {
-    worldSize = 2500.0f;
+    worldSize = 2000.0f;
     gridSize = 10.0f;
     cornerIndex = 0;
     fieldID = 0;
