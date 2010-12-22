@@ -516,7 +516,7 @@ void LField::remove()
 	  lbpassage *helpPassage = (lbpassage*)(passageTree[cntPass]->child);
 	  while(1)
 	    {
-	      helpPassage -> destField -> deletePassagesTo(this);
+	      ((LField*)helpPassage -> destField) -> deletePassagesTo(this);
 
 	      if( ! helpPassage -> isLast())
 		{
