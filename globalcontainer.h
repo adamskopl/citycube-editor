@@ -98,6 +98,14 @@ public:
 
     void chooseNextFloor();
     void choosePrevFloor();
+
+ private:
+    int IDAmount;
+    bool *IDPool;
+
+ public:
+    int giveFreeID();
+    void freeID(int);
 };
 
 #endif // GLOBALCONTAINER_H

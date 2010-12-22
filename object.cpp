@@ -18,7 +18,7 @@
 #include <GL/glu.h>
 #include "object.h"
 
-LObject::LObject() { bDelete = false; }
+LObject::LObject() { bDelete = false; ID = 0;}
 LObject::~LObject() {}
 
 void LObject::selfAnimate(scalar_t deltaTime) 
@@ -115,4 +115,20 @@ LObject* LObject::findRoot()
   return this;
 }
 
+int
+LObject::giveID()
+{
+  return ID;
+}
 
+void
+LObject::setID(int newID)
+{
+  ID = newID;
+}
+
+void 
+LObject::resetID()
+{
+  ID = 0;
+}
