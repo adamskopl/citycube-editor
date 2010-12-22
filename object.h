@@ -24,6 +24,9 @@
 
 class LObject : public LNode
 {
+ private:
+  int ID;
+
  protected:
   bool bDelete;
 
@@ -51,6 +54,10 @@ class LObject : public LNode
   void othersPrepare();
 
   LObject *findRoot();
+
+  int giveID();
+  void setID(int);
+  void resetID();
 };
 
 #endif

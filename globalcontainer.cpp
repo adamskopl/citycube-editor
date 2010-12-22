@@ -48,6 +48,20 @@ globalContainer::globalContainer()
 
     stairsTree = new LBStairs;
 
+    //////////
+    IDAmount = 1000000;
+
+    //IDPool - false means that particular ID is not available
+    IDPool = new bool[IDAmount];
+
+    //reset IDPool (ID 0 is reserved for all objects - it means, 
+    //that object has no ID)
+    IDPool[0] = false;
+    for(int cnt = 1; cnt < IDAmount; cnt++)
+      {
+	IDPool[cnt] = true;
+      }
+    //////////
 }
 
 void globalContainer::changeFloor(int floorIndex)
@@ -99,3 +113,25 @@ globalContainer::choosePrevFloor()
   actualFloor=(LBFloor*)(actualFloor -> prev);
   actualFloor->setSFloor(chosenFloor);
 }
+
+int
+globalContainer::giveFreeID()
+{
+  //start from 1, because 0 is reserved for "I have no ID"
+  for(int cnt = 1; cnt < IDAmount; cnt++)
+    {
+      if(IDPool[cnt] == true)
+	{
+	  //from now on, this ID is not free
+	  IDPool[cnt] = false;
+	  return cnt;
+	}
+    }
+}
+
+void 
+globalContainer::freeID(int freedID)
+{
+  IDPool[freedID] = true;
+}
+
