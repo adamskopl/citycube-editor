@@ -403,7 +403,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 			    if(GC->isPassWithDoors)
 			      {
 				//passage with doors (1pix = 5cm height)
-				HB->addPassage(GC->chosenField, GC->chosenField2, 42.0f);
+				HB->addPassage(GC->chosenField, GC->chosenField2, 40.0f);
 			      }
 			    else
 			      {
@@ -1821,12 +1821,12 @@ DesignWidget::drawBreakingHole()
     HB->drawPassagePoints(painter);
 
     /////////// DRAW DISTANCES ///////////////
-    drawDistPoints(HB->passageA, HB->point1);
+    drawDistPoints(HB->passageA, HB->point1,0.0f, 0.0f, 15.0f);
 
     if(HB -> distPointer == &(HB -> dist2))
       {
-	drawDistPoints(HB->passageB, HB->point2);
-	drawDistPoints(HB->point1,HB->point2);
+	drawDistPoints(HB->passageB, HB->point2, 0.0f, 0.0f, -15.0f);
+	drawDistPoints(HB->point1,HB->point2,0.0f, -15.0f, 0.0f);
       }
     /////////// DRAW DISTANCES ///////////////
 }

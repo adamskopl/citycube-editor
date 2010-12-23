@@ -106,6 +106,8 @@ public:
  public:
     int giveFreeID();
     void freeID(int);
+
+    
 };
 
 #endif // GLOBALCONTAINER_H

@@ -11,7 +11,11 @@
 
 MainWindow::MainWindow()
 {
+  (void)statusBar();
+
     globals = new globalContainer();
+    xmlManager = new lbXMLmanager(globals);
+
     maxFloorsAmount = 20;
 
     centralWidget = new QWidget;
@@ -19,7 +23,7 @@ MainWindow::MainWindow()
 
     reportWidget = new QTextEdit;
     reportWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    reportWidget->setFixedSize(500,100);
+    reportWidget->setFixedSize(500,90);
 
     designWidgetMini = new DesignWidgetMini(globals);
     designWidget = new DesignWidget(globals, reportWidget, designWidgetMini);
@@ -96,31 +100,6 @@ MainWindow::MainWindow()
     floorChooseLayout -> addWidget(floorsComboBox, 0, 1, Qt::AlignTop);
     floorChooseLayout -> addWidget(newFloorButton,0,2,Qt::AlignTop);
     floorChooseGroup -> setLayout(floorChooseLayout);
-
-    //    QCheckBox *drawBox1 = new QCheckBox(tr("draw"));
-    //    QCheckBox *drawBox2 = new QCheckBox(tr("draw"));
-    //    QCheckBox *drawBox3 = new QCheckBox(tr("draw"));
-    //    QLabel *floorLabel1 = new QLabel(tr("floor:"));
-    //    QLabel *floorLabel2 = new QLabel(tr("floor:"));
-
-    //    QGridLayout *drawLayout = new QGridLayout;
-    //    QGroupBox *drawGroup = new QGroupBox(tr("draw floors"));
-
-
-/*    fieldSliderOne = createSlider();
-    fieldSliderTwo = createSlider();
-    fieldSliderThree = createSlider();
-    fieldSliderFour = createSlider();*/
-
-/*    globals -> fieldSliderOne = fieldSliderOne;
-    globals -> fieldSliderTwo = fieldSliderTwo;
-    globals -> fieldSliderThree = fieldSliderThree;
-    globals -> fieldSliderFour = fieldSliderFour;*/
-
-/*    connect(fieldSliderOne, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderOneChanged(int)));
-    connect(fieldSliderTwo, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderTwoChanged(int)));
-    connect(fieldSliderThree, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderThreeChanged(int)));
-    connect(fieldSliderFour, SIGNAL(valueChanged(int)), this, SLOT(slotFloorSliderFourChanged(int)));*/
 
     fieldEditLayout = new QHBoxLayout;
     /*    fieldEditLayout -> addWidget(fieldSliderOne);
@@ -236,6 +215,7 @@ MainWindow::MainWindow()
 
     ///////////////////////////////////////////////////////
     createMenus();
+    createActions();
 
     QGridLayout *centralLayout = new QGridLayout;
     centralLayout->addWidget(designArea, 0, 0, 2, 1);
@@ -246,6 +226,8 @@ MainWindow::MainWindow()
     centralLayout->addWidget(toolsGroup, 1, 1, 2, 2);
     centralWidget->setLayout(centralLayout);
     //setLayout(centralLayout);
+
+    centralLayout -> setMenuBar(menuBar);
 
     setWindowTitle(tr("World Editor"));
     //resize(800, 600);
@@ -259,16 +241,38 @@ MainWindow::MainWindow()
 
 void MainWindow::createMenus()
 {
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu = menuBar()->addMenu(tr("&View"));
-    helpMenu = menuBar()->addMenu(tr("&Help"));
+  menuBar = new QMenuBar;
+//    fileMenu = menuBar()->addMenu(tr("&File"));
+  //    fileMenu = menuBar()->addMenu(tr("&View"));
+  //    helpMenu = menuBar()->addMenu(tr("&Help"));
+  fileMenu = new QMenu(tr("&File"), this);
+  helpMenu = new QMenu(tr("&Help"), this);
+  menuBar -> addMenu(fileMenu);
+  menuBar -> addMenu(helpMenu);
 }
 
-//void MainWindow::mousePressEvent(QMouseEvent *event)
-//{
+void
+MainWindow::createActions()
+{
+  newFileAction = fileMenu->addAction(tr("&New building"));
+  newFileAction->setShortcuts(QKeySequence::New);
+  newFileAction->setStatusTip(tr("Create new building"));
+  connect(newFileAction, SIGNAL(triggered()), this, SLOT(slotOpenFile()));
 
+  loadXMLAction = fileMenu->addAction(tr("&Open XML file"));
+  loadXMLAction->setShortcuts(QKeySequence::Open);
+  loadXMLAction->setStatusTip(tr("Open existing XML lucidia building"));
+  connect(loadXMLAction, SIGNAL(triggered()), this, SLOT(slotLoadXML()));
 
-//}
+  saveXMLAction = fileMenu->addAction(tr("&Save as XML"));  
+  saveXMLAction->setShortcuts(QKeySequence::Save);
+  saveXMLAction->setStatusTip(tr("Save building as XML"));
+  connect(saveXMLAction, SIGNAL(triggered()), this, SLOT(slotSaveAsXML()));
+
+  aboutAction = helpMenu->addAction(tr("&About Lucidbeaver"));
+  aboutAction->setStatusTip(tr("Short information about Lucidbeaver"));
+  connect(aboutAction, SIGNAL(triggered()), this, SLOT(slotAbout()));
+}
 
 void MainWindow::slotFloorChanged(int floorIndex)
 {
@@ -570,7 +574,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
         }
 
-
+    case(Qt::Key_X):
+      {
+	xmlManager->saveXML();
+	break;
+      }
     default:
         {
             break;
@@ -587,4 +595,30 @@ MainWindow::slotDefineDoors()
       globals -> isPassWithDoors = true;
     }
   designWidget -> update();
+}
+
+void
+MainWindow::slotSaveAsXML()
+{
+  xmlManager->saveXML();
+}
+
+void
+MainWindow::slotLoadXML()
+{
+  xmlManager->loadXML();
+}
+
+void
+MainWindow::slotOpenFile()
+{
+  
+}
+
+void
+MainWindow::slotAbout()
+{
+  QMessageBox::about(this, tr("About Lucidbeaver"),
+		     tr("The <b>Lucidbeaver</b> is used to define XML files describing"
+			" topology of buildings used in City Cuber program."));
 }

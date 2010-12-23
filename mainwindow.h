@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "field.h"
 #include "globalcontainer.h"
+#include "lbxmlmanager.h"
 #include <vector>
 #include <QCheckBox>
 #include <QLabel>
@@ -36,6 +37,11 @@ public slots:
     void slotDefineStairs();
     void slotDefineWindow();
     void slotDefineDoors();
+    void slotAbout();
+
+    void slotSaveAsXML();
+    void slotLoadXML();
+    void slotOpenFile();
 
     /*    void slotFloorSliderOneChanged(int);
     void slotFloorSliderTwoChanged(int);
@@ -57,8 +63,12 @@ public slots:
 
 
 private:    
+    lbXMLmanager *xmlManager;
+
     QSlider *createSlider();
     void createMenus();
+    void createActions();
+    
 
     QWidget *centralWidget;
 
@@ -75,8 +85,16 @@ private:
     PreviewWidget *previewWidget2;
 
     QTextEdit * reportWidget;
+
+    QMenuBar *menuBar;
     QMenu *fileMenu;
-    QMenu *helpMenu;
+    QMenu *viewMenu;
+    QMenu *helpMenu; 
+
+    QAction *saveXMLAction;
+    QAction *loadXMLAction;
+    QAction *newFileAction;
+    QAction *aboutAction;
 
     QGridLayout *toolsLayout;
     QHBoxLayout *fieldEditLayout;
