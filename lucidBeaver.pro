@@ -5,7 +5,6 @@ HEADERS += glwidget.h \
     welcomewindow.h \
     field.h \
     vector.h \
-    vector2.h \
     world.h \
     texture.h \
     object.h \
@@ -28,7 +27,8 @@ HEADERS += glwidget.h \
     lbstairshelper.h \
     lbhelpersbase.h \
     lbwindow.h \
-    designwidgetmini.h
+    designwidgetmini.h \
+    lbxmlmanager.h
 SOURCES += glwidget.cpp \
     paintwidget.cpp \
     mainwindow.cpp \
@@ -56,7 +56,8 @@ SOURCES += glwidget.cpp \
     lbstairshelper.cpp \
     lbhelpersbase.cpp \
     lbwindow.cpp \
-    designwidgetmini.cpp
+    designwidgetmini.cpp \
+    lbxmlmanager.cpp
 QT += opengl
 LIBS += `sdl-config \
     --libs \
@@ -66,4 +67,5 @@ LIBS += `sdl-config \
     -I/usr/X11R6/include \
     -L/usr/X11R6/lib \
     -lGL \
-    -lGLU
+    -lGLU \
+    -lmxml

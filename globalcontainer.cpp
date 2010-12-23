@@ -134,4 +134,3 @@ globalContainer::freeID(int freedID)
 {
   IDPool[freedID] = true;
 }
-
