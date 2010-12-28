@@ -119,6 +119,8 @@ private:
     QSlider *fieldSliderThree;
     QSlider *fieldSliderFour;*/
 
+    enum { MaxRecentFiles = 5};
+    QAction *recentFileActs[MaxRecentFiles];
 };
 
 #endif // MAINWINDOW_H

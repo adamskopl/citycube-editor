@@ -84,11 +84,11 @@ MainWindow::MainWindow()
     floorsComboBox = globals -> floorsComboBox;
 
     //add button for adding new floors
-    for(int cnt = 0; cnt < *(globals -> floorsAmount); cnt++)
+    /*    for(int cnt = 0; cnt < globals -> floorsAmount; cnt++)
     {
         QString *floorName = new QString("floor" + QString::number(cnt));
         floorsComboBox -> addItem(tr(floorName->toAscii()));
-    }
+	}*/
 
     connect(newFloorButton, SIGNAL(clicked()),
             this, SLOT(slotNewFloor()));
@@ -144,7 +144,7 @@ MainWindow::MainWindow()
         floorsList1Layout -> addWidget(&drawBoxes[cnt], cnt+1,2, 1, 1, Qt::AlignTop);
         floorsList1Layout -> addWidget(&renderBoxes[cnt], cnt+1,3, 1, 1, Qt::AlignTop);
 
-        if(cnt >= *(globals->floorsAmount))
+	/*        if(cnt >= globals->floorsAmount)
         {
             drawBoxes[cnt].setDisabled(true);
             renderBoxes[cnt].setDisabled(true);
@@ -153,7 +153,7 @@ MainWindow::MainWindow()
         {
             drawBoxes[cnt].setChecked(true);
             renderBoxes[cnt].setChecked(true);
-        }
+	    }*/
 
         connect(&drawBoxes[cnt], SIGNAL(toggled(bool)),
                 this, SLOT(changeFloorsView()));
@@ -169,7 +169,7 @@ MainWindow::MainWindow()
         floorsList2Layout -> addWidget(&renderBoxes[cnt], cnt+1-maxFloorsAmount/2,3, 1, 1, Qt::AlignTop);
 
 
-        if(cnt >= *(globals->floorsAmount))
+        if(cnt >= globals->floorsAmount)
         {
             drawBoxes[cnt].setDisabled(true);
             renderBoxes[cnt].setDisabled(true);
@@ -237,6 +237,9 @@ MainWindow::MainWindow()
 
     globals -> drawBoxes = drawBoxes;
     globals -> renderBoxes = renderBoxes;
+
+    globals->addFloor(globals->worldSize);
+    //    globals->floorsAmount = 1;
 }
 
 void MainWindow::createMenus()
@@ -300,13 +303,13 @@ void MainWindow::changeFloorsView()
     else
       {
 	//printError();
-	printf("MainWindow:changeFloorsView error");
+	//	printf("MainWindow:changeFloorsView error");
 	return;
       }
 
     //break this while(), when last floor is drawn
     while(1)
-    {\
+    {
      LBFloor *helpFloor = (LBFloor*)actualFloor;
 
         if( ! drawBoxes[cnt].isChecked())
@@ -573,12 +576,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             }
             break;
         }
-
-    case(Qt::Key_X):
-      {
-	xmlManager->saveXML();
-	break;
-      }
     default:
         {
             break;
@@ -600,13 +597,25 @@ MainWindow::slotDefineDoors()
 void
 MainWindow::slotSaveAsXML()
 {
-  xmlManager->saveXML();
+
+  QString qFileName = QFileDialog::getSaveFileName(this);
+  //my_qstring.toStdString().c_str()
+
+  if(xmlManager->saveXML(qFileName.toStdString().c_str()))
+    statusBar()->showMessage(tr("File saved."), 2000);
+  else
+    statusBar()->showMessage(tr("Error: file not saved."), 2000);
 }
 
 void
 MainWindow::slotLoadXML()
 {
-  xmlManager->loadXML();
+  QString qFileName = QFileDialog::getOpenFileName(this);
+
+  if(xmlManager->loadXML(qFileName.toStdString().c_str()) == SLOADING)
+    statusBar()->showMessage(tr("File loaded."), 2000);
+  else
+    statusBar()->showMessage(tr("Error: not loaded."), 2000);
 }
 
 void

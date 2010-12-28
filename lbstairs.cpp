@@ -2,6 +2,8 @@
 
 LBStairs::LBStairs()
 {
+  connBottomID = 0;
+  connTopID = 0;
 }
 
 void LBStairs::selfDraw()

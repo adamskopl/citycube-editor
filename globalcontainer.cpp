@@ -1,9 +1,6 @@
 #include "globalcontainer.h"
-#include "field.h"
-#include "lbstairs.h"
-
-#include <QtGui>
 #include "paintwidget.h"
+
 globalContainer::globalContainer()
 {
 
@@ -15,19 +12,20 @@ globalContainer::globalContainer()
     chosenField = NULL;
     chosenField2 = NULL;
 
-    floorsAmount = new int; 
-    *floorsAmount = 1;
+    floorsAmount = 0;
 
-
-    for(int cnt = 0; cnt < *floorsAmount; cnt++)
+    
+    for(int cnt = 0; cnt < floorsAmount; cnt++)
     {
-        LBFloor * help = new LBFloor(cnt*10);
-        ((LObject*)help) -> connectTo(floorsTree);
+      //      addFloor(cnt*10);
+      /*      LBFloor * help = new LBFloor(cnt*10);
+	      ((LObject*)help) -> connectTo(floorsTree);*/
     }
-
+    /*
     actualFloor = ((LBFloor*)(floorsTree -> child));
-    actualFloor -> height = 0.0f;
+    actualFloor -> height = 0.0f;*/
     appState = new STATE;
+    actualFloor = NULL;
 
     cameraKid = new LObject();
     cameraKid -> position = LVector(500.0f, 0.0f, 500.0f);
@@ -101,6 +99,9 @@ void globalContainer::stuffAreaDraw()
 void
 globalContainer::chooseNextFloor()
 {
+  if(actualFloor ==NULL)
+    return;
+
   actualFloor->setSFloor(noneFloor);
   actualFloor=(LBFloor*)(actualFloor -> next);
   actualFloor->setSFloor(chosenFloor);
@@ -109,6 +110,9 @@ globalContainer::chooseNextFloor()
 void
 globalContainer::choosePrevFloor()
 {
+  if(actualFloor == NULL)
+    return;
+
   actualFloor->setSFloor(noneFloor);
   actualFloor=(LBFloor*)(actualFloor -> prev);
   actualFloor->setSFloor(chosenFloor);
@@ -133,4 +137,59 @@ void
 globalContainer::freeID(int freedID)
 {
   IDPool[freedID] = true;
+}
+
+LBFloor* globalContainer::addFloor(float height)
+{
+    //actualize checkboxes
+    drawBoxes[floorsAmount].setDisabled(false);
+    drawBoxes[floorsAmount].setChecked(true);
+    renderBoxes[floorsAmount].setDisabled(false);
+    renderBoxes[floorsAmount].setChecked(true);
+
+    //new floor will be returned, helpFloor will help in connecting
+    LBFloor *newFloor = new LBFloor(worldSize - height);
+    LBFloor *helpFloor = newFloor;
+
+    //SORT OPERATION (connect floor without breaking order of heights)
+    LBFloor *tempTree = new LBFloor(0);
+    while( floorsTree -> hasChild() )
+      {
+	LBFloor *discFloor = (LBFloor*)(floorsTree->child);
+	discFloor -> connectTo(tempTree);
+      }
+
+    //all floors are in tempTree. connect them again, check where is place for
+    //tempFloor
+    while(tempTree -> hasChild())
+      {
+	if(helpFloor != NULL)
+	  {
+	    LBFloor *tempTreeChild = ((LBFloor*)(tempTree->child));
+	    if(helpFloor -> height < tempTreeChild -> height)
+	      {
+		((LObject*)helpFloor) -> connectTo(floorsTree);
+		helpFloor = NULL;
+	      }
+	  }
+	tempTree->child->connectTo(floorsTree);
+      }
+
+    //if floor is not yet connected, it goes to the end
+    if(helpFloor != NULL)
+      {
+	((LObject*)helpFloor) -> connectTo(floorsTree);
+      }
+    //SORT OPERATION (connect floor without breaking order of heights)
+
+
+    QString *floorName = new QString("floor" + QString::number(floorsAmount));
+    floorsComboBox -> addItem(QPushButton::tr(floorName->toAscii()));
+    floorsAmount++;
+
+    if(actualFloor != NULL){actualFloor->setSFloor(noneFloor);}
+    actualFloor = ((LBFloor*)(newFloor));
+    actualFloor->setSFloor(chosenFloor);
+
+    return newFloor;
 }

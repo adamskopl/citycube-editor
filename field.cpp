@@ -15,6 +15,8 @@ LField::~LField()
 
 LField::LField(LVector *C)
 {
+  setID(666);
+
   statusField = noneField;
   
   //walls have 0 heights
