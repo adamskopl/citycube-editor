@@ -36,6 +36,7 @@ public:
     void drawGrid();
     void drawPointer();
     void drawDefinedWindows();
+    void drawDistPoints(LVector p1, LVector p2, float wallH = 0.0f, float left = 0.0f, float top = 0.0f);
 
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);

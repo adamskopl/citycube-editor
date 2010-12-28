@@ -263,8 +263,8 @@ void lbXMLmanager::XMLWalls(mxml_node_t *fieldNode, LField *field)
     {
       walls[cnt] = mxmlNewElement(wallsNode, "wall");
       
-      mxml_node_t *idNode = mxmlNewElement(walls[cnt], "ID");
-      mxmlNewInteger(idNode, 0);
+      //      mxml_node_t *idNode = mxmlNewElement(walls[cnt], "ID");
+      //      mxmlNewInteger(idNode, 0);
       mxml_node_t *heightNode = mxmlNewElement(walls[cnt], "height");
       mxmlNewReal(heightNode, field->walls[cnt]);
       
@@ -529,15 +529,15 @@ lbXMLmanager::loadFields(LBFloor *floor)
 	  {
 	    if(compareNodeString(walker->value.opaque) != xml_wall)
 	      return EWALL;      
-
-	    int wallID;
+	    
+	    //	    int wallID;
 	    float wallHeight;
 
-	    walkerGo();
+	    /*	    walkerGo();
 	    if(compareNodeString(walker->value.opaque) != xml_ID)
 	      return EWALLID;      
 	    walkerGo();
-	    wallID = walker->value.integer;
+	    wallID = walker->value.integer;*/
 
 	    walkerGo();
 	    if(compareNodeString(walker->value.opaque) != xml_height)

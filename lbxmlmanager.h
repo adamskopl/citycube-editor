@@ -24,7 +24,7 @@ enum XMLResult
     EFIELDCORNERS, //no field corners node
     EWALLS,   //no walls node
     EWALL,    //no wall's node
-    EWALLID,      
+    //    EWALLID,      
     EWALLHEIGHT,
     EWINDOWSTREE,
     EDOORSTREE,

@@ -253,6 +253,12 @@ DesignWidgetMini::setDrawStyle(drawStyle style)
 	pen.setWidth(1);
 	break;
       }
+    case(drawStyleTextDist):
+      {
+	pen.setWidth(1);
+	pen.setColor(Qt::white);
+	break;
+      }
     }
 
   painter-> setBrush(brush);
@@ -529,6 +535,19 @@ DesignWidgetMini::drawDefinedWindows()
 
       
       painter->drawRect(x, y, W, H);
+
+      //distance between margins and window
+      drawDistPoints(LVector(x/scale, topMargin/scale, 0.0f), 
+		     LVector(x/scale, y/scale, 0.0f), 0.0f, 5.0f, -5.0f);
+
+      drawDistPoints(LVector(leftMargin/scale, y/scale, 0.0f), 
+		     LVector(x/scale, y/scale, 0.0f), 0.0f, 0.0f, -5.0f);
+
+      //window's dimensions
+      drawDistPoints(LVector(x/scale, y/scale, 0.0f), 
+		     LVector(x2/scale, y/scale, 0.0f));
+      drawDistPoints(LVector(x/scale, y/scale, 0.0f), 
+		     LVector(x/scale, y2/scale, 0.0f));
     }//draw window being defined right now
 
   if(! editedField -> windowTree[wallIndex] -> hasChild())
@@ -598,4 +617,27 @@ DesignWidgetMini::beginNewEditing(LField *field, int wall)
       topMargin = 150 - drawnH/2;
       leftMargin = (300.0f - biggerDimension)/2.0f;
     }
+}
+
+void
+DesignWidgetMini::drawDistPoints(LVector p1, LVector p2, float wallH, float left, float top)
+{
+  //2d - make sure that Z coords are 0
+  p1.z = 0.0f;
+  p2.z = 0.0f;
+
+  setDrawStyle(drawStyleTextDist);
+
+  LVector pointsV(p2 - p1);
+
+  LVector textPos(p1 + pointsV/2);
+
+  QString textDisp(QString::number(pointsV.Length()/20) + tr("m"));
+
+  if(wallH != 0)
+    {
+      textDisp.append(tr(" x ") + QString::number(wallH/20) + tr("m"));
+    }
+
+  painter->drawText(textPos.x*scale + left*scale, textPos.y*scale + top*scale, textDisp);  
 }
