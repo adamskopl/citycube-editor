@@ -90,6 +90,10 @@ void PreviewWidget::resizeGL(int w, int h)
 
 void PreviewWidget::mousePressEvent(QMouseEvent *event)
 {
+  if (event->buttons() & Qt::MidButton)
+    {
+      gameCamera -> reset();
+    }
   lastPos = event->pos();
 }
 
@@ -109,11 +113,7 @@ void PreviewWidget::mouseMoveEvent(QMouseEvent *event)
       {
 	gameCamera -> modHeightB(-dy);
       }
-    else
-      if (event->buttons() & Qt::MidButton)
-	{
-	  gameCamera -> reset();
-	}
+
 
   lastPos = event->pos();
 }

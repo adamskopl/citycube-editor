@@ -1,11 +1,6 @@
 #ifndef PAINTWIDGET_H
 #define PAINTWIDGET_H
 
-#include <QBrush>
-#include <QPen>
-#include <QPixmap>
-#include <QWidget>
-#include <QPrinter>
 #include "lucidbeaver.h"
 #include "globalcontainer.h"
 #include "lbwallhelper.h"
@@ -69,11 +64,6 @@ class LField;
       void drawFieldSide(LField *);
 
       void refreshFields();
-
-      ////////////
-      void addFloor(float);
-
-      ////////////
 
       float giveScalar(float x1, float x2, float y1, float y2);
 

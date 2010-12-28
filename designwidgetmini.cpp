@@ -64,7 +64,7 @@ DesignWidgetMini::paintEvent(QPaintEvent *event)
 void 
 DesignWidgetMini::drawImages()
 {
-  QRectF target(235, 235, 60.0, 60.0);
+  QRectF target(215, 215, 80.0, 80.0);
   QRectF source(0.0, 0.0, 80.0, 80.0);
   
   switch(*(GC -> appState))
@@ -444,7 +444,7 @@ DesignWidgetMini::mousePressEvent(QMouseEvent *event)
 
 		      LBWindow *tempWindow = new LBWindow(LVector(posX/scale, (drawnH-posY)/scale, 0.0f), tempW/scale, tempH/scale);
 
-		      printf("window's height: %f\n", tempWindow->pos.y);
+		      //		      printf("window's height: %f\n", tempWindow->pos.y);
 		      tempWindow -> connectTo(editedField -> windowTree[wallIndex]);
 
 		      windowCornerIndex = 0;

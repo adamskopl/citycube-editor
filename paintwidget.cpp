@@ -1,12 +1,10 @@
-#include <QtGui>
-
 #include "paintwidget.h"
 #include "field.h"
 #include "lbstairs.h"
 #include <cmath>
 
-#include <cstdio>
-#include <iostream>
+
+
 //TODO: class is too big. add other classes helping DesignWidget
 //TODO: every object that was created with NEW, has to be deleted on end
 
@@ -78,6 +76,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
 void DesignWidget::setVariables()
 {
     worldSize = 2000.0f;
+    GC ->worldSize = worldSize;
     gridSize = 10.0f;
     cornerIndex = 0;
     fieldID = 0;
@@ -364,9 +363,9 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 }
             case(addingFloor):
                 {
-                    addFloor(selectedV.z);
-                    *(GC -> appState) = none;
-		    break;
+		  GC->addFloor(selectedV.z);
+		  *(GC -> appState) = none;
+		  break;
                 }
 	    case(connectingFields):
 	      {
@@ -641,7 +640,6 @@ void DesignWidget::drawDefinedField()
         {
 
             painter->drawLine(newCorners[0].x, newCorners[0].z, selectedV.x, selectedV.z);
-
 	    drawDistPoints(newCorners[0], selectedV,0.0f);
             break;
         }
@@ -955,57 +953,11 @@ void DesignWidget::drawFieldSide(LField *drawnField)
     }
 }
 
-void DesignWidget::addFloor(float height)
-{
-    //actualize checkboxes
-    GC -> drawBoxes[*(GC -> floorsAmount)].setDisabled(false);
-    GC -> drawBoxes[*(GC -> floorsAmount)].setChecked(true);
-    GC -> renderBoxes[*(GC -> floorsAmount)].setDisabled(false);
-    GC -> renderBoxes[*(GC -> floorsAmount)].setChecked(true);
-
-    LBFloor *helpFloor = new LBFloor(worldSize - height);
-
-
-    //SORT OPERATION (connect floor without breaking order of heights)
-    LBFloor *tempTree = new LBFloor(0);
-    while( GC->floorsTree -> hasChild() )
-      {
-	LBFloor *discFloor = (LBFloor*)(GC->floorsTree->child);
-	discFloor -> connectTo(tempTree);
-      }
-    //all floors are in tempTree. connect them again, check where is place for
-    //tempFloor
-    while(tempTree -> hasChild())
-      {
-	if(helpFloor != NULL)
-	  {
-	    LBFloor *tempTreeChild = ((LBFloor*)(tempTree->child));
-	    if(helpFloor -> height < tempTreeChild -> height)
-	      {
-		((LObject*)helpFloor) -> connectTo(GC->floorsTree);
-		helpFloor = NULL;
-	      }
-	  }
-	tempTree->child->connectTo(GC->floorsTree);
-      }
-
-    //if tempPass is not yet connected, it goes to the end
-    if(helpFloor != NULL)
-      {
-	((LObject*)helpFloor) -> connectTo(GC -> floorsTree);
-      }
-    //SORT OPERATION (connect floor without breaking order of heights)
-
-
-    QString *floorName = new QString("floor" + QString::number(*(GC -> floorsAmount)));
-    GC -> floorsComboBox -> addItem(tr(floorName->toAscii()));
-    (*(GC -> floorsAmount))++;
-
-}
-
-
 void DesignWidget::drawFloor(LBFloor *drawnFloor)
 {
+  if(drawnFloor == NULL)
+    return;
+
     if( !(drawnFloor -> isItDrawn) )
         return;
 
@@ -1176,31 +1128,31 @@ void DesignWidget::drawPig()
     {
     case(defining):
         {
-            QImage image("pigNewField.png");
+            QImage image("pigNewField_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(editingField):
         {
-            QImage image("pigField.png");
+            QImage image("pigField_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(addingFloor):
         {
-            QImage image("pigNewFloor.png");
+            QImage image("pigNewFloor_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(definingStairs):
         {
-            QImage image("pigStairs.png");
+            QImage image("pigStairs_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(connectingFields):
       {
-	QImage image("pigDoors.png");
+	QImage image("pigDoors_glow.png");
 
 	if(GC -> isPassWithDoors)
 	  {
@@ -1210,7 +1162,7 @@ void DesignWidget::drawPig()
       }
     case(breakingHole):
       {
-	QImage image("pigDoors.png");
+	QImage image("pigDoors_glow.png");
 
 	if(GC -> isPassWithDoors)
 	  {
@@ -1220,7 +1172,7 @@ void DesignWidget::drawPig()
       }
     default:
         {
-            QImage image("pigRuler.png");
+            QImage image("pigRuler_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
@@ -1871,6 +1823,10 @@ DesignWidget::wheelEvent(QWheelEvent *event)
 void
 DesignWidget::drawDistPoints(LVector p1, LVector p2, float wallH, float left, float top)
 {
+  //2d - make sure that Y coords are 0
+  p1.y = 0.0f;
+  p2.y = 0.0f;
+
   setDrawStyle(drawStyleTextDist);
 
   LVector pointsV(p2 - p1);

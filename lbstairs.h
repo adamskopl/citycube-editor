@@ -12,6 +12,8 @@ public:
     //connected fields (to bottom and top of the staris)
     LField *connBottom;
     LField *connTop;
+    int connBottomID;
+    int connTopID;
 
     LVector cornersBottom[2];
     LVector cornersTop[2];

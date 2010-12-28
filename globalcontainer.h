@@ -1,9 +1,18 @@
 #ifndef GLOBALCONTAINER_H
 #define GLOBALCONTAINER_H
 
+#include <QBrush>
+#include <QPen>
+#include <QPixmap>
+#include <QWidget>
+#include <cstdio>
+#include <iostream>
+#include <QPrinter>
+#include <QtGui>
 #include "object.h"
 #include "field.h"
 #include "floor.h"
+#include "lbstairs.h"
 #include "lbmathhelper.h"
 
 //global state of application (alias "what Designer is doing right now ?")
@@ -14,7 +23,7 @@ class LField;
 class QScrollArea;
 class DesignWidget;
 class QSlider;
-class LBStairs;
+//class LBStairs;
 
 enum drawStyle {invisible, drawStyleField, drawStyleDefinedField, stylePointedField, styleChosenField, pointer, connection, drawStyleWall,
                 normal, inactive, floorLine, fieldSide, wallInactive, drawStyleChosenWall, styleStairsTriangle, drawStyleGrid, drawStyleBigPoint, drawStyleWallChoose,
@@ -53,7 +62,7 @@ public:
     //it's field, to have floor's height.
     //IS IT NEEDED ?????
     LBFloor *actualFloor;
-    int *floorsAmount;
+    int floorsAmount;
 
     //object spied by camera - pointer passed to previewWidget and designWidget
     LObject *cameraKid;
@@ -107,7 +116,9 @@ public:
     int giveFreeID();
     void freeID(int);
 
-    
+    //returns pointer on new added floor
+    float worldSize;
+    LBFloor* addFloor(float);    
 };
 
 #endif // GLOBALCONTAINER_H
