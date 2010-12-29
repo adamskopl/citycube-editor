@@ -13,9 +13,9 @@ LField::~LField()
   
 }
 
-LField::LField(LVector *C)
+LField::LField(int ID, LVector *C)
 {
-  setID(666);
+  setID(ID);
 
   statusField = noneField;
   
@@ -115,7 +115,7 @@ LField::LField(LVector *C)
    */
   for(int a = 0; a < 4; a++)
     {
-      passageTree[a] = new lbpassage(0, 0, NULL);
+      passageTree[a] = new lbpassage(0, 0, 0, NULL);
       windowTree[a] = new LBWindow();
     }
 }
@@ -518,7 +518,7 @@ void LField::remove()
 	  lbpassage *helpPassage = (lbpassage*)(passageTree[cntPass]->child);
 	  while(1)
 	    {
-	      ((LField*)helpPassage -> destField) -> deletePassagesTo(this);
+	      ((LField*)helpPassage -> destObject) -> deletePassagesTo(this);
 
 	      if( ! helpPassage -> isLast())
 		{
@@ -563,6 +563,10 @@ LField::howFarPointIs(int wallindex, LVector point)
   return pointDistance;
 }
 
+
+/*
+  Carefull! Delete with ID's not pointers
+ */
 void
 LField::deletePassagesTo(LField *destF)
 {
@@ -576,7 +580,7 @@ LField::deletePassagesTo(LField *destF)
 	    {
 	      if( ! helpPassage -> isLast())
 		{
-		  if(helpPassage -> destField == destF)
+		  if(helpPassage->destObjectID == destF->giveID())
 		    {
 		      lbpassage *deletePass = helpPassage;
 		      helpPassage = (lbpassage*)(helpPassage->next);
@@ -589,7 +593,7 @@ LField::deletePassagesTo(LField *destF)
 		}
 	      else
 		{
-		  if(helpPassage -> destField == destF)
+		  if(helpPassage->destObjectID == destF->giveID())
 		    {
 		      helpPassage -> disconnect();
 		    }

@@ -1,7 +1,9 @@
 #include "lbwallhelper.h"
 
-LBWallHelper::LBWallHelper()
+LBWallHelper::LBWallHelper(globalContainer *gc)
 {
+  GC = gc;
+  
   partPointed = false;
   
   //negative values means that distances are not set

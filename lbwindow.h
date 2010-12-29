@@ -7,7 +7,7 @@
 class LBWindow : public LObject
 {
 public:
-  LBWindow(LVector pos, float w, float h);
+  LBWindow(int ID, LVector pos, float w, float h);
   LBWindow(){}
 
     LVector pos;

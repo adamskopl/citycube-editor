@@ -58,6 +58,7 @@ DesignWidget::DesignWidget(globalContainer *globals, QTextEdit *reportWidget, De
     //drawBoxes = GC
 
     SH = new lbStairsHelper(GC);
+    WH = new LBWallHelper(GC); 
     //helper base will point later on SH or &WH (to help invoke common functions
     //in way depending on current AppState)
     HB = NULL;
@@ -262,14 +263,15 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                             newCorners[3].y = GC -> actualFloor -> height;
 
 
-                            LField *temp = new LField(newCorners);
+                            LField *temp = new LField(GC->giveFreeID(), newCorners);
                             //temp -> ID = fields->size();
                             //fieldID++;
                             //!fields->push_back(*temp);
 
                             GC -> actualFloor -> connect(temp);
 
-                            printSuccess("new field added");
+                            printSuccess("new field added (ID: " 
+					 + QString::number(temp->giveID())+")");
                             GC -> cameraKid -> position = temp-> centerPoint;
                             GC -> cameraKid -> position.y = GC -> actualFloor -> height;
 
@@ -347,7 +349,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 			    //			    chosenField2 = pointedField;
 			    *(GC -> appState) = connectingFields;
 			    //set helper pointer on WallHelper
-			    HB = &WH;
+			    HB = WH;
 			    //chosenField = NULL;
 			    //chosenField2 = NULL;
 			  }
@@ -390,19 +392,26 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 
 		      if(HB == SH)
 			{
-			  HB->addPassage(GC->stairsBottom, GC->stairsTop);
+			  newStairs = new LBStairs(GC->giveFreeID());
+
+			  //addPassage with last argument as newStairs
+			  HB->addPassage(GC->stairsBottom, 
+					 GC->stairsTop, 0.0f,
+					 newStairs);
+
 			  addNewStairs();
 			  GC->stairsBottom = NULL;
 			  GC->stairsTop = NULL;
 			}
 		      else
-			if(HB == &WH)
+			if(HB == WH)
 			  {
 			    //add passage with doors or without them?
 			    if(GC->isPassWithDoors)
 			      {
 				//passage with doors (1pix = 5cm height)
-				HB->addPassage(GC->chosenField, GC->chosenField2, 40.0f);
+				HB->addPassage(GC->chosenField, 
+					       GC->chosenField2, 40.0f);
 			      }
 			    else
 			      {
@@ -454,7 +463,8 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                         //pointedField->disconnect();
                         //fields->
                         //refreshFields();
-                        removeField(pointedField);
+		      GC->freeID(pointedField->giveID());
+		      removeField(pointedField);
 
                     }
                     else // change floor
@@ -1278,10 +1288,11 @@ void DesignWidget::addNewStairs()
 
 void DesignWidget::addNewStairs()
 {
-    LBStairs *newStairs = new LBStairs;
-
     newStairs -> connBottom = GC -> stairsBottom;
     newStairs -> connTop = GC -> stairsTop;
+
+    newStairs -> connBottomID = newStairs -> connBottom -> giveID();
+    newStairs -> connTopID = newStairs -> connTop -> giveID();
 
     /*    int a, b;
     //    a = GC -> stairsFieldBottomEdge;
@@ -1328,6 +1339,8 @@ void DesignWidget::addNewStairs()
     newStairs -> horizontalVector = GC -> stairsTop ->cornersN[SH -> wallIndex2];
 
     newStairs -> connectTo(GC -> stairsTree);
+
+    newStairs = NULL;
 }
 
 //check if chosenField is touching chosenField2 (they have to be set)
@@ -1433,10 +1446,10 @@ DesignWidget::checkTouching()
 	      if(isIn[0] && isIn[1])
 		{
 		  //A and B are defining passage
-		  WH.passageA = cX[0];
-		  WH.passageB = cX[1];
-		  WH.wallIndex1 = a;
-		  WH.wallIndex2 = b;
+		  WH->passageA = cX[0];
+		  WH->passageB = cX[1];
+		  WH->wallIndex1 = a;
+		  WH->wallIndex2 = b;
 		  //printSuccess("<1>");
 		  return true;
 		}
@@ -1450,10 +1463,10 @@ DesignWidget::checkTouching()
 		      continue;
 		    }
 
-		  WH.passageA = cX[2];
-		  WH.passageB = cX[3];
-		  WH.wallIndex1 = a;
-		  WH.wallIndex2 = b;
+		  WH->passageA = cX[2];
+		  WH->passageB = cX[3];
+		  WH->wallIndex1 = a;
+		  WH->wallIndex2 = b;
 		  //printSuccess("<2>");
 		  return true;
 		}
@@ -1474,10 +1487,10 @@ DesignWidget::checkTouching()
 			  continue;
 			}
 
-		      WH.passageA = cX[0];
-		      WH.passageB = cX[2];
-		      WH.wallIndex1 = a;
-		      WH.wallIndex2 = b;
+		      WH->passageA = cX[0];
+		      WH->passageB = cX[2];
+		      WH->wallIndex1 = a;
+		      WH->wallIndex2 = b;
 
 		      //printSuccess("<3>");
 		      return true;
@@ -1490,19 +1503,19 @@ DesignWidget::checkTouching()
 			  continue;
 			}
 
-		      WH.passageA = cX[0];
-		      WH.passageB = cX[3];
-		      WH.wallIndex1 = a;
-		      WH.wallIndex2 = b;
+		      WH->passageA = cX[0];
+		      WH->passageB = cX[3];
+		      WH->wallIndex1 = a;
+		      WH->wallIndex2 = b;
 		      //printSuccess("<4>");
 		      return true;
 		    }
 		  if(isIn[2] && isIn[3])
 		    {
-		      WH.passageA = cX[2];
-		      WH.passageB = cX[3];
-		      WH.wallIndex1 = a;
-		      WH.wallIndex2 = b;
+		      WH->passageA = cX[2];
+		      WH->passageB = cX[3];
+		      WH->wallIndex1 = a;
+		      WH->wallIndex2 = b;
 		      //printSuccess("<5>");
 		      return true;
 		    }
@@ -1523,10 +1536,10 @@ DesignWidget::checkTouching()
 			  //printError("<6>");
 			  continue;
 			}
-		      WH.passageA = cX[1];
-		      WH.passageB = cX[2];
-		      WH.wallIndex1 = a;
-		      WH.wallIndex2 = b;
+		      WH->passageA = cX[1];
+		      WH->passageB = cX[2];
+		      WH->wallIndex1 = a;
+		      WH->wallIndex2 = b;
 
 		      //printSuccess("<6>");
 		      return true;
@@ -1539,20 +1552,20 @@ DesignWidget::checkTouching()
 			  continue;
 			}
 
-		      WH.passageA = cX[1];
-		      WH.passageB = cX[3];
-		      WH.wallIndex1 = a;
-		      WH.wallIndex2 = b;
+		      WH->passageA = cX[1];
+		      WH->passageB = cX[3];
+		      WH->wallIndex1 = a;
+		      WH->wallIndex2 = b;
 
 		      //printSuccess("<7>");
 		      return true;
 		    }
 		  if(isIn[2] && isIn[3])
 		    {
-		      WH.passageA = cX[2];
-		      WH.passageB = cX[3];
-		      WH.wallIndex1 = a;
-		      WH.wallIndex2 = b;
+		      WH->passageA = cX[2];
+		      WH->passageB = cX[3];
+		      WH->wallIndex1 = a;
+		      WH->wallIndex2 = b;
 
 		      //printSuccess("<8>");
 		      return true;
@@ -1598,7 +1611,7 @@ DesignWidget::drawWallParts()
       field2 = GC->stairsTop;
     }
   else
-    if(HB == &WH)
+    if(HB == WH)
       {
 	field1 = GC->chosenField;
 	field2 = GC->chosenField2;

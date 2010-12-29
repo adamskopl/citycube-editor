@@ -150,9 +150,15 @@ class LField;
       bool arePointsCollinear(LVector, LVector, LVector, LVector);
 
       //class helping in making holes in walls
-      LBWallHelper WH;
       lbmathhelper MH;
+      LBWallHelper *WH;
       lbStairsHelper *SH;
+
+      /*
+	global stairs needed - create them before adding passage
+	set their attributes in addNewStairs() and than set to NULL
+      */
+      LBStairs *newStairs;
 
       //points on &WH or SH
       LBHelpersBase *HB;

@@ -1,10 +1,11 @@
 #include "floor.h"
 
-LBFloor::LBFloor(float H)
+LBFloor::LBFloor(int ID, float H)
 {
-    height = H;
-    isItDrawn = true;
-    isItRendered = true;
-    //    FS = FSNormal;
+  setID(ID);
+  height = H;
+  isItDrawn = true;
+  isItRendered = true;
+  //    FS = FSNormal;
 }
 

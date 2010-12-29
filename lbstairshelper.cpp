@@ -1,7 +1,9 @@
 #include "lbstairshelper.h"
 
-lbStairsHelper::lbStairsHelper(globalContainer *GC):GC(GC)
+lbStairsHelper::lbStairsHelper(globalContainer *gc)
 {
+  GC = gc;
+
   partPointed = false;
   
   //negative values means that distances are not set

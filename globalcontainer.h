@@ -119,6 +119,12 @@ public:
     //returns pointer on new added floor
     float worldSize;
     LBFloor* addFloor(float);    
+
+    //searching functions
+    LField* findField(int ID);
+    LBStairs* findStairs(int ID);
+    LBWindow* findWindow(int ID);
+    lbpassage* findPassage(int ID);
 };
 
 #endif // GLOBALCONTAINER_H

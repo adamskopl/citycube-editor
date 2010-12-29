@@ -7,7 +7,7 @@
 class LBStairs : public LObject, public Counter<LBStairs>
 {
 public:
-    LBStairs();
+    LBStairs(int ID);
 
     //connected fields (to bottom and top of the staris)
     LField *connBottom;
