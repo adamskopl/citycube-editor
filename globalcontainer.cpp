@@ -140,7 +140,19 @@ globalContainer::freeID(int freedID)
   IDPool[freedID] = true;
 }
 
-LBFloor* globalContainer::addFloor(float height)
+//return false if something goes wrong
+bool
+globalContainer::reserveID(int ID)
+{
+  if(IDPool[ID] == false)
+    {
+      return false; //failure! this ID is already reserved
+    }
+  IDPool[ID] = false;
+  return true;
+}
+
+LBFloor* globalContainer::addFloor(int floorID, float height)
 {
     //actualize checkboxes
     drawBoxes[floorsAmount].setDisabled(false);
@@ -149,7 +161,7 @@ LBFloor* globalContainer::addFloor(float height)
     renderBoxes[floorsAmount].setChecked(true);
 
     //new floor will be returned, helpFloor will help in connecting
-    LBFloor *newFloor = new LBFloor(giveFreeID(), worldSize - height);
+    LBFloor *newFloor = new LBFloor(floorID, worldSize - height);
     LBFloor *helpFloor = newFloor;
 
     //SORT OPERATION (connect floor without breaking order of heights)
@@ -370,4 +382,121 @@ globalContainer::findPassage(int ID)
 	break;
     }
   return NULL;// error -> passage with that ID does not exist
+}
+
+/*
+  After loading XML building, following operations should be done:
+  - refresh IDPool
+  - refresh connections between primitives
+*/
+void
+globalContainer::refreshPrimitives()
+{
+  LBFloor *helpFloor;
+  LField *helpField;
+  LBWindow *helpWindow;
+  lbpassage *helpPassage;
+
+
+  if(floorsTree->hasChild())
+    helpFloor = (LBFloor*)floorsTree -> child;
+  else
+    return;
+
+  while(1)
+    {
+      reserveID(helpFloor -> giveID());
+
+      //if helpFlor has any child, search children to find field's window with ID
+      if(helpFloor->hasChild())
+	{
+	  helpField = (LField*)helpFloor->child;
+
+	  while(1)
+	    {
+	      reserveID(helpField->giveID());
+
+	      //check if any wall has window with ID
+	      for(int cntW = 0; cntW < 4; cntW++)
+		{
+		  if(helpField->windowTree[cntW]->hasChild())
+		    {
+		      helpWindow = (LBWindow*)helpField->windowTree[cntW]->child;
+		      
+		      while(1)
+			{
+			  reserveID(helpWindow->giveID());
+			  
+			  if(!helpWindow -> isLast())
+			    helpWindow = (LBWindow*)(helpWindow -> next);
+			  else
+			    break;
+			}
+		    }
+
+		  if(helpField->passageTree[cntW]->hasChild())
+		    {
+		      helpPassage = (lbpassage*)helpField->passageTree[cntW]->child;
+
+		      while(1)
+			{
+			  reserveID(helpPassage->giveID());
+			  /*
+			    check with what primitive passage has connecion and
+			    set adequate *destObject
+			  */
+			  {
+			    LBStairs *destStairs = 
+			      findStairs(helpPassage->destObjectID);
+
+			    LField *destField = 
+			      findField(helpPassage->destObjectID);
+
+			    if(destStairs != NULL)
+			      helpPassage -> destObject = (LObject*)destStairs;
+			    else
+			      helpPassage -> destObject = (LObject*)destField;
+			    }
+			  
+			  if(!helpPassage -> isLast())
+			    helpPassage = (lbpassage*)(helpPassage -> next);
+			  else
+			    break;
+			}
+		    }
+		}//for cntW
+	      
+	      if(! helpField -> isLast())
+		helpField = (LField*)(helpField -> next);
+	      else
+		break;//floor searched
+	    }
+	}
+      if(! helpFloor -> isLast())
+	helpFloor = (LBFloor*)(helpFloor -> next);
+      else
+	break;
+    }
+
+
+  LBStairs *helpStairs;
+
+  if(stairsTree->hasChild())
+    {
+      helpStairs = (LBStairs*)stairsTree->child;
+      while(1)
+	{
+	  reserveID(helpStairs->giveID());      
+
+	  {//connections
+	    helpStairs->connBottom = findField(helpStairs->connBottomID);
+	    helpStairs->connTop = findField(helpStairs->connTopID);
+	  }
+
+	  if(! helpStairs -> isLast())
+	    helpStairs = (LBStairs*)(helpStairs -> next);
+	  else
+	    break;
+	}
+    }
 }

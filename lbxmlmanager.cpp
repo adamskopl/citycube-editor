@@ -393,8 +393,10 @@ lbXMLmanager::loadXML(const char* filename)
 
   //pointers on structures from globalcontainer
   //delete default floor
+  GC->freeID(((LBFloor*)GC->floorsTree->child)->giveID());
   GC->floorsTree->child->disconnect();
   GC->floorsAmount=0;
+
   FTree = GC -> floorsTree;
   STree = GC -> stairsTree;
   XMLResult result;
@@ -470,7 +472,7 @@ lbXMLmanager::loadFloors()
       floorHeight = walker->value.real;
       
       //add new floor
-      floor = GC->addFloor(GC->worldSize - floorHeight);
+      floor = GC->addFloor(floorID, GC->worldSize - floorHeight);
 
       walkerGo();
       if(compareNodeString(walker->value.opaque) != xml_fieldsTree)      
@@ -685,7 +687,7 @@ lbXMLmanager::loadDoors(lbpassage *passageRoot)
       walkerGo();
       destID = walker->value.integer;      
 
-      lbpassage *newPassage = new lbpassage(dist1, dist2, destID, height);
+      lbpassage *newPassage = new lbpassage(doorsID, dist1, dist2, destID, height);
       newPassage -> connectTo(passageRoot);
 
       walkerGo();

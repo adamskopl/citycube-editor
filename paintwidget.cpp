@@ -365,7 +365,7 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
                 }
             case(addingFloor):
                 {
-		  GC->addFloor(selectedV.z);
+		  GC->addFloor(GC->giveFreeID(), selectedV.z);
 		  *(GC -> appState) = none;
 		  break;
                 }
@@ -890,7 +890,12 @@ void DesignWidget::removeField(LField *rem)
     rem -> remove();
     delete rem;
     printInfo("field removed");
+}
 
+void
+DesignWidget::pointOnField(LField *field)
+{
+  pointedField = field;
 }
 
 void DesignWidget::drawNewFloorLine()
@@ -1288,11 +1293,11 @@ void DesignWidget::addNewStairs()
 
 void DesignWidget::addNewStairs()
 {
-    newStairs -> connBottom = GC -> stairsBottom;
-    newStairs -> connTop = GC -> stairsTop;
+  newStairs -> connBottom = (LObject*)GC -> stairsBottom;
+  newStairs -> connTop = (LObject*)GC -> stairsTop;
 
-    newStairs -> connBottomID = newStairs -> connBottom -> giveID();
-    newStairs -> connTopID = newStairs -> connTop -> giveID();
+  newStairs -> connBottomID = newStairs -> connBottom -> giveID();
+  newStairs -> connTopID = newStairs -> connTop -> giveID();
 
     /*    int a, b;
     //    a = GC -> stairsFieldBottomEdge;

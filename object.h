@@ -58,6 +58,12 @@ class LObject : public LNode
   int giveID();
   void setID(int);
   void resetID();
+
+  /*
+    for fields and stairs, not for every object
+    TODO: think of new class which will have common things for LBStairs and LField
+  */
+  virtual void deletePassagesTo(LObject *destObject){destObject = NULL;}
 };
 
 #endif
