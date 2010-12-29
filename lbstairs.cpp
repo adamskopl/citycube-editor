@@ -1,7 +1,8 @@
 #include "lbstairs.h"
 
-LBStairs::LBStairs()
+LBStairs::LBStairs(int ID)
 {
+  setID(ID);
   connBottomID = 0;
   connTopID = 0;
 }

@@ -1,13 +1,14 @@
 #include "lbpassage.h"
 
-lbpassage::lbpassage(float D1, float D2, LField* destField, float doorsHeight): d1(D1), d2(D2), destField(destField), doorsHeight(doorsHeight)
+lbpassage::lbpassage(int ID, float D1, float D2, LObject* destObject, float doorsHeight): d1(D1), d2(D2), destObject(destObject), doorsHeight(doorsHeight)
 {
   //doorsHeight == 0.0f means for now, that passage has no doors
-
-  destFieldID = destField->giveID();
+  setID(ID);
+  destObjectID = destObject->giveID();
 }
 
-lbpassage::lbpassage(float D1, float D2, int destFieldID, float doorsHeight): d1(D1), d2(D2), destFieldID(destFieldID), doorsHeight(doorsHeight)
+lbpassage::lbpassage(int ID, float D1, float D2, int destObjectID, float doorsHeight): d1(D1), d2(D2), destObjectID(destObjectID), doorsHeight(doorsHeight)
 {
-  destField = NULL;
+  setID(ID);
+  destObject = NULL;
 }

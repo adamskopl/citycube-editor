@@ -10,7 +10,7 @@
 class LBWallHelper : public LBHelpersBase
 {
 public:
-    LBWallHelper();
+    LBWallHelper(globalContainer *GC);
     //beginning and  ending of common wall part of connected fields
     //    LVector passageA, passageB;
     //which walls are chosen for connections? (chosenField and Chosenfield2)

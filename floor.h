@@ -19,7 +19,7 @@ class LBFloor : public LObject, public Counter<LBFloor>
   
   
  public:
-  LBFloor(float);
+  LBFloor(int, float);
   
   float height;
   bool isItDrawn;

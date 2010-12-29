@@ -2,6 +2,7 @@
 
 LBHelpersBase::LBHelpersBase()
 {
+  GC = NULL;//it will be set by inheritating classes
 }
 
 void
@@ -52,7 +53,7 @@ LBHelpersBase::drawPassagePoints(QPainter *painter)
 }
 
 void
-LBHelpersBase::addPassage(LField *chosen1, LField *chosen2, float doorsHeight)
+LBHelpersBase::addPassage(LField *chosen1, LField *chosen2, float doorsHeight, LBStairs *destStairs)
 {
 
   //distances for 2 new passages
@@ -116,10 +117,24 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2, float doorsHeight)
 	}
   }
 
+  lbpassage *tempPass;
+  lbpassage *tempPass2;
 
   //final passages for chosen1 and chosen2
-  lbpassage *tempPass = new lbpassage(dist1a, dist2a, chosen2, doorsHeight);
-  lbpassage *tempPass2 = new lbpassage(dist1b, dist2b, chosen1, doorsHeight);
+  if(destStairs == NULL)
+    {
+      tempPass = new lbpassage(GC->giveFreeID(), dist1a, dist2a, 
+					  (LObject*)chosen2, doorsHeight);
+      tempPass2 = new lbpassage(GC->giveFreeID(), dist1b, dist2b, 
+					   (LObject*)chosen1, doorsHeight);
+    }
+  else//stairs given - fields will connect with them, not with eachother
+    {
+      tempPass = new lbpassage(GC->giveFreeID(), dist1a, dist2a, 
+					  (LObject*)destStairs, doorsHeight);
+      tempPass2 = new lbpassage(GC->giveFreeID(), dist1b, dist2b, 
+					   (LObject*)destStairs, doorsHeight);
+    }
 
     //okay ... now we will do crazy thing, because Adam wants fast effects:
 
@@ -137,7 +152,7 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2, float doorsHeight)
       }
     else
       {
-	lbpassage *tempTree = new lbpassage(0, 0, NULL);
+	lbpassage *tempTree = new lbpassage(0, 0, 0, NULL);
 	while( chosen1 -> passageTree[wallIndex1] -> hasChild() )
 	  {
 	    lbpassage *discPass = (lbpassage*)(chosen1 -> passageTree[wallIndex1] -> child);
@@ -175,7 +190,7 @@ LBHelpersBase::addPassage(LField *chosen1, LField *chosen2, float doorsHeight)
       }
     else
       {
-	lbpassage *tempTree = new lbpassage(0, 0, NULL);
+	lbpassage *tempTree = new lbpassage(0, 0, 0, NULL);
 	while( chosen2 -> passageTree[wallIndex2] -> hasChild() )
 	  {
 	    lbpassage *discPass = (lbpassage*)(chosen2 -> passageTree[wallIndex2] -> child);

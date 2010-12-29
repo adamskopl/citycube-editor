@@ -44,7 +44,7 @@ globalContainer::globalContainer()
     stairsFieldTopEdge = 0;
     isBottomFieldSet = false;
 
-    stairsTree = new LBStairs;
+    stairsTree = new LBStairs(0);
 
     //////////
     IDAmount = 1000000;
@@ -131,6 +131,7 @@ globalContainer::giveFreeID()
 	  return cnt;
 	}
     }
+  return 0;//should not happen, but if there are no free ids, return 0
 }
 
 void 
@@ -148,11 +149,11 @@ LBFloor* globalContainer::addFloor(float height)
     renderBoxes[floorsAmount].setChecked(true);
 
     //new floor will be returned, helpFloor will help in connecting
-    LBFloor *newFloor = new LBFloor(worldSize - height);
+    LBFloor *newFloor = new LBFloor(giveFreeID(), worldSize - height);
     LBFloor *helpFloor = newFloor;
 
     //SORT OPERATION (connect floor without breaking order of heights)
-    LBFloor *tempTree = new LBFloor(0);
+    LBFloor *tempTree = new LBFloor(0, 0);
     while( floorsTree -> hasChild() )
       {
 	LBFloor *discFloor = (LBFloor*)(floorsTree->child);
@@ -192,4 +193,181 @@ LBFloor* globalContainer::addFloor(float height)
     actualFloor->setSFloor(chosenFloor);
 
     return newFloor;
+}
+
+LField*
+globalContainer::findField(int ID)
+{
+  //fields are in floorTree, so search through floors
+  LBFloor *helpFloor;
+  LField *helpField;
+
+  if(floorsTree->hasChild())
+    helpFloor = (LBFloor*)floorsTree -> child;
+  else
+    return NULL;// error -> field with that ID does not exist
+
+  while(1)
+    {
+      //if helpFlor has any child, search children to find field with ID
+      if(helpFloor->hasChild())
+	{
+	  helpField = (LField*)helpFloor->child;
+
+	  while(1)
+	    {
+	      if(helpField->giveID() == ID)
+		{
+		  //success - return helpField
+		  return helpField;
+		}
+	      if(! helpField -> isLast())
+		helpField = (LField*)(helpField -> next);
+	      else
+		break;//floor searched
+	    }
+	}
+      if(! helpFloor -> isLast())
+	helpFloor = (LBFloor*)(helpFloor -> next);
+      else
+	break;
+    }
+  return NULL;// error -> field with that ID does not exist
+}
+
+LBStairs*
+globalContainer::findStairs(int ID)
+{
+  LBStairs *helpStairs;
+
+  if(stairsTree->hasChild())
+    helpStairs = (LBStairs*)stairsTree->child;
+  else
+    return NULL;//error - no stairs
+
+  while(1)
+    {
+      if(helpStairs -> giveID() == ID)
+	return helpStairs;
+
+      if(! helpStairs -> isLast())
+	helpStairs = (LBStairs*)(helpStairs -> next);
+      else
+	break;
+    }
+
+  return NULL;// error -> stairs with that ID does not exist
+}
+
+LBWindow*
+globalContainer::findWindow(int ID)
+{
+  LBFloor *helpFloor;
+  LField *helpField;
+  LBWindow *helpWindow;
+
+
+  if(floorsTree->hasChild())
+    helpFloor = (LBFloor*)floorsTree -> child;
+  else
+    return NULL;// error -> field with that ID does not exist
+
+  while(1)
+    {
+      //if helpFlor has any child, search children to find field's window with ID
+      if(helpFloor->hasChild())
+	{
+	  helpField = (LField*)helpFloor->child;
+
+	  while(1)
+	    {
+	      //check if any wall has window with ID
+	      for(int cntW = 0; cntW < 4; cntW++)
+		{
+		  if(helpField->windowTree[cntW]->hasChild())
+		    {
+		      helpWindow = (LBWindow*)helpField->windowTree[cntW]->child;
+		      
+		      while(1)
+			{
+			  if(helpWindow->giveID() == ID)//success!
+			    return helpWindow;
+			  
+			  if(!helpWindow -> isLast())
+			    helpWindow = (LBWindow*)(helpWindow -> next);
+			  else
+			    break;
+			}
+		    }
+		}//for cntW
+	      
+	      if(! helpField -> isLast())
+		helpField = (LField*)(helpField -> next);
+	      else
+		break;//floor searched
+	    }
+	}
+      if(! helpFloor -> isLast())
+	helpFloor = (LBFloor*)(helpFloor -> next);
+      else
+	break;
+    }
+  
+  return NULL;
+}
+
+lbpassage*
+globalContainer::findPassage(int ID)
+{
+  LBFloor *helpFloor;
+  LField *helpField;
+  lbpassage *helpPassage;
+
+
+  if(floorsTree->hasChild())
+    helpFloor = (LBFloor*)floorsTree -> child;
+  else
+    return NULL;// error -> field with that ID does not exist
+
+  while(1)
+    {
+      //if helpFlor has any child, search children to find field's window with ID
+      if(helpFloor->hasChild())
+	{
+	  helpField = (LField*)helpFloor->child;
+
+	  while(1)
+	    {
+	      //check if any wall has passage with ID
+	      for(int cntP = 0; cntP < 4; cntP++)
+		{
+		  if(helpField->passageTree[cntP]->hasChild())
+		    {
+		      helpPassage = (lbpassage*)helpField->passageTree[cntP]->child;
+		      
+		      while(1)
+			{
+			  if(helpPassage->giveID() == ID)//success!
+			    return helpPassage;
+			  
+			  if(!helpPassage -> isLast())
+			    helpPassage = (lbpassage*)(helpPassage -> next);
+			  else
+			    break;
+			}
+		    }
+		}//for cntP
+	      
+	      if(! helpField -> isLast())
+		helpField = (LField*)(helpField -> next);
+	      else
+		break;//floor searched
+	    }
+	}
+      if(! helpFloor -> isLast())
+	helpFloor = (LBFloor*)(helpFloor -> next);
+      else
+	break;
+    }
+  return NULL;// error -> passage with that ID does not exist
 }

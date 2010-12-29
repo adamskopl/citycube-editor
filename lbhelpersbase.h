@@ -3,6 +3,7 @@
 #include <QPainter>
 #include "vector.h"
 #include "field.h"
+#include "globalcontainer.h"
 
 class LBHelpersBase
 {
@@ -31,13 +32,24 @@ public:
 
     LField *field1, field2;
     virtual void drawPassagePoints(QPainter*);      
-    virtual void addPassage(LField *chosen1, LField *chosen2, float doorsHeight = 0.0f);
+
+    /*
+      Add new passage:
+      - chosen1, chosen2: fields being connnected
+      - doorsHeight:      if given, passages will have doorsHeight > 0.0
+      - destStairs:       if given, passages will have destStairs as their 
+                          destObject 
+     */
+    virtual void addPassage(LField *chosen1, LField *chosen2, float doorsHeight = 0.0f, LBStairs *destStairs = NULL);
 
  protected:
     bool partPointed;
 
     //reset all values
     virtual void reset();
+
+    //GC will be set only by inheritating (..do I spell it correctly??) classes
+    globalContainer *GC;
 };
 
 #endif // LBHELPERSBASE_H

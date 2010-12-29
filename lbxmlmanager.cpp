@@ -343,7 +343,7 @@ lbXMLmanager::XMLDoors(mxml_node_t *doorsNode, LField *field, int wallNo)
       mxmlNewReal(DHeight, helpPassage->doorsHeight);
       
       mxml_node_t *DDest = mxmlNewElement(DNode, "destination");
-      mxmlNewInteger(DDest, helpPassage->destFieldID);
+      mxmlNewInteger(DDest, helpPassage->destObjectID);
       
       if( !helpPassage -> isLast())
 	{
@@ -420,6 +420,18 @@ lbXMLmanager::loadXML(const char* filename)
   if(result != SLOADING) 
     if(result != SNOSTAIRS) 
       return result;
+
+  /*
+    Everything loaded - now it's time to assign primitives to pointers:
+
+    1. passages:
+       - destField
+
+    2. stairs:
+       - connBottom
+       - connTop
+   */
+
 
   fclose(fp);
   return SLOADING;
@@ -515,7 +527,7 @@ lbXMLmanager::loadFields(LBFloor *floor)
 	}
       
       //new field, fill it and then add to *floor
-      field = new LField(fieldCorners);
+      field = new LField(fieldID, fieldCorners);
 
       walkerGo();
       if(compareNodeString(walker->value.opaque) != xml_walls)
@@ -619,7 +631,7 @@ lbXMLmanager::loadWindows(LBWindow *windowsRoot)
       walkerGo();
       winHeight = walker->value.real;
       
-      LBWindow *newWindow = new LBWindow(winPos, winWidth, winHeight);
+      LBWindow *newWindow = new LBWindow(winID, winPos, winWidth, winHeight);
       newWindow -> connectTo(windowsRoot);
       walkerGo();
     }
@@ -699,13 +711,13 @@ lbXMLmanager::loadStairs()
       int topDest;
       LVector horizontalVector;
 
-      LBStairs *loadedStairs = new LBStairs();
-
       walkerGo();
       if(compareNodeString(walker->value.opaque) != xml_ID)
 	return ESTAIRSID;      
       walkerGo();
       stairsID = walker->value.integer;            
+
+      LBStairs *loadedStairs = new LBStairs(stairsID);
 
       walkerGo();
       if(compareNodeString(walker->value.opaque) != xml_bottomDest)

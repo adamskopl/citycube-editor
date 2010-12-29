@@ -4,13 +4,12 @@
 #include <QWidget>
 #include <QPainter>
 #include <cstdio>
-#include "globalcontainer.h"
 #include "lbhelpersbase.h"
 
 class lbStairsHelper : public LBHelpersBase
 {
  private:
-  globalContainer *GC;
+  //  globalContainer *GC;
   
  public:
   /*
