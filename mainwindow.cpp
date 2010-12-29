@@ -238,7 +238,7 @@ MainWindow::MainWindow()
     globals -> drawBoxes = drawBoxes;
     globals -> renderBoxes = renderBoxes;
 
-    globals->addFloor(globals->worldSize);
+    globals->addFloor(globals->giveFreeID(), globals->worldSize);
     //    globals->floorsAmount = 1;
 }
 
@@ -601,21 +601,32 @@ MainWindow::slotSaveAsXML()
   QString qFileName = QFileDialog::getSaveFileName(this);
   //my_qstring.toStdString().c_str()
 
-  if(xmlManager->saveXML(qFileName.toStdString().c_str()))
-    statusBar()->showMessage(tr("File saved."), 2000);
-  else
-    statusBar()->showMessage(tr("Error: file not saved."), 2000);
+  if(! qFileName.isEmpty())
+    {
+      if(xmlManager->saveXML(qFileName.toStdString().c_str()))
+	statusBar()->showMessage(tr("File saved."), 2000);
+      else
+	statusBar()->showMessage(tr("Error: file not saved."), 2000);
+    }
 }
 
 void
 MainWindow::slotLoadXML()
 {
   QString qFileName = QFileDialog::getOpenFileName(this);
+  
+  if(! qFileName.isEmpty())
+    {
+      if(xmlManager->loadXML(qFileName.toStdString().c_str()) == SLOADING)
+	statusBar()->showMessage(tr("Refreshing building's data ..."), 2000);
+      else
+	statusBar()->showMessage(tr("Error: not loaded."), 2000);
 
-  if(xmlManager->loadXML(qFileName.toStdString().c_str()) == SLOADING)
-    statusBar()->showMessage(tr("File loaded."), 2000);
-  else
-    statusBar()->showMessage(tr("Error: not loaded."), 2000);
+      //refresh all buildings primitives
+      globals->refreshPrimitives();
+
+      statusBar()->showMessage(tr("File loaded."), 2000);
+    }
 }
 
 void

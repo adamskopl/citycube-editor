@@ -141,3 +141,23 @@ void LBStairs::selfDraw()
 
     glPopMatrix();
 }
+
+/*
+  This functions for stairs means: 
+  remove passage from conn (conntBottom or connTop) which is not destObject.
+ */
+void
+LBStairs::deletePassagesTo(LObject *destObject)
+{
+  if(connBottom == destObject)
+    {
+      connTop -> deletePassagesTo((LObject*)this);
+    }
+  else
+    {
+      connBottom -> deletePassagesTo((LObject*)this);
+    }
+
+  //stairs are always deleted, whenever one of connected fields is deleted
+  disconnect();
+}

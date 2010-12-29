@@ -118,6 +118,7 @@ class LField;
       //      QMatrix globalMatrix;
       //      QMatrix globalMatrix2;
   public:
+      void pointOnField(LField* field);
       //chosen field for defining
       //      LField *chosenField;
       //second field, chosen after choosing first one

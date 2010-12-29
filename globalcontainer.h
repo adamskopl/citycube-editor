@@ -1,6 +1,7 @@
 #ifndef GLOBALCONTAINER_H
 #define GLOBALCONTAINER_H
 
+#include <typeinfo>
 #include <QBrush>
 #include <QPen>
 #include <QPixmap>
@@ -115,10 +116,14 @@ public:
  public:
     int giveFreeID();
     void freeID(int);
+    bool reserveID(int);
+
+    //operations connected with lbxmlnagaer
+    void refreshPrimitives();
 
     //returns pointer on new added floor
     float worldSize;
-    LBFloor* addFloor(float);    
+    LBFloor* addFloor(int ID, float);    
 
     //searching functions
     LField* findField(int ID);

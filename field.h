@@ -107,7 +107,7 @@ class LField : public LObject, public Counter<LField>{
   static void setSFields(statusFieldTypes S){statusFields = S;}
   
   //delete all passages leading to destField
-  void deletePassagesTo(LField *destField);
+  void deletePassagesTo(LObject *destField);
 
  private:
   static int fieldsCnt;

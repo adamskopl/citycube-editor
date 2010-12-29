@@ -16,7 +16,6 @@ LField::~LField()
 LField::LField(int ID, LVector *C)
 {
   setID(ID);
-
   statusField = noneField;
   
   //walls have 0 heights
@@ -518,7 +517,7 @@ void LField::remove()
 	  lbpassage *helpPassage = (lbpassage*)(passageTree[cntPass]->child);
 	  while(1)
 	    {
-	      ((LField*)helpPassage -> destObject) -> deletePassagesTo(this);
+	      (helpPassage -> destObject) -> deletePassagesTo((LObject*)this);
 
 	      if( ! helpPassage -> isLast())
 		{
@@ -568,7 +567,7 @@ LField::howFarPointIs(int wallindex, LVector point)
   Carefull! Delete with ID's not pointers
  */
 void
-LField::deletePassagesTo(LField *destF)
+LField::deletePassagesTo(LObject *destF)
 {
   for(int cntPass = 0; cntPass < 4; cntPass++)
     {
