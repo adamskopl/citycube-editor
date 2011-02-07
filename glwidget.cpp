@@ -60,10 +60,11 @@ void PreviewWidget::initializeGL()
 void PreviewWidget::paintGL()
 {
 
-    float timePassed = clock -> time();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //prepare camera
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //prepare camera
+    float timePassed = clock -> time();
     gameCamera -> animate((float)timePassed/1000.0f);
     gameWorld -> prepare();
     gameWorld -> draw(gameCamera);

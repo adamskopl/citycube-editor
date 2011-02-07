@@ -19,7 +19,7 @@ class lbpassage : public LObject, public Counter<lbpassage>
   LObject *destObject;
   int destObjectID;
 
-  //temporary doors solution - how tall they are?
+  //temporary doors solution - what is their height?
   float doorsHeight;
 };
 

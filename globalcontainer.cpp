@@ -44,7 +44,7 @@ globalContainer::globalContainer()
     stairsFieldTopEdge = 0;
     isBottomFieldSet = false;
 
-    stairsTree = new LBStairs(0);
+    stairsTree = new LBStairs(0, 0, 0);
 
     //////////
     IDAmount = 1000000;

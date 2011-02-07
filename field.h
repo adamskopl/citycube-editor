@@ -73,8 +73,6 @@ class LField : public LObject, public Counter<LField>{
 
   LVector centerPoint;
   
-  int up, right, down, left; //needed to loading levels
-
   LField(int ID, LVector*);
   LField();
   ~LField();
