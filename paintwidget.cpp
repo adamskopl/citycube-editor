@@ -392,7 +392,9 @@ void DesignWidget::mousePressEvent(QMouseEvent *event)
 
 		      if(HB == SH)
 			{
-			  newStairs = new LBStairs(GC->giveFreeID());
+			  newStairs = new LBStairs(GC->giveFreeID(), 
+						   GC->giveFreeID(), 
+						   GC->giveFreeID());
 
 			  //addPassage with last argument as newStairs
 			  HB->addPassage(GC->stairsBottom, 

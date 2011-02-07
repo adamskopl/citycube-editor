@@ -8,8 +8,8 @@ enum XMLBuildingNodes
     xml_vector, xml_v3x, xml_v3y, xml_v3z, xml_walls, xml_wall, xml_windowsTree, 
     xml_window, xml_position, xml_dimensions, xml_width, xml_height, xml_doorsTree, 
     xml_doors, xml_dist1, xml_dist2, xml_destination, xml_stairsTree, xml_stairs, 
-    xml_bottomDest, xml_topDest, xml_bottom, xml_top, xml_horizontalVector,
-    xml_unknown
+    xml_bottomDoors, xml_topDoors, xml_bottomDest, xml_topDest, xml_bottom, xml_top,
+    xml_horizontalVector, xml_unknown
   };
 
 
@@ -40,6 +40,8 @@ XMLBuildingNodes compareNodeString(const char* nodeS)
   if (!strcmp(nodeS, "destination")){return xml_destination;}  
   if (!strcmp(nodeS, "stairsTree")){return xml_stairsTree;}  
   if (!strcmp(nodeS, "stairs")){return xml_stairs;}  
+  if (!strcmp(nodeS, "bottomDoors")){return xml_bottomDoors;}  
+  if (!strcmp(nodeS, "topDoors")){return xml_topDoors;}  
   if (!strcmp(nodeS, "bottomDest")){return xml_bottomDest;}  
   if (!strcmp(nodeS, "topDest")){return xml_topDest;}  
   if (!strcmp(nodeS, "bottom")){return xml_bottom;}  
@@ -80,6 +82,8 @@ type_cb(mxml_node_t *node)
     }
   else if 
     (!strcmp(type, "ID") ||
+     !strcmp(type, "topDoors") ||
+     !strcmp(type, "bottomDoors") ||
      !strcmp(type, "destination") ||
      !strcmp(type, "bottomDest") ||
      !strcmp(type, "topDest")
@@ -361,8 +365,13 @@ lbXMLmanager::XMLStairs(mxml_node_t *stairsTree, LBStairs *stairs)
 {
   mxml_node_t *stairsNode = mxmlNewElement(stairsTree, "stairs");
   
+  /*first nodes, that are needed to create LBStairs object, when doing XML loading*/
   mxml_node_t *idNode = mxmlNewElement(stairsNode, "ID");
   mxmlNewInteger(idNode, stairs->giveID());
+  mxml_node_t *bottomDoorsNode = mxmlNewElement(stairsNode, "bottomDoors");
+  mxmlNewInteger(bottomDoorsNode, stairs->bottomDoorsID);
+  mxml_node_t *topDoorsNode = mxmlNewElement(stairsNode, "topDoors");
+  mxmlNewInteger(topDoorsNode, stairs->topDoorsID);
   
   mxml_node_t *bottomDNode = mxmlNewElement(stairsNode, "bottomDest");
   mxmlNewInteger(bottomDNode, stairs->connBottomID);
@@ -380,6 +389,9 @@ lbXMLmanager::XMLStairs(mxml_node_t *stairsTree, LBStairs *stairs)
   
   mxml_node_t *horVecNode = mxmlNewElement(stairsNode, "horizontalVector");
   XMLVector(horVecNode, stairs->horizontalVector);
+
+
+
 }
 
 XMLResult
@@ -709,6 +721,7 @@ lbXMLmanager::loadStairs()
   while(compareNodeString(walker->value.opaque) == xml_stairs)  
     {  
       int stairsID;
+      int bottomDoorsID, topDoorsID;
       int bottomDest;
       int topDest;
       LVector horizontalVector;
@@ -719,7 +732,21 @@ lbXMLmanager::loadStairs()
       walkerGo();
       stairsID = walker->value.integer;            
 
-      LBStairs *loadedStairs = new LBStairs(stairsID);
+      walkerGo();
+      if(compareNodeString(walker->value.opaque) != xml_bottomDoors)
+	return ESTAIRSBOTTOMDOORS;      
+      walkerGo();
+      bottomDoorsID = walker->value.integer;
+
+      walkerGo();
+      if(compareNodeString(walker->value.opaque) != xml_topDoors)
+	return ESTAIRSTOPDOORS;      
+      walkerGo();
+      topDoorsID = walker->value.integer;
+
+      std::cout << "DOOOOORS: " << bottomDoorsID << "  " << topDoorsID<<std::endl;
+
+      LBStairs *loadedStairs = new LBStairs(stairsID, bottomDoorsID, topDoorsID);
 
       walkerGo();
       if(compareNodeString(walker->value.opaque) != xml_bottomDest)
@@ -732,6 +759,8 @@ lbXMLmanager::loadStairs()
 	return ESTAIRSTOPDEST;      
       walkerGo();
       topDest = walker->value.integer;            
+
+      std::cout << "DEEEST: " << topDest << "  " << bottomDest<<std::endl;
 
       walkerGo();
       if(compareNodeString(walker->value.opaque) != xml_corners)
@@ -754,6 +783,8 @@ lbXMLmanager::loadStairs()
       horizontalVector = loadVector();
 
       loadedStairs->setID(stairsID);
+      loadedStairs-> bottomDoorsID = bottomDoorsID;
+      loadedStairs-> topDoorsID = topDoorsID;
       loadedStairs->connBottomID = bottomDest;
       loadedStairs->connTopID = topDest;
       loadedStairs->horizontalVector = horizontalVector;

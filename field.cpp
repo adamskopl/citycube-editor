@@ -122,18 +122,39 @@ LField::LField(int ID, LVector *C)
 
 void LField::calculateVectorsAndNormals()
 {
+  printf("original corners(%d): (%f, %f, %f),(%f, %f, %f),(%f, %f, %f),(%f, %f, %f)\n",
+	 giveID(),
+	 corners[0].x, corners[0].y, corners[0].z,
+	 corners[1].x, corners[1].y, corners[1].z,
+	 corners[2].x, corners[2].y, corners[2].z,
+	 corners[3].x, corners[3].y, corners[3].z);
+
   //needed to calculate normals and maybe for other things in future
   vectors[0] = LVector(corners[1].x - corners[0].x, 0.0f, corners[1].z - corners[0].z);
   vectors[1] = LVector(corners[2].x - corners[1].x, 0.0f, corners[2].z - corners[1].z);
   vectors[2] = LVector(corners[3].x - corners[2].x, 0.0f, corners[3].z - corners[2].z);
   vectors[3] = LVector(corners[0].x - corners[3].x, 0.0f, corners[0].z - corners[3].z);
   
+  printf("edges: (%f, %f, %f),(%f, %f, %f),(%f, %f, %f),(%f, %f, %f)\n",
+	 vectors[0].x, vectors[0].y, vectors[0].z,
+	 vectors[1].x, vectors[1].y, vectors[1].z,
+	 vectors[2].x, vectors[2].y, vectors[2].z,
+	 vectors[3].x, vectors[3].y, vectors[3].z);
+
   //calculating normals - vector multiply of vector.x and vector(0.0f, 1.0f, 0.0f)
   LVector multiplied = LVector(0.0f, 1.0f, 0.0f);
   cornersN[0] = vectors[0]^multiplied; cornersN[0].normalize();
   cornersN[1] = vectors[1]^multiplied; cornersN[1].normalize();
   cornersN[2] = vectors[2]^multiplied; cornersN[2].normalize();
   cornersN[3] = vectors[3]^multiplied; cornersN[3].normalize();
+
+  printf("normals: (%f, %f, %f),(%f, %f, %f),(%f, %f, %f),(%f, %f, %f)\n",
+	 cornersN[0].x, cornersN[0].y, cornersN[0].z,
+	 cornersN[1].x, cornersN[1].y, cornersN[1].z,
+	 cornersN[2].x, cornersN[2].y, cornersN[2].z,
+	 cornersN[3].x, cornersN[3].y, cornersN[3].z);
+
+  printf("--------------------------------------------------------------\n");
 }
 
 //char LField::giveX(){return x;}
@@ -219,7 +240,7 @@ void LField::selfDraw(){
 
   
 
-  //for field's edge draw wallparts
+  //for every edges draw wall parts
   for(int cnt = 0; cnt < 4; cnt++)
     {
       int p1, p2; //indexes of vertices used for drawing wall
@@ -315,7 +336,7 @@ void LField::selfDraw(){
 	    }
 	}
 
-      //render last wall part (render whole wall if we don't have passages yet)
+      //render last wall part (render whole wall if there are no passages yet)
       pointB = corners[p2];
       
       //      glColor4f(0.85, 0.2, 0.0, 1.0);
