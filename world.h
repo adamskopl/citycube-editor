@@ -26,7 +26,6 @@
 
 #include "vector.h"
 #include <primitives/field.h>
-#include "hero.h"
 #include <vector>
 
 #include <stdlib.h>
@@ -54,7 +53,6 @@ class LWorld{
   void drawMap();
   void drawText();
 
-  LHero *hero;
   LBeing *root;
 
   LObject *floorsTree;

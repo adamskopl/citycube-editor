@@ -10,7 +10,6 @@ HEADERS += glwidget.h \
     object.h \
     node.h \
     md2.h \
-    hero.h \
     error.h \
     engine.h \
     clock.h \
@@ -40,7 +39,6 @@ SOURCES += glwidget.cpp \
     object.cpp \
     node.cpp \
     md2.cpp \
-    hero.cpp \
     error.cpp \
     engine.cpp \
     clock.cpp \

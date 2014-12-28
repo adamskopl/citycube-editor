@@ -26,27 +26,16 @@
  */
 LWorld::LWorld(LObject *globalFloors)
 {
-  
-  hero = new LHero();
   camera = new LCamera();
 
   root = new LBeing;
 
-  hero -> connectTo(root);
-  
-  hero -> Load("models/kimNew.md2", "kim2.tga");
-
-  hero -> SetState(MODEL_IDLE);
-  hero -> direction = 0.0f;
-
   floorsTree = globalFloors;
-  //  LField::setFieldsGS(FieldsGSNormal);
 }
 
 LWorld::~LWorld()
 {
   delete camera;
-  delete hero;
 }
 
 void LWorld::OnPrepare(){

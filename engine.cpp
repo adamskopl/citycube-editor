@@ -43,7 +43,6 @@ void LEngine::launch(){
   glLineWidth(0.2f);
 
   //fieldsCount = gameWorld -> loadLevel("levels/levelOne.lvl");
-  gameWorld -> camera -> spyMode(gameWorld->hero);
   glMatrixMode(GL_MODELVIEW);		  
 
   while (!loopDone){
