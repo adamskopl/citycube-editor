@@ -1,6 +1,6 @@
 #include "paintwidget.h"
-#include "field.h"
-#include "lbstairs.h"
+#include <primitives/field.h>
+#include <primitives/lbstairs.h>
 #include <cmath>
 
 

@@ -1,5 +1,5 @@
 #include "lbxmlmanager.h"
-#include "lbstairs.h"
+#include <primitives/lbstairs.h>
 #include<iostream>
 
 enum XMLBuildingNodes

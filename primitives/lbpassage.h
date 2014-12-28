@@ -1,7 +1,7 @@
 #ifndef LBPASSAGE_H
 #define LBPASSAGE_H
 
-#include "field.h"
+#include <primitives/field.h>
 #include "counter.h"
 
 class LObject;

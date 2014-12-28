@@ -3,8 +3,8 @@
 #include <QWidget>
 #include <QPainter>
 #include "vector.h"
-#include "field.h"
-#include "lbpassage.h"
+#include <primitives/field.h>
+#include <primitives/lbpassage.h>
 #include "lbhelpersbase.h"
 
 class LBWallHelper : public LBHelpersBase

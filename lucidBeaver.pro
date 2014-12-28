@@ -3,7 +3,7 @@ HEADERS += glwidget.h \
     paintwidget.h \
     mainwindow.h \
     welcomewindow.h \
-    field.h \
+    primitives/field.h \
     vector.h \
     world.h \
     texture.h \
@@ -18,15 +18,15 @@ HEADERS += glwidget.h \
     being.h \
     lucidbeaver.h \
     globalcontainer.h \
-    floor.h \
-    lbstairs.h \
-    lbpassage.h \
+    primitives/floor.h \
+    primitives/lbstairs.h \
+    primitives/lbpassage.h \
     lbwallhelper.h \
     lbmathhelper.h \
     counter.h \
     lbstairshelper.h \
     lbhelpersbase.h \
-    lbwindow.h \
+    primitives/lbwindow.h \
     designwidgetmini.h \
     lbxmlmanager.h
 SOURCES += glwidget.cpp \
@@ -34,7 +34,7 @@ SOURCES += glwidget.cpp \
     mainwindow.cpp \
     main.cpp \
     welcomewindow.cpp \
-    field.cpp \
+    primitives/field.cpp \
     world.cpp \
     texture.cpp \
     object.cpp \
@@ -48,14 +48,14 @@ SOURCES += glwidget.cpp \
     being.cpp \
     lucidbeaver.cpp \
     globalcontainer.cpp \
-    floor.cpp \
-    lbstairs.cpp \
-    lbpassage.cpp \
+    primitives/floor.cpp \
+    primitives/lbstairs.cpp \
+    primitives/lbpassage.cpp \
     lbwallhelper.cpp \
     lbmathhelper.cpp \
     lbstairshelper.cpp \
     lbhelpersbase.cpp \
-    lbwindow.cpp \
+    primitives/lbwindow.cpp \
     designwidgetmini.cpp \
     lbxmlmanager.cpp
 QT += opengl

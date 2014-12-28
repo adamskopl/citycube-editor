@@ -11,9 +11,9 @@
 #include <QPrinter>
 #include <QtGui>
 #include "object.h"
-#include "field.h"
-#include "floor.h"
-#include "lbstairs.h"
+#include <primitives/field.h>
+#include <primitives/floor.h>
+#include <primitives/lbstairs.h>
 #include "lbmathhelper.h"
 
 //global state of application (alias "what Designer is doing right now ?")

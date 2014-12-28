@@ -2,7 +2,7 @@
 #define LUCIDBEAVER_H
 
 
-#include "field.h"
+#include <primitives/field.h>
 #include <vector>
 
 using namespace std;

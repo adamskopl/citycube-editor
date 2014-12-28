@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "field.h"
+#include <primitives/field.h>
 #include "globalcontainer.h"
 #include "lbxmlmanager.h"
 #include <vector>

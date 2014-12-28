@@ -5,10 +5,10 @@
 #include "lucidbeaver.h"
 
 #include <counter.h>
-#include "field.h"
-#include "lbstairs.h"
-#include "lbpassage.h"
-#include "floor.h"
+#include <primitives/field.h>
+#include <primitives/lbstairs.h>
+#include <primitives/lbpassage.h>
+#include <primitives/floor.h>
 
 using namespace std;
 

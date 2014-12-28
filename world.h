@@ -20,12 +20,12 @@
 
 #include "camera.h"
 #include "object.h"
-#include "floor.h"
-#include "lbstairs.h"
+#include <primitives/floor.h>
+#include <primitives/lbstairs.h>
 #include "being.h"
 
 #include "vector.h"
-#include "field.h"
+#include <primitives/field.h>
 #include "hero.h"
 #include <vector>
 

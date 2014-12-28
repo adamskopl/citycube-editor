@@ -2,7 +2,7 @@
 #define LBHELPERSBASE_H
 #include <QPainter>
 #include "vector.h"
-#include "field.h"
+#include <primitives/field.h>
 #include "globalcontainer.h"
 
 class LBHelpersBase

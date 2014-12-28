@@ -23,7 +23,7 @@
 #include "md2.h"
 #include "object.h"
 #include "camera.h"
-#include "field.h"
+#include <primitives/field.h>
 #include <SDL/SDL.h>
 
 #define DEG2RAD(DEG) ((DEG)*((PI)/(180.0)))
