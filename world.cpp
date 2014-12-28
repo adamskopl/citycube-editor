@@ -27,9 +27,6 @@
 LWorld::LWorld(LObject *globalFloors)
 {
   camera = new LCamera();
-
-  root = new LBeing;
-
   floorsTree = globalFloors;
 }
 
@@ -38,17 +35,13 @@ LWorld::~LWorld()
   delete camera;
 }
 
-void LWorld::OnPrepare(){
-
-  //glClearColor(0.22f,0.22f,0.22f,0.0f);
+void LWorld::OnPrepare()
+{
   glClearColor(0.22f, 0.22f, 0.22f, 0.0f);
-  root -> othersPrepare();
 }
 
 void LWorld::animate(int deltaTime)
 {
-  root -> LObject::othersAnimate
-    ((float)deltaTime/1000); //once again - modify class clock
 }
 
 void LWorld::drawText()

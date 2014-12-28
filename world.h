@@ -22,7 +22,7 @@
 #include "object.h"
 #include <primitives/floor.h>
 #include <primitives/lbstairs.h>
-#include "being.h"
+//#include "being.h"
 
 #include "vector.h"
 #include <primitives/field.h>
@@ -52,8 +52,6 @@ class LWorld{
   void animate(int Deltatime);
   void drawMap();
   void drawText();
-
-  LBeing *root;
 
   LObject *floorsTree;
   LBStairs *stairsTree;

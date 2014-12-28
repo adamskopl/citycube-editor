@@ -14,7 +14,6 @@ HEADERS += glwidget.h \
     engine.h \
     clock.h \
     camera.h \
-    being.h \
     lucidbeaver.h \
     globalcontainer.h \
     primitives/floor.h \
@@ -43,7 +42,6 @@ SOURCES += glwidget.cpp \
     engine.cpp \
     clock.cpp \
     camera.cpp \
-    being.cpp \
     lucidbeaver.cpp \
     globalcontainer.cpp \
     primitives/floor.cpp \
