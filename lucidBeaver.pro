@@ -28,8 +28,7 @@ HEADERS += glwidget.h \
     lbhelpersbase.h \
     lbwindow.h \
     designwidgetmini.h \
-    lbxmlmanager.h \
-    lbobjmanager.h
+    lbxmlmanager.h
 SOURCES += glwidget.cpp \
     paintwidget.cpp \
     mainwindow.cpp \
@@ -58,8 +57,7 @@ SOURCES += glwidget.cpp \
     lbhelpersbase.cpp \
     lbwindow.cpp \
     designwidgetmini.cpp \
-    lbxmlmanager.cpp \
-    lbobjmanager.cpp
+    lbxmlmanager.cpp
 QT += opengl
 LIBS += `sdl-config \
     --libs \
@@ -70,5 +68,4 @@ LIBS += `sdl-config \
     -L/usr/X11R6/lib \
     -lGL \
     -lGLU \
-    -lmxml \
-    -lobj
+    -lmxml

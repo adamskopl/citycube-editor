@@ -91,7 +91,7 @@ void globalContainer::stuffAreaDraw()
 
     QRectF target(0.0, 0.0, 100.0, 100.0);
     QRectF source(0.0, 0.0, 100.0, 100.0);
-    QImage image("image.png");
+    QImage image("images/image.png");
 
     painter -> drawImage(target, image, source);
 }

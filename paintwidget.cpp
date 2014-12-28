@@ -1145,31 +1145,31 @@ void DesignWidget::drawPig()
     {
     case(defining):
         {
-            QImage image("pigNewField_glow.png");
+            QImage image("images/pigNewField_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(editingField):
         {
-            QImage image("pigField_glow.png");
+            QImage image("images/pigField_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(addingFloor):
         {
-            QImage image("pigNewFloor_glow.png");
+            QImage image("images/pigNewFloor_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(definingStairs):
         {
-            QImage image("pigStairs_glow.png");
+            QImage image("images/pigStairs_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }
     case(connectingFields):
       {
-	QImage image("pigDoors_glow.png");
+    QImage image("images/pigDoors_glow.png");
 
 	if(GC -> isPassWithDoors)
 	  {
@@ -1179,7 +1179,7 @@ void DesignWidget::drawPig()
       }
     case(breakingHole):
       {
-	QImage image("pigDoors_glow.png");
+    QImage image("images/pigDoors_glow.png");
 
 	if(GC -> isPassWithDoors)
 	  {
@@ -1189,7 +1189,7 @@ void DesignWidget::drawPig()
       }
     default:
         {
-            QImage image("pigRuler_glow.png");
+            QImage image("images/pigRuler_glow.png");
             painter -> drawImage(target, image, source);
             break;
         }

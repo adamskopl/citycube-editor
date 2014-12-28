@@ -71,7 +71,7 @@ DesignWidgetMini::drawImages()
     {
     default:
       {
-	QImage image("logo_mini.png");
+    QImage image("images/logo_mini.png");
 	painter -> drawImage(target, image, source);
 	break;
       }
