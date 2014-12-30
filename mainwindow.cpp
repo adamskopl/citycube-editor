@@ -272,8 +272,8 @@ MainWindow::createActions()
   saveXMLAction->setStatusTip(tr("Save building as XML"));
   connect(saveXMLAction, SIGNAL(triggered()), this, SLOT(slotSaveAsXML()));
 
-  aboutAction = helpMenu->addAction(tr("&About Lucidbeaver"));
-  aboutAction->setStatusTip(tr("Short information about Lucidbeaver"));
+  aboutAction = helpMenu->addAction(tr("&About CityCubeEditor"));
+  aboutAction->setStatusTip(tr("Short information about CityCubeEditor"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(slotAbout()));
 }
 
@@ -638,7 +638,7 @@ MainWindow::slotOpenFile()
 void
 MainWindow::slotAbout()
 {
-  QMessageBox::about(this, tr("About Lucidbeaver"),
-		     tr("The <b>Lucidbeaver</b> is used to define XML files describing"
+  QMessageBox::about(this, tr("About CityCubeEditor"),
+             tr("The <b>CityCubeEditor</b> is used to define XML files describing"
 			" topology of buildings used in City Cuber program."));
 }
