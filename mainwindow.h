@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <primitives/field.h>
 #include "globalcontainer.h"
-#include "lbxmlmanager.h"
+#include <xml/lbxmlmanager.h>
 #include <vector>
 #include <QCheckBox>
 #include <QLabel>

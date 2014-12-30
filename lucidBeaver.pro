@@ -1,4 +1,3 @@
-# everything
 HEADERS += glwidget.h \
     paintwidget.h \
     mainwindow.h \
@@ -26,7 +25,7 @@ HEADERS += glwidget.h \
     lbhelpersbase.h \
     primitives/lbwindow.h \
     designwidgetmini.h \
-    lbxmlmanager.h
+    xml/lbxmlmanager.h
 SOURCES += glwidget.cpp \
     paintwidget.cpp \
     mainwindow.cpp \
@@ -53,7 +52,7 @@ SOURCES += glwidget.cpp \
     lbhelpersbase.cpp \
     primitives/lbwindow.cpp \
     designwidgetmini.cpp \
-    lbxmlmanager.cpp
+    xml/lbxmlmanager.cpp
 QT += opengl
 LIBS += `sdl-config \
     --libs \
