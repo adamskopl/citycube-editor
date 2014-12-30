@@ -1,7 +1,6 @@
 #ifndef PAINTWIDGET_H
 #define PAINTWIDGET_H
 
-#include "lucidbeaver.h"
 #include "globalcontainer.h"
 #include "lbwallhelper.h"
 #include "lbmathhelper.h"

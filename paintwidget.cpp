@@ -2,6 +2,7 @@
 #include <primitives/field.h>
 #include <primitives/lbstairs.h>
 #include <cmath>
+#include <qtextedit.h>
 
 
 

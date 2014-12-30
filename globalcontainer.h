@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <cstdio>
 #include <iostream>
-#include <QPrinter>
+//#include <QPrinter>
 #include <QtGui>
 #include "object.h"
 #include <primitives/field.h>

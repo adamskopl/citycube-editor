@@ -5,7 +5,7 @@
 #include <QPen>
 #include <QPixmap>
 #include <QWidget>
-#include <QPrinter>
+//#include <QPrinter>
 #include <QtGui>
 #include "globalcontainer.h"
 

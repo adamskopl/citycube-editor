@@ -2,7 +2,6 @@
 #include <iostream>
 #include "mainwindow.h"
 #include "welcomewindow.h"
-#include "lucidbeaver.h"
 
 #include <counter.h>
 #include <primitives/field.h>
@@ -14,8 +13,6 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-
-    lucidBeaver beaver;
 
     QApplication app(argc, argv);
     MainWindow mainWin;

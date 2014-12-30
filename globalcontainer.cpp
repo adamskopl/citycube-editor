@@ -1,5 +1,9 @@
 #include "globalcontainer.h"
 #include "paintwidget.h"
+#include <qcheckbox.h>
+#include <qcombobox.h>
+#include <qscrollarea.h>
+#include <qpushbutton.h>
 
 globalContainer::globalContainer()
 {
@@ -197,7 +201,7 @@ LBFloor* globalContainer::addFloor(int floorID, float height)
 
 
     QString *floorName = new QString("floor" + QString::number(floorsAmount));
-    floorsComboBox -> addItem(QPushButton::tr(floorName->toAscii()));
+    floorsComboBox -> addItem(*floorName);
     floorsAmount++;
 
     if(actualFloor != NULL){actualFloor->setSFloor(noneFloor);}

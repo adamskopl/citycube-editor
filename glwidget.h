@@ -5,7 +5,6 @@
 #include "clock.h"
 #include "camera.h"
 #include "world.h"
-#include "lucidbeaver.h"
 #include "globalcontainer.h"
 class PreviewWidget : public QGLWidget
 {
