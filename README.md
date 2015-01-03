@@ -4,6 +4,7 @@
 <ul>
 <li><a href="#sec-1">1. Requirments</a></li>
 <li><a href="#sec-2">2. Compilation</a></li>
+<li><a href="#sec-3">3. Video</a></li>
 </ul>
 </div>
 </div>
@@ -18,3 +19,7 @@
 # Compilation<a id="sec-2" name="sec-2"></a>
 
 -   *qmake*
+
+# Video<a id="sec-3" name="sec-3"></a>
+
+[![nil](http://adam.skobo.pl/wp-content/uploads/2015/01/out-e1420272988630.png)](https://www.youtube.com/watch?v=xTtRqWRhvco)
